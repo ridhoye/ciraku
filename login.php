@@ -2,155 +2,145 @@
 <html lang="id">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Ciraku</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Login - CIRAKU</title>
+  <!-- Bootstrap -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
   <style>
-    * {
+    body, html {
+      height: 100%;
       margin: 0;
-      padding: 0;
-      box-sizing: border-box;
       font-family: 'Poppins', sans-serif;
     }
 
-    body {
-      background: #fff;
-      color: #333;
-    }
-
-    /* Navbar */
-    header {
-      background: #000;
-      padding: 15px 40px;
+    .bg {
+      background: url('https://source.unsplash.com/1600x900/?fried-snack,food') no-repeat center center/cover;
+      height: 100%;
       display: flex;
-      justify-content: space-between;
       align-items: center;
-      border-bottom: 3px solid #fbbf24;
     }
 
-    header .logo {
-      font-size: 22px;
+    .overlay {
+      width: 100%;
+      height: 100%;
+      background: rgba(0,0,0,0.4); /* biar teks lebih jelas */
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .logo-box {
+      text-align: center;
+      color: white;
+    }
+
+    .logo-box img {
+      width: 100px;
+      margin-bottom: 15px;
+    }
+
+    .logo-box h1 {
+      font-size: 40px;
       font-weight: bold;
-      color: #fff;
     }
 
-    header .logo span {
+    .logo-box h1 span {
       color: #fbbf24;
     }
 
-    nav ul {
-      list-style: none;
-      display: flex;
-      gap: 30px;
-    }
-
-    nav ul li a {
-      text-decoration: none;
-      color: #fff;
-      font-weight: 500;
-      padding: 6px 12px;
+    .login-box {
+      background: rgba(255, 255, 255, 0.15);
+      backdrop-filter: blur(10px);
       border-radius: 15px;
-      transition: 0.3s;
-    }
-
-    nav ul li a.active {
-      background: #fbbf24;
-      color: #000;
-    }
-
-    nav ul li a:hover {
-      background: #fbbf24;
-      color: #000;
-    }
-
-    .icons {
-      display: flex;
-      align-items: center;
-      gap: 15px;
+      padding: 30px;
+      width: 100%;
+      max-width: 400px;
       color: white;
-      font-size: 18px;
-      cursor: pointer;
     }
 
-    /* Hero Section */
-    .hero {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 50px 80px;
-      background: linear-gradient(to bottom, rgba(0,0,0,0.7), rgba(0,0,0,0.6)), url('https://source.unsplash.com/600x400/?snack,food') no-repeat center/cover;
-      color: white;
-      min-height: 85vh;
+    .form-control {
+      border-radius: 10px;
     }
 
-    .hero-text {
-      max-width: 50%;
-    }
-
-    .hero-text h1 {
-      font-size: 48px;
-      line-height: 1.3;
+    .btn-warning {
+      background-color: #fbbf24;
+      border: none;
+      color: #000;
       font-weight: bold;
     }
 
-    .hero-text h1 span {
-      color: #fbbf24;
-    }
-
-    .hero-text p {
-      margin: 20px 0;
-      font-size: 18px;
-      line-height: 1.6;
-    }
-
-    .hero-text .btn {
-      background: #fbbf24;
+    .btn-warning:hover {
+      background-color: #f59e0b;
       color: #000;
-      padding: 12px 25px;
+    }
+
+    .social-login {
+      display: flex;
+      justify-content: center;
+      gap: 20px;
+      margin: 15px 0;
+    }
+
+    .social-login a {
+      font-size: 22px;
+      color: white;
       text-decoration: none;
-      font-weight: bold;
-      border-radius: 8px;
       transition: 0.3s;
     }
 
-    .hero-text .btn:hover {
-      background: #f59e0b;
-    }
-
-    .hero-img img {
-      width: 400px;
-      border-radius: 12px;
+    .social-login a:hover {
+      color: #fbbf24;
     }
   </style>
 </head>
 <body>
-  <!-- Navbar -->
-  <header>
-    <div class="logo">cira<span>ku</span></div>
-    <nav>
-      <ul>
-        <li><a href="#" class="active">Home</a></li>
-        <li><a href="#">Tentang Kami</a></li>
-        <li><a href="#">Menu</a></li>
-        <li><a href="#">Kontak</a></li>
-      </ul>
-    </nav>
-    <div class="icons">
-      <span>👤</span>
-      <span>🔍</span>
-      <span>🛒</span>
-    </div>
-  </header>
+  <div class="bg">
+    <div class="overlay container">
+      <div class="row align-items-center w-100">
+        
+        <!-- Kolom kiri (Logo) -->
+        <div class="col-lg-6 d-flex justify-content-center mb-5 mb-lg-0">
+          <div class="logo-box">
+            <!-- ganti logo sesuai file lu -->
+            <img src="https://cdn-icons-png.flaticon.com/512/706/706830.png" alt="Logo CIRAKU">
+            <h1>CIRA<span>KU</span></h1>
+          </div>
+        </div>
 
-  <!-- Hero -->
-  <section class="hero">
-    <div class="hero-text">
-      <h1>Mari Rasakan<br>Rasanya CIRA<span>KU</span></h1>
-      <p>Kreasi cireng dengan rasa kekinian dan perpaduan bumbu spesial yang bikin nagih CIRAKU (cireng rasa kusuka).</p>
-      <a href="#" class="btn">Beli Sekarang</a>
+        <!-- Kolom kanan (Form Login) -->
+        <div class="col-lg-6 d-flex justify-content-center">
+          <div class="login-box shadow-lg">
+            <h4 class="text-center mb-4">Login</h4>
+            <form>
+              <div class="mb-3">
+                <input type="text" class="form-control" placeholder="email • No.HP • username">
+              </div>
+              <div class="mb-3">
+                <input type="password" class="form-control" placeholder="Password">
+              </div>
+              <button type="submit" class="btn btn-warning w-100">Log in</button>
+            </form>
+            
+            <div class="text-center mt-3">——— atau ———</div>
+            
+            <div class="social-login">
+              <a href="#"><i class="bi bi-twitter"></i></a>
+              <a href="#"><i class="bi bi-tiktok"></i></a>
+              <a href="#"><i class="bi bi-google"></i></a>
+            </div>
+            
+            <div class="text-center mt-2">
+              Baru di CIRAKU? <a href="#" class="text-warning fw-bold">Daftar</a>
+            </div>
+          </div>
+        </div>
+
+      </div>
     </div>
-    <div class="hero-img">
-      <img src="https://source.unsplash.com/400x400/?fried-snack" alt="Cireng">
-    </div>
-  </section>
+  </div>
+
+  <!-- Bootstrap JS & Icons -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet">
 </body>
 </html>
