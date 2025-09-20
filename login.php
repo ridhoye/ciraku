@@ -6,6 +6,9 @@
   <title>Login - CIRAKU</title>
   <!-- Bootstrap -->
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <!-- Bootstrap Icons -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
+
   <style>
     body, html {
       height: 100%;
@@ -14,19 +17,10 @@
     }
 
     .bg {
-      background: url('https://source.unsplash.com/1600x900/?fried-snack,food') no-repeat center center/cover;
+      background: url(assets/images/bg1.webp) no-repeat center center/cover;
       height: 100%;
       display: flex;
       align-items: center;
-    }
-
-    .overlay {
-      width: 100%;
-      height: 100%;
-      background: rgba(0,0,0,0.4); /* biar teks lebih jelas */
-      display: flex;
-      align-items: center;
-      justify-content: center;
     }
 
     .logo-box {
@@ -35,24 +29,15 @@
     }
 
     .logo-box img {
-      width: 100px;
-      margin-bottom: 15px;
-    }
-
-    .logo-box h1 {
-      font-size: 40px;
-      font-weight: bold;
-    }
-
-    .logo-box h1 span {
-      color: #fbbf24;
+      width: 500px;
+      margin-bottom: 20px;
     }
 
     .login-box {
-      background: rgba(255, 255, 255, 0.15);
+      background: rgba(91, 84, 84, 0.15);
       backdrop-filter: blur(10px);
       border-radius: 15px;
-      padding: 30px;
+      padding: 70px;
       width: 100%;
       max-width: 400px;
       color: white;
@@ -102,8 +87,7 @@
         <div class="col-lg-6 d-flex justify-content-center mb-5 mb-lg-0">
           <div class="logo-box">
             <!-- ganti logo sesuai file lu -->
-            <img src="https://cdn-icons-png.flaticon.com/512/706/706830.png" alt="Logo CIRAKU">
-            <h1>CIRA<span>KU</span></h1>
+            <img src="assets/images/maskot_remove.png" alt="Logo CIRAKU">
           </div>
         </div>
 
@@ -122,12 +106,14 @@
             </form>
             
             <div class="text-center mt-3">——— atau ———</div>
+
             
-            <div class="social-login">
-              <a href="#"><i class="bi bi-twitter"></i></a>
-              <a href="#"><i class="bi bi-tiktok"></i></a>
-              <a href="#"><i class="bi bi-google"></i></a>
-            </div>
+<div class="social-login text-center mt-2">
+  <a href="#" class="mx-2"><i class="bi bi-twitter" style="font-size: 1.5rem; color:#1DA1F2;"></i></a>
+  <a href="#" class="mx-2"><i class="bi bi-tiktok" style="font-size: 1.5rem; color:#000;"></i></a>
+  <a href="#" class="mx-2"><i class="bi bi-google" style="font-size: 1.5rem; color:#DB4437;"></i></a>
+</div>
+
             
             <div class="text-center mt-2">
               Baru di CIRAKU? <a href="#" class="text-warning fw-bold">Daftar</a>
@@ -141,6 +127,5 @@
 
   <!-- Bootstrap JS & Icons -->
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet">
 </body>
 </html>
