@@ -106,7 +106,7 @@
         <div class="col-lg-6 d-flex justify-content-center mb-5 mb-lg-0">
           <div class="logo-box">
             <!-- ganti logo sesuai file lu -->
-            <img src="assets/images/maskot_remove.png" alt="Logo CIRAKU">
+            <img src="assets/images/Maskot-Bulat.png" alt="Logo CIRAKU">
           </div>
         </div>
 
