@@ -10,73 +10,92 @@
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
 
   <style>
-    body, html {
-      height: 100%;
-      margin: 0;
-      font-family: 'Poppins', sans-serif;
-    }
+  body, html {
+    height: 100%;
+    margin: 0;
+    font-family: 'Poppins', sans-serif;
+  }
 
-    .bg {
-      background: url(assets/images/bg1.webp) no-repeat center center/cover;
-      height: 100%;
-      display: flex;
-      align-items: center;
-    }
+  .bg {
+    background: url(assets/images/bg1.webp) no-repeat center center/cover;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    position: relative; /* penting buat overlay */
+  }
 
-    .logo-box {
-      text-align: center;
-      color: white;
-    }
+  /* Overlay Gelap */
+  .bg::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5); /* atur opacity sesuai selera */
+    z-index: 1;
+  }
 
-    .logo-box img {
-      width: 500px;
-      margin-bottom: 20px;
-    }
+  .container {
+    position: relative;
+    z-index: 2; /* biar konten di atas overlay */
+  }
 
-    .login-box {
-      background: rgba(91, 84, 84, 0.15);
-      backdrop-filter: blur(10px);
-      border-radius: 15px;
-      padding: 70px;
-      width: 100%;
-      max-width: 400px;
-      color: white;
-    }
+  .logo-box {
+    text-align: center;
+    color: white;
+  }
 
-    .form-control {
-      border-radius: 10px;
-    }
+  .logo-box img {
+    width: 500px;
+    margin-bottom: 20px;
+  }
 
-    .btn-warning {
-      background-color: #fbbf24;
-      border: none;
-      color: #000;
-      font-weight: bold;
-    }
+  .login-box {
+    background: rgba(91, 84, 84, 0.15);
+    backdrop-filter: blur(10px);
+    border-radius: 15px;
+    padding: 70px;
+    width: 100%;
+    max-width: 400px;
+    color: white;
+  }
 
-    .btn-warning:hover {
-      background-color: #f59e0b;
-      color: #000;
-    }
+  .form-control {
+    border-radius: 10px;
+  }
 
-    .social-login {
-      display: flex;
-      justify-content: center;
-      gap: 20px;
-      margin: 15px 0;
-    }
+  .btn-warning {
+    background-color: #fbbf24;
+    border: none;
+    color: #000;
+    font-weight: bold;
+  }
 
-    .social-login a {
-      font-size: 22px;
-      color: white;
-      text-decoration: none;
-      transition: 0.3s;
-    }
+  .btn-warning:hover {
+    background-color: #f59e0b;
+    color: #000;
+  }
 
-    .social-login a:hover {
-      color: #fbbf24;
-    }
-  </style>
+  .social-login {
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+    margin: 15px 0;
+  }
+
+  .social-login a {
+    font-size: 22px;
+    color: white;
+    text-decoration: none;
+    transition: 0.3s;
+  }
+
+  .social-login a:hover {
+    color: #fbbf24;
+  }
+</style>
+
 </head>
 <body>
   <div class="bg">
