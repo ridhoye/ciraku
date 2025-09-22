@@ -47,7 +47,7 @@
   }
 
   .logo-box img {
-    width: 500px;
+    width: 300px;
     margin-bottom: 20px;
   }
 
