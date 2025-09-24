@@ -6,5 +6,6 @@
 </head>
 <body>
     <h1>WELCOME TO CIIRAKUU</h1>
+<img src="assets/images/bg1.webp" alt="">
 </body>
 </html>
