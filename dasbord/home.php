@@ -6,9 +6,14 @@
   <title>Ciraku</title>
   <!-- Bootstrap CSS -->
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <!-- Google Fonts Poppins -->
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+
   <style>
     body {
+      margin: 0;
       font-family: 'Poppins', sans-serif;
+      background-color: #000;
     }
     .navbar {
       border-bottom: 3px solid #fbbf24;
@@ -21,55 +26,77 @@
     .logo span {
       color: #fbbf24;
     }
+
+    /* Hero Section */
     .hero {
-  min-height: 85vh;
-  display: flex;
-  align-items: center;
-  color: white;
-  padding: 60px 20px;
+      height: 100vh;
+      display: flex;
+      align-items: center;
+      color: white;
+      padding: 20px;
+      background: url("../assets/images/dasbord-bg.jpg") no-repeat center center;
+      background-size: cover;
+      position: relative;
+    }
 
-  /* Animasi gradien background */
-  background: linear-gradient(-45deg, #ffcc00, #ff6f00, #333333, #000000);
-  background-size: 400% 400%;
-  animation: gradientMove 13s ease infinite;
-}
+    .hero::before {
+      content: "";
+      position: absolute;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(0,0,0,0.55);
+      z-index: 1;
+    }
 
-@keyframes gradientMove {
-  0% { background-position: 0% 50%; }
-  50% { background-position: 100% 50%; }
-  100% { background-position: 0% 50%; }
-}
+  .hero-content {
+    position: relative;
+    z-index: 2;
+    max-width: 700px;
+    padding-left: 1.5rem; /* geser ke kanan */
+  }
 
+    .hero h1 {
+      font-weight: 700;
+      font-size: 2rem; /* mobile */
+    }
     .hero h1 span {
       color: #fbbf24;
     }
+
+    .hero p {
+      margin-top: 1rem;
+      font-size: 1rem;
+    }
+
+    /* Desktop lebih besar */
+    @media (min-width: 992px) {
+      .hero h1 {
+        font-size: 3.5rem; /* lebih besar di desktop */
+        line-height: 1.2;
+      }
+      .hero p {
+        font-size: 1.4rem;
+        max-width: 600px;
+      }
+    }
+
     .btn-warning {
       background-color: #fbbf24;
       border: none;
       color: #000;
       font-weight: bold;
+      padding: 12px 30px;
+      border-radius: 50px;
+      font-size: 1.1rem;
+      margin-top: 1.5rem;
+      box-shadow: 0 4px 15px rgba(251,191,36,0.5);
+      transition: all 0.3s ease;
     }
+
     .btn-warning:hover {
       background-color: #f59e0b;
-      color: #000;
+      transform: scale(1.05);
+      box-shadow: 0 6px 20px rgba(251,191,36,0.7);
     }
-    .hero img {
-  border-radius: 12px;
-  max-width: 100%;
-  animation: zoomIn 1.5s ease forwards, float 4s ease-in-out infinite;
-}
-
-@keyframes zoomIn {
-  from { opacity: 0; transform: scale(0.8); }
-  to   { opacity: 1; transform: scale(1); }
-}
-
-@keyframes float {
-  0% { transform: translateY(0px); }
-  50% { transform: translateY(-15px); }
-  100% { transform: translateY(0px); }
-}
-
   </style>
 </head>
 <body>
@@ -106,19 +133,10 @@
 
   <!-- Hero Section -->
   <section class="hero">
-    <div class="container">
-      <div class="row align-items-center">
-        <!-- Teks -->
-        <div class="col-lg-6 col-md-12 mb-4 mb-lg-0">
-          <h1 class="fw-bold display-5">Mari Rasakan<br>Rasanya CIRA<span>KU</span></h1>
-          <p class="lead mt-3">Kreasi cireng dengan rasa kekinian dan perpaduan bumbu spesial yang bikin nagih CIRAKU (cireng rasa kusuka).</p>
-          <a href="../login.php" class="btn btn-warning btn-lg mt-3">Beli Sekarang</a>
-        </div>
-        <!-- Gambar -->
-        <div class="col-lg-6 col-md-12 text-center">
-          <img src="../assets/images/dasbord-bg.jpg" alt="Cireng" class="img-fluid shadow-lg">
-        </div>
-      </div>
+    <div class="hero-content">
+      <h1 class="fw-bold">Mari Rasakan<br>Rasanya CIRA<span>KU</span></h1>
+      <p>Kreasi cireng dengan rasa kekinian dan perpaduan bumbu spesial yang bikin nagih CIRAKU (cireng rasa kusuka).</p>
+      <a href="../login.php" class="btn btn-warning">Beli Sekarang</a>
     </div>
   </section>
 
@@ -126,8 +144,3 @@
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
-
-
-
-
-

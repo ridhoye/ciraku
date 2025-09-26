@@ -60,6 +60,11 @@
       transition: all 0.3s ease;
       box-shadow: 0 4px 15px rgba(251,191,36,0.5);
     }
+    
+  /* Style kuning untuk span "KU" */
+    .highlight-ku {
+      color: #fbbf24;
+    }
 
     .btn-fun:hover {
       background-color: #f59e0b;
@@ -73,7 +78,7 @@
   <section class="hero">
     <div class="hero-content">
       <img src="assets/images/Maskot-Bulat.png" alt="Logo CIRAKU">
-      <h1 class="fw-bold">Selamat Datang di CIRAKU</h1>
+      <h1 class="fw-bold">Selamat Datang di CIRA<span class="highlight-ku">KU</span></h1> 
       <p class="lead">Belanja cireng favoritmu, dari rasa klasik sampai inovasi terbaru, semua ada di sini.</p>
       
       <!-- Tombol lucu -->
