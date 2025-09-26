@@ -22,13 +22,24 @@
       color: #fbbf24;
     }
     .hero {
-      min-height: 85vh;
-      display: flex;
-      align-items: center;
-      background: linear-gradient(to bottom, rgba(0,0,0,0.7), rgba(0,0,0,0.6)), url('https://source.unsplash.com/1600x900/?snack,food') no-repeat center/cover;
-      color: white;
-      padding: 60px 20px;
-    }
+  min-height: 85vh;
+  display: flex;
+  align-items: center;
+  color: white;
+  padding: 60px 20px;
+
+  /* Animasi gradien background */
+  background: linear-gradient(-45deg, #ffcc00, #ff6f00, #333333, #000000);
+  background-size: 400% 400%;
+  animation: gradientMove 13s ease infinite;
+}
+
+@keyframes gradientMove {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
     .hero h1 span {
       color: #fbbf24;
     }
@@ -43,9 +54,22 @@
       color: #000;
     }
     .hero img {
-      border-radius: 12px;
-      max-width: 100%;
-    }
+  border-radius: 12px;
+  max-width: 100%;
+  animation: zoomIn 1.5s ease forwards, float 4s ease-in-out infinite;
+}
+
+@keyframes zoomIn {
+  from { opacity: 0; transform: scale(0.8); }
+  to   { opacity: 1; transform: scale(1); }
+}
+
+@keyframes float {
+  0% { transform: translateY(0px); }
+  50% { transform: translateY(-15px); }
+  100% { transform: translateY(0px); }
+}
+
   </style>
 </head>
 <body>
@@ -88,7 +112,7 @@
         <div class="col-lg-6 col-md-12 mb-4 mb-lg-0">
           <h1 class="fw-bold display-5">Mari Rasakan<br>Rasanya CIRA<span>KU</span></h1>
           <p class="lead mt-3">Kreasi cireng dengan rasa kekinian dan perpaduan bumbu spesial yang bikin nagih CIRAKU (cireng rasa kusuka).</p>
-          <a href="#" class="btn btn-warning btn-lg mt-3">Beli Sekarang</a>
+          <a href="../login.php" class="btn btn-warning btn-lg mt-3">Beli Sekarang</a>
         </div>
         <!-- Gambar -->
         <div class="col-lg-6 col-md-12 text-center">
