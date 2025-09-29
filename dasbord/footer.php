@@ -23,18 +23,18 @@
 
       <!-- Navigasi -->
       <div class="col-md-2 col-lg-2 col-xl-2 mx-auto mt-3">
-        <h5 class="text-uppercase mb-4 fw-bold">Menu</h5>
+        <h5 class="text-uppercase mb-4 fw-bold">Page</h5>
         <p><a href="home.php" class="text-white text-decoration-none">Home</a></p>
-        <p><a href="#tentang" class="text-white text-decoration-none">Tentang Kami</a></p>
-        <p><a href="#menu" class="text-white text-decoration-none">Menu</a></p>
-        <p><a href="#kontak" class="text-white text-decoration-none">Kontak</a></p>
+        <p><a href="tentang.php" class="text-white text-decoration-none">Tentang Kami</a></p>
+        <p><a href="menu.php" class="text-white text-decoration-none">Menu</a></p>
+        <p><a href="kontak.php" class="text-white text-decoration-none">Kontak</a></p>
       </div>
 
       <!-- Kontak -->
       <div class="col-md-3 col-lg-3 col-xl-3 mx-auto mt-3">
         <h5 class="text-uppercase mb-4 fw-bold">Kontak</h5>
-        <p>📍 Jl. Kampus CIRAKU, Bandung</p>
-        <p>📞 +62 812-3456-7890</p>
+        <p>📍 Komplek Griya Kencana 1, Jalan Bodong Gang Bodong City RT 01/RW 12,Pedurenan,Karang Tengah,KOTA TANGERANG</p>
+        <p>📞 +62 857-8474-0736</p>
         <p>📧 ciraku@gmail.com</p>
       </div>
 
@@ -55,7 +55,8 @@
       </div>
     </div>
 
-    <hr class="mb-4 mt-4">
+    <hr class="mb-4 mt-4" style="border: 2px solid #fbbf24;">
+
 
     <!-- Copyright -->
     <div class="row align-items-center">
