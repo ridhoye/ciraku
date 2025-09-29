@@ -3,41 +3,59 @@ $current_page = basename($_SERVER['PHP_SELF']);
 ?>
 <!-- Navbar + CSS -->
 <style>
-  /* Navbar Global Style */
-  .navbar, 
-  .navbar a, 
-  .navbar .nav-link, 
-  .navbar .navbar-brand {
-    font-family: 'Poppins', sans-serif !important;
-    font-size: 16px !important;
-    font-weight: 500 !important;
-    color: #fff !important;
-    text-decoration: none !important;
-  }
+ /* Navbar Global Style */
+.navbar, 
+.navbar a, 
+.navbar .nav-link, 
+.navbar .navbar-brand {
+  font-family: 'Poppins', sans-serif !important;
+  font-size: 16px !important;
+  font-weight: 500 !important;
+  color: #fff !important;
+  text-decoration: none !important;
+  position: relative;
+}
 
-  /* Logo */
-  .navbar .navbar-brand {
-    font-weight: 700 !important;
-    font-size: 22px !important;
-    color: #fff !important;
-  }
-  .navbar .navbar-brand span {
-    color: #fbbf24 !important;
-  }
+/* Logo */
+.navbar .navbar-brand {
+  font-weight: 700 !important;
+  font-size: 22px !important;
+  color: #fff !important;
+}
+.navbar .navbar-brand span {
+  color: #fbbf24 !important;
+}
 
-  /* Link aktif */
-  .navbar .nav-link.active {
-    background-color: #fbbf24 !important;
-    color: #000 !important;
-    border-radius: 8px !important;
-    font-weight: 600 !important;
-    padding: 5px 15px !important;
-  }
+/* Efek underline animasi */
+.navbar .nav-link::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  bottom: 0;
+  transform: translateX(-50%) scaleX(0);
+  transform-origin: center;
+  width: 100%;
+  height: 3px;
+  background-color: #fbbf24;
+  transition: transform 0.3s ease;
+  border-radius: 2px;
+}
 
-  /* Hover efek */
-  .navbar .nav-link:hover {
-    color: #fbbf24 !important;
-  }
+/* Hover - garis muncul */
+.navbar .nav-link:hover::after {
+  transform: translateX(-50%) scaleX(1);
+}
+
+/* Link aktif - underline selalu muncul */
+.navbar .nav-link.active::after {
+  transform: translateX(-50%) scaleX(1);
+}
+
+/* Warna aktif */
+.navbar .nav-link.active {
+  color: #fbbf24 !important;
+}
+
 </style>
 
 
