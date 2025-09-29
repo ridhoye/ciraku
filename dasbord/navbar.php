@@ -59,12 +59,24 @@ $current_page = basename($_SERVER['PHP_SELF']);
 </style>
 
 
-<nav class="navbar navbar-expand-lg navbar-dark bg-black px-4">
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+  <!-- Bootstrap Icons -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+
+</head>
+<body>
+  <nav class="navbar navbar-expand-lg navbar-dark bg-black px-4">
   <div class="container-fluid">
     <a class="navbar-brand logo" href="home.php">cira<span>ku</span></a>
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
       <span class="navbar-toggler-icon"></span>
     </button>
+
     <div class="collapse navbar-collapse" id="navbarNav">
       <ul class="navbar-nav mx-auto">
         <li class="nav-item">
@@ -80,11 +92,32 @@ $current_page = basename($_SERVER['PHP_SELF']);
           <a class="nav-link <?= $current_page == 'kontak.php' ? 'active' : '' ?>" href="kontak.php">Kontak</a>
         </li>
       </ul>
-      <div class="d-flex gap-3 text-white">
-        <span>👤</span>
-        <span>🔍</span>
-        <span>🛒</span>
-      </div>
+      
+<div class="d-flex gap-3 align-items-center">
+  <!-- User -->
+  <a href="user.php" class="text-white fs-5" title="Akun">
+    <i class="bi bi-person-circle"></i>
+  </a>
+
+  <!-- Search -->
+  <a href="search.php" class="text-white fs-5" title="Cari">
+    <i class="bi bi-search"></i>
+  </a>
+
+  <!-- Keranjang -->
+  <a href="cart.php" class="text-white fs-5 position-relative" title="Keranjang">
+    <i class="bi bi-cart3"></i>
+    <!-- Badge notif item di keranjang -->
+    <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-warning text-dark">
+      1
+    </span>
+  </a>
+</div>
+
+
     </div>
   </div>
 </nav>
+
+</body>
+</html>
