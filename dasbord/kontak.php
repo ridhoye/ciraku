@@ -103,20 +103,7 @@
     </div>
   </section>
 
-  <footer>
-    <div class="mb-2">
-      <a href="#">Twitter</a> | 
-      <a href="#">TikTok</a> | 
-      <a href="#">Instagram</a>
-    </div>
-    <div>
-      <a href="home.php">Home</a> | 
-      <a href="tentang.php">Tentang Kami</a> | 
-      <a href="menu.php">Menu</a> | 
-      <a href="kontak.php">Kontak</a>
-    </div>
-    <small>Created by shpwisnu. © 2024.</small>
-  </footer>
+  <?php include 'footer.php' ?>
 
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
   <script>

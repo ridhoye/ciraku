@@ -29,19 +29,27 @@
       color: #f9a825;
       font-weight: bold;
     }
-    .tentang-img {
-      border-radius: 16px;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.5);
-      max-width: 100%;
-      height: auto;
-    }
-    footer {
-      margin-top: 50px;
-      padding: 20px 0;
-      background: #111;
-      color: #aaa;
-      text-align: center;
-    }
+   .tentang-img {
+  border-radius: 16px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.5);
+  max-width: 80%;   /* dari full jadi 80% biar agak kecil */
+  height: auto;
+}
+
+.tentang-img {
+  transition: transform 0.3s ease;
+}
+.tentang-img:hover {
+  transform: scale(1.05);
+}
+
+
+     /* responsif img */
+    @media (min-width: 992px) {
+  .tentang-img {
+    max-width: 70%; /* di layar gede lebih kecil lagi */
+  }
+}
   </style>
 </head>
 <body>
@@ -73,11 +81,7 @@
 </section>
 
 <!-- Footer -->
-<footer>
-  <div class="container">
-    <small>© 2025 Ciraku. All rights reserved.</small>
-  </div>
-</footer>
+<?php include 'footer.php'?>
 
 <!-- Bootstrap JS -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
