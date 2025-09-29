@@ -24,11 +24,17 @@
       font-family: 'Poppins', sans-serif;
     }
 
-    
+    /* Title Section Default Putih */
     .section-title {
-      color: #f9a825;
+      color: #fff; /* semua text putih */
       font-weight: bold;
     }
+
+    /* Span di dalam section-title jadi kuning */
+    .section-title span {
+      color: #fbbf24;
+    }
+
    .tentang-img {
   border-radius: 16px;
   box-shadow: 0 4px 12px rgba(0,0,0,0.5);
@@ -59,7 +65,10 @@
 <!-- Tentang Kami Section -->
 <section class="py-5">
   <div class="container">
-    <h2 class="section-title mb-4 text-center">Tentang Kami</h2>
+    <h2 class="section-title mb-4 text-center">
+  <span class="text-warning">Tentang</span> Kami
+</h2>
+
     <div class="row align-items-center">
       <div class="col-md-6 mb-4 mb-md-0 text-center">
         <img src="../assets/images/tentang-kami.jpg" alt="Tentang Ciraku" class="tentang-img">

@@ -16,7 +16,16 @@
     }
     .navbar { border-bottom: 3px solid #fbbf24; }
     .kontak { padding:80px 20px; }
-    .kontak h2 { text-align:center; color:#fbbf24; font-weight:700; margin-bottom:10px; }
+
+    /* Heading dengan span warna */
+    .section-title {
+      text-align:center;
+      font-weight:700;
+      margin-bottom:10px;
+      color:#fff;
+    }
+    .section-title span { color:#fbbf24; }
+
     .kontak p { text-align:center; margin-bottom:40px; color:#ccc; }
     .map { width:100%; height:350px; border:0; border-radius:15px; }
     .form-box { background:#1a1a1a; padding:25px; border-radius:15px; }
@@ -49,54 +58,50 @@
     footer a { color:#fbbf24; margin:0 8px; text-decoration:none; }
     footer a:hover { text-decoration:underline; }
 
-     .info-box p {
-    margin-bottom: 4px; /* default biasanya 16px, kita kecilin */
-    font-size: 15px;    /* biar lebih compact */
-    line-height: 1.4;   /* biar teks rapet */
-  }
+    .info-box p {
+      margin-bottom: 4px;
+      font-size: 15px;
+      line-height: 1.4;
+    }
+    .info-box h5 {
+      margin-bottom: 8px;
+    }
+    .info-box .mt-2 a {
+      font-size: 18px;
+      margin-right: 10px;
+    }
 
-  .info-box h5 {
-    margin-bottom: 8px; /* judul agak deket ke bawah */
-  }
-
-  .info-box .mt-2 a {
-    font-size: 18px; 
-    margin-right: 10px; /* jarak antar ikon */
-  }
-/* icons sosmed */
-  .sosmed {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 40px;
-  height: 40px;
-  border-radius: 50%;
-  color: #fff;
-  font-size: 18px;
-  transition: 0.3s;
-  text-decoration: none;
-}
-
-.sosmed:hover {
-  transform: scale(1.1);
-  opacity: 0.9;
-}
-
-/* warna khas */
-.sosmed.wa { background-color: #25D366; } /* WhatsApp hijau */
-.sosmed.ig { 
-  background: radial-gradient(circle at 30% 107%, #fdf497 0%, #fd5949 45%, #d6249f 60%, #285AEB 90%);
-} /* IG gradasi */
-.sosmed.tiktok { 
-  background: linear-gradient(135deg, #000 50%, #ff0050 75%, #00f2ea 100%);
-} /* TikTok hitam + merah-biru */
+    /* icons sosmed */
+    .sosmed {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      color: #fff;
+      font-size: 18px;
+      transition: 0.3s;
+      text-decoration: none;
+    }
+    .sosmed:hover {
+      transform: scale(1.1);
+      opacity: 0.9;
+    }
+    .sosmed.wa { background-color: #25D366; } 
+    .sosmed.ig { 
+      background: radial-gradient(circle at 30% 107%, #fdf497 0%, #fd5949 45%, #d6249f 60%, #285AEB 90%);
+    }
+    .sosmed.tiktok { 
+      background: linear-gradient(135deg, #000 50%, #ff0050 75%, #00f2ea 100%);
+    }
   </style>
 </head>
 <body>
   <?php include 'navbar.php'; ?>
 
   <section class="kontak container">
-    <h2>Kontak Kami</h2>
+    <h2 class="section-title"><span>Kontak</span> Kami</h2>
     <p>Hubungi kami untuk pemesanan atau informasi lebih lanjut.</p>
     <div class="row g-4">
       
@@ -105,20 +110,19 @@
         <iframe src="https://www.google.com/maps/embed?pb=!1m17!1m12!1m3!1d3966.2771839272245!2d106.69842507475062!3d-6.227138893760954!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m2!1m1!2zNsKwMTMnMzcuNyJTIDEwNsKwNDInMDMuNiJF!5e0!3m2!1sen!2sid!4v1759155163104!5m2!1sen!2sid" 
           allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade" class="map"></iframe>
         
-       <div class="info-box mt-4">
-  <h5 class="text-warning">Informasi Kontak</h5>
-  <p><i class="bi bi-geo-alt"></i> Komplek Griya Kencana 1, Jalan Bodong Gang Bodong City RT 01/RW 12,Pedurenan,Karang Tengah,KOTA TANGERANG</p>
-  <p><i class="bi bi-telephone"></i> 085784740736</p>
-  <p><i class="bi bi-envelope"></i> support@ciraku.com</p>
-  <p><i class="bi bi-clock"></i> Buka: 08.00 - 21.00 WIB</p>
-  <div class="mt-3 d-flex gap-2">
-  <a href="https://wa.me/6281234567890" class="sosmed wa"><i class="bi bi-whatsapp"></i></a>
-  <a href="https://instagram.com/ciraku" class="sosmed ig"><i class="bi bi-instagram"></i></a>
-  <a href="https://tiktok.com/@ciraku" class="sosmed tiktok"><i class="bi bi-tiktok"></i></a>
-</div>
-
-</div>
+        <div class="info-box mt-4">
+          <h5 class="text-warning">Informasi Kontak</h5>
+          <p><i class="bi bi-geo-alt"></i> Komplek Griya Kencana 1, Jalan Bodong Gang Bodong City RT 01/RW 12, Pedurenan, Karang Tengah, KOTA TANGERANG</p>
+          <p><i class="bi bi-telephone"></i> 085784740736</p>
+          <p><i class="bi bi-envelope"></i> support@ciraku.com</p>
+          <p><i class="bi bi-clock"></i> Buka: 08.00 - 21.00 WIB</p>
+          <div class="mt-3 d-flex gap-2">
+            <a href="https://wa.me/085784740736" class="sosmed wa"><i class="bi bi-whatsapp"></i></a>
+            <a href="https://instagram.com/ciraku" class="sosmed ig"><i class="bi bi-instagram"></i></a>
+            <a href="https://tiktok.com/@ciraku" class="sosmed tiktok"><i class="bi bi-tiktok"></i></a>
+          </div>
         </div>
+      </div>
 
       <!-- Form -->
       <div class="col-md-6">
