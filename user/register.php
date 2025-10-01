@@ -17,7 +17,7 @@
   }
 
   .bg {
-    background: url(assets/images/bg1.webp) no-repeat center center/cover;
+    background: url(../assets/images/bg1.webp) no-repeat center center/cover;
     height: 100%;
     display: flex;
     align-items: center;
@@ -47,7 +47,7 @@
   }
 
   .logo-box img {
-    width: 500px;
+    width: 300px;
     margin-bottom: 20px;
   }
 
@@ -104,7 +104,7 @@
         <!-- Kolom kiri (Logo) -->
         <div class="col-lg-6 d-flex justify-content-center mb-5 mb-lg-0">
           <div class="logo-box">
-            <img src="assets/images/maskot_remove.png" alt="Logo CIRAKU">
+            <img src="../assets/images/Maskot-Bulat.png" alt="Logo CIRAKU">
           </div>
         </div>
 
@@ -134,10 +134,11 @@
             </div>
 
             <div class="text-center mt-2">
-              Sudah Punya akun di CIRAKU? <a href="login.php" class="text-warning fw-bold">Login</a>
+              Sudah Punya akun di CIRAKU? <a href="user/login.php" class="text-warning fw-bold">Login</a>
             </div>
           </div>
         </div>
+
       </div>
     </div>
   </div>

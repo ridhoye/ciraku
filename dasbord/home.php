@@ -102,7 +102,7 @@
       <div class="hero-content">
         <h1 class="fw-bold">Mari Rasakan<br>Rasanya CIRA<span>KU</span></h1>
         <p class="lead">Kreasi cireng dengan rasa kekinian dan perpaduan bumbu spesial yang bikin nagih CIRAKU (cireng rasa kusuka).</p>
-        <a href="../login.php" class="btn btn-warning btn-lg mt-3">Beli Sekarang</a>
+        <a href="../user/login.php" class="btn btn-warning btn-lg mt-3">Beli Sekarang</a>
       </div>
     </div>
   </section>

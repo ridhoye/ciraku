@@ -17,7 +17,7 @@
   }
 
   .bg {
-    background: url(assets/images/bg1.webp) no-repeat center center/cover;
+    background: url(../assets/images/bg1.webp) no-repeat center center/cover;
     height: 100%;
     display: flex;
     align-items: center;
@@ -47,7 +47,7 @@
   }
 
   .logo-box img {
-    width: 500px;
+    width: 300px;
     margin-bottom: 20px;
   }
 
@@ -106,7 +106,7 @@
         <div class="col-lg-6 d-flex justify-content-center mb-5 mb-lg-0">
           <div class="logo-box">
             <!-- ganti logo sesuai file lu -->
-            <img src="assets/images/maskot_remove.png" alt="Logo CIRAKU">
+            <img src="../assets/images/Maskot-Bulat.png" alt="Logo CIRAKU">
           </div>
         </div>
 
