@@ -135,7 +135,7 @@
 
             
             <div class="text-center mt-2">
-              Baru di CIRAKU? <a href="#" class="text-warning fw-bold">Daftar</a>
+              Baru di CIRAKU? <a href="register.php" class="text-warning fw-bold">Daftar</a>
             </div>
           </div>
         </div>

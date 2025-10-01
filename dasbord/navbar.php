@@ -95,7 +95,7 @@ $current_page = basename($_SERVER['PHP_SELF']);
       
 <div class="d-flex gap-3 align-items-center">
   <!-- User -->
-  <a href="user.php" class="text-white fs-5" title="Akun">
+  <a href="../user/profile.php" class="text-white fs-5" title="Akun">
     <i class="bi bi-person-circle"></i>
   </a>
 

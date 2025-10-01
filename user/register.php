@@ -134,7 +134,7 @@
             </div>
 
             <div class="text-center mt-2">
-              Sudah Punya akun di CIRAKU? <a href="user/login.php" class="text-warning fw-bold">Login</a>
+              Sudah Punya akun di CIRAKU? <a href="login.php" class="text-warning fw-bold">Login</a>
             </div>
           </div>
         </div>
