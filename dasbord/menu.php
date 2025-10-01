@@ -7,40 +7,73 @@
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
   <style>
-        body {
+    body {
       font-family: 'Poppins', sans-serif;
       margin: 0;
       background-color: #000;
+      color: #fff;
     }
 
     .navbar {
       border-bottom: 3px solid #fbbf24;
     }
-    body { font-family: 'Poppins', sans-serif; background:#000; color:#fff; }
-    .logo { font-size:22px; font-weight:bold; color:#fff; }
-    .logo span { color:#fbbf24; }
-    .menu-section { padding:80px 20px; }
-    .menu-section h2 { text-align:center; color:#fbbf24; font-weight:700; margin-bottom:50px; }
-    .card {
-      background:#111;
-      border:none;
-      border-radius:20px;
-      overflow:hidden;
-      text-align:center;
-      color:#fff;
-      transition:transform .3s;
+
+    .logo {
+      font-size: 22px;
+      font-weight: bold;
+      color: #fff;
     }
-    .card:hover { transform:scale(1.05); }
-    .card img { border-bottom:2px solid #fbbf24; }
-    .card-title { font-weight:600; margin-top:15px; }
-    .card-text { font-size:0.9rem; color:#ccc; }
+    .logo span {
+      color: #fbbf24;
+    }
+
+    /* Section menu */
+    .menu-section {
+      padding: 80px 20px;
+    }
+
+    /* Judul section */
+    .section-title {
+      color: #fff;
+      font-weight: 700;
+      text-align: center;
+      margin-bottom: 50px;
+    }
+    .section-title span {
+      color: #fbbf24; /* kata pertama kuning */
+    }
+
+    /* Card menu */
+    .card {
+      background: #111;
+      border: none;
+      border-radius: 20px;
+      overflow: hidden;
+      text-align: center;
+      color: #fff;
+      transition: transform .3s;
+    }
+    .card:hover {
+      transform: scale(1.05);
+    }
+    .card img {
+      border-bottom: 2px solid #fbbf24;
+    }
+    .card-title {
+      font-weight: 600;
+      margin-top: 15px;
+    }
+    .card-text {
+      font-size: 0.9rem;
+      color: #ccc;
+    }
   </style>
 </head>
 <body>
   <?php include 'navbar.php'; ?>
 
   <section class="menu-section container">
-    <h2>Menu Kami</h2>
+    <h2 class="section-title"><span>Menu</span> Kami</h2>
     <div class="row g-4">
       <!-- Item 1 -->
       <div class="col-md-3 col-sm-6">
