@@ -112,7 +112,7 @@
   <p><i class="bi bi-envelope"></i> support@ciraku.com</p>
   <p><i class="bi bi-clock"></i> Buka: 08.00 - 21.00 WIB</p>
   <div class="mt-3 d-flex gap-2">
-  <a href="https://wa.me/6281234567890" class="sosmed wa"><i class="bi bi-whatsapp"></i></a>
+  <a href="https://wa.me/085784740736" class="sosmed wa"><i class="bi bi-whatsapp"></i></a>
   <a href="https://instagram.com/ciraku" class="sosmed ig"><i class="bi bi-instagram"></i></a>
   <a href="https://tiktok.com/@ciraku" class="sosmed tiktok"><i class="bi bi-tiktok"></i></a>
 </div>
