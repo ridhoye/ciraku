@@ -105,78 +105,64 @@
     <p>Hubungi kami untuk pemesanan atau informasi lebih lanjut.</p>
     <div class="row g-4">
       
-      <!-- Maps + Info -->
-      <div class="col-md-6">
-        <iframe src="https://www.google.com/maps/embed?pb=!1m17!1m12!1m3!1d3966.2771839272245!2d106.69842507475062!3d-6.227138893760954!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m2!1m1!2zNsKwMTMnMzcuNyJTIDEwNsKwNDInMDMuNiJF!5e0!3m2!1sen!2sid!4v1759155163104!5m2!1sen!2sid" 
-          allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade" class="map"></iframe>
-        
-<<<<<<< HEAD
-       <div class="info-box mt-4">
-  <h5 class="text-warning">Informasi Kontak</h5>
-  <p><i class="bi bi-geo-alt"></i> Komplek Griya Kencana 1, Jalan Bodong Gang Bodong City RT 01/RW 12,Pedurenan,Karang Tengah,KOTA TANGERANG</p>
-  <p><i class="bi bi-telephone"></i> 085784740736</p>
-  <p><i class="bi bi-envelope"></i> support@ciraku.com</p>
-  <p><i class="bi bi-clock"></i> Buka: 08.00 - 21.00 WIB</p>
-  <div class="mt-3 d-flex gap-2">
-  <a href="https://wa.me/085784740736" class="sosmed wa"><i class="bi bi-whatsapp"></i></a>
-  <a href="https://instagram.com/ciraku" class="sosmed ig"><i class="bi bi-instagram"></i></a>
-  <a href="https://tiktok.com/@ciraku" class="sosmed tiktok"><i class="bi bi-tiktok"></i></a>
-</div>
+      <div class="row g-4">
+  
+  <!-- Maps + Info -->
+  <div class="col-md-6">
+    <iframe src="https://www.google.com/maps/embed?pb=!1m17!1m12!1m3!1d3966.2771839272245!2d106.69842507475062!3d-6.227138893760954!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m2!1m1!2zNsKwMTMnMzcuNyJTIDEwNsKwNDInMDMuNiJF!5e0!3m2!1sen!2sid!4v1759155163104!5m2!1sen!2sid" 
+      allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade" class="map"></iframe>
 
-</div>
-=======
-        <div class="info-box mt-4">
-          <h5 class="text-warning">Informasi Kontak</h5>
-          <p><i class="bi bi-geo-alt"></i> Komplek Griya Kencana 1, Jalan Bodong Gang Bodong City RT 01/RW 12, Pedurenan, Karang Tengah, KOTA TANGERANG</p>
-          <p><i class="bi bi-telephone"></i> 085784740736</p>
-          <p><i class="bi bi-envelope"></i> support@ciraku.com</p>
-          <p><i class="bi bi-clock"></i> Buka: 08.00 - 21.00 WIB</p>
-          <div class="mt-3 d-flex gap-2">
-            <a href="https://wa.me/085784740736" class="sosmed wa"><i class="bi bi-whatsapp"></i></a>
-            <a href="https://instagram.com/ciraku" class="sosmed ig"><i class="bi bi-instagram"></i></a>
-            <a href="https://tiktok.com/@ciraku" class="sosmed tiktok"><i class="bi bi-tiktok"></i></a>
-          </div>
->>>>>>> e059b86aca034be667c334d44646758e017a509b
-        </div>
+    <div class="info-box mt-4">
+      <h5 class="text-warning">Informasi Kontak</h5>
+      <p><i class="bi bi-geo-alt"></i> Komplek Griya Kencana 1, Jalan Bodong Gang Bodong City RT 01/RW 12, Pedurenan, Karang Tengah, KOTA TANGERANG</p>
+      <p><i class="bi bi-telephone"></i> 085784740736</p>
+      <p><i class="bi bi-envelope"></i> support@ciraku.com</p>
+      <p><i class="bi bi-clock"></i> Buka: 08.00 - 21.00 WIB</p>
+      <div class="mt-3 d-flex gap-2">
+        <a href="https://wa.me/085784740736" class="sosmed wa"><i class="bi bi-whatsapp"></i></a>
+        <a href="https://instagram.com/ciraku" class="sosmed ig"><i class="bi bi-instagram"></i></a>
+        <a href="https://tiktok.com/@ciraku" class="sosmed tiktok"><i class="bi bi-tiktok"></i></a>
       </div>
-
-      <!-- Form -->
-      <div class="col-md-6">
-        <div class="form-box">
-          <form class="needs-validation" novalidate>
-            <div class="mb-3">
-              <input type="text" class="form-control" placeholder="Nama" required>
-              <div class="invalid-feedback">Nama wajib diisi.</div>
-            </div>
-            <div class="mb-3">
-              <input type="email" class="form-control" placeholder="Email" required>
-              <div class="invalid-feedback">Masukkan email yang valid.</div>
-            </div>
-            <div class="mb-3">
-              <input type="text" class="form-control" placeholder="No HP" pattern="^[0-9]{10,15}$" required>
-              <div class="invalid-feedback">Masukkan nomor HP yang benar (10–15 digit).</div>
-            </div>
-            <div class="mb-3">
-              <select class="form-select" required>
-                <option value="" disabled selected>Pilih Subjek</option>
-                <option value="pemesanan">Pemesanan</option>
-                <option value="produk">Tanya Produk</option>
-                <option value="saran">Saran / Kritik</option>
-                <option value="kerjasama">Kerjasama</option>
-                <option value="lainnya">Lainnya</option>
-              </select>
-              <div class="invalid-feedback">Pilih salah satu subjek.</div>
-            </div>
-            <div class="mb-3">
-              <textarea class="form-control" rows="4" placeholder="Pesan" required></textarea>
-              <div class="invalid-feedback">Pesan wajib diisi.</div>
-            </div>
-            <button type="submit" class="btn btn-warning w-100">Kirim</button>
-          </form>
-        </div>
-      </div>
-
     </div>
+  </div>
+
+  <!-- Form -->
+  <div class="col-md-6">
+    <div class="form-box">
+      <form class="needs-validation" novalidate>
+        <div class="mb-3">
+          <input type="text" class="form-control" placeholder="Nama" required>
+          <div class="invalid-feedback">Nama wajib diisi.</div>
+        </div>
+        <div class="mb-3">
+          <input type="email" class="form-control" placeholder="Email" required>
+          <div class="invalid-feedback">Masukkan email yang valid.</div>
+        </div>
+        <div class="mb-3">
+          <input type="text" class="form-control" placeholder="No HP" pattern="^[0-9]{10,15}$" required>
+          <div class="invalid-feedback">Masukkan nomor HP yang benar (10–15 digit).</div>
+        </div>
+        <div class="mb-3">
+          <select class="form-select" required>
+            <option value="" disabled selected>Pilih Subjek</option>
+            <option value="pemesanan">Pemesanan</option>
+            <option value="produk">Tanya Produk</option>
+            <option value="saran">Saran / Kritik</option>
+            <option value="kerjasama">Kerjasama</option>
+            <option value="lainnya">Lainnya</option>
+          </select>
+          <div class="invalid-feedback">Pilih salah satu subjek.</div>
+        </div>
+        <div class="mb-3">
+          <textarea class="form-control" rows="4" placeholder="Pesan" required></textarea>
+          <div class="invalid-feedback">Pesan wajib diisi.</div>
+        </div>
+        <button type="submit" class="btn btn-warning w-100">Kirim</button>
+      </form>
+    </div>
+  </div>
+
+</div>
   </section>
 
   <?php include 'footer.php' ?>
