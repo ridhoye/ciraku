@@ -114,6 +114,9 @@
         <div class="col-lg-6 d-flex justify-content-center">
           <div class="login-box shadow-lg">
             <h4 class="text-center mb-4">Login</h4>
+            <!-- di login.php -->
+<form method="POST" action="login_action.php">
+
             <form>
               <div class="mb-3">
                 <input type="text" class="form-control" placeholder="email • No.HP • username">

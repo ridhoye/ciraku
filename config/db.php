@@ -1,12 +1,11 @@
 <?php
-$servername = "localhost";
-$username = "root";
-$password = ""; // kalau pakai XAMPP/Laragon biasanya kosong
-$database = "ciraku_db"; // nanti kamu buat database ini di phpMyAdmin
+$host = "localhost";
+$user = "root";
+$pass = "";
+$dbname = "ciraku_db";
 
-$conn = mysqli_connect($servername, $username, $password, $database);
-
-if (!$conn) {
-    die("Koneksi gagal: " . mysqli_connect_error());
+$conn = new mysqli($host, $user, $pass, $dbname);
+if ($conn->connect_error) {
+    die("Koneksi gagal: " . $conn->connect_error);
 }
 ?>

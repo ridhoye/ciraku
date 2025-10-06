@@ -112,6 +112,9 @@
         <div class="col-lg-6 d-flex justify-content-center">
           <div class="register-box shadow-lg">
             <h4 class="text-center mb-4">Register</h4>
+            <!-- di register.php -->
+<form method="POST" action="register_action.php">
+
             <form>
               <div class="mb-3">
                 <input type="text" class="form-control" placeholder="username">
