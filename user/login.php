@@ -115,17 +115,16 @@
           <div class="login-box shadow-lg">
             <h4 class="text-center mb-4">Login</h4>
             <!-- di login.php -->
-<form method="POST" action="login_action.php">
-
-            <form>
+            <form method="POST" action="login_action.php">
               <div class="mb-3">
-                <input type="text" class="form-control" placeholder="email • No.HP • username">
+                <input type="text" name="identifier" placeholder="Email • No.HP • Username">
               </div>
               <div class="mb-3">
-                <input type="password" class="form-control" placeholder="Password">
+                <input type="password" name="password" placeholder="Password">
               </div>
               <button type="submit" class="btn btn-warning w-100">Log in</button>
             </form>
+
             
             <div class="text-center mt-3">——— atau ———</div>
 

@@ -113,20 +113,22 @@
           <div class="register-box shadow-lg">
             <h4 class="text-center mb-4">Register</h4>
             <!-- di register.php -->
-<form method="POST" action="register_action.php">
+              <form method="POST" action="register_action.php">
+                <div class="mb-3">
+                  <input type="text" name="username" class="form-control" placeholder="Username" required>
+                </div>
+                <div class="mb-3">
+                  <input type="text" name="email" class="form-control" placeholder="Email">
+                </div>
+                <div class="mb-3">
+                  <input type="text" name="phone" class="form-control" placeholder="Nomor HP (Opsional)">
+                </div>
+                <div class="mb-3">
+                  <input type="password" name="password" class="form-control" placeholder="Password" required>
+                </div>
+                <button type="submit" class="btn btn-warning w-100">Register</button>
+              </form>
 
-            <form>
-              <div class="mb-3">
-                <input type="text" class="form-control" placeholder="username">
-              </div>
-              <div class="mb-3">
-                <input type="text" class="form-control" placeholder="email • No.HP">
-              </div>
-              <div class="mb-3">
-                <input type="password" class="form-control" placeholder="Password">
-              </div>
-              <button type="submit" class="btn btn-warning w-100">Register</button>
-            </form>
             
             <div class="text-center mt-3">——— atau ———</div>
 

@@ -1,28 +1,28 @@
 <?php
 session_start();
-include("../config/db.php");
+include '../config/db.php'; // pastikan path sesuai
 
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $input = $_POST['username']; // bisa email / username / no hp
-    $password = $_POST['password'];
+// Ambil input dari form
+$identifier = $_POST['identifier'];
+$password = $_POST['password'];
 
-    $sql = "SELECT * FROM users WHERE email = ? OR username = ? OR phone = ?";
-    $stmt = $conn->prepare($sql);
-    $stmt->bind_param("sss", $input, $input, $input);
-    $stmt->execute();
-    $result = $stmt->get_result();
+// Cek apakah user ada di database
+$query = "SELECT * FROM users WHERE username='$identifier' OR email='$identifier' OR phone='$identifier'";
+$result = mysqli_query($conn, $query);
 
-    if ($result->num_rows === 1) {
-        $user = $result->fetch_assoc();
-        if (password_verify($password, $user['password'])) {
-            $_SESSION['user'] = $user;
-            header("Location: profile.php");
-            exit();
-        } else {
-            echo "Password salah!";
-        }
+if (mysqli_num_rows($result) > 0) {
+    $user = mysqli_fetch_assoc($result);
+
+    // Cek password
+    if (password_verify($password, $user['password'])) {
+        $_SESSION['user_id'] = $user['id'];
+        $_SESSION['username'] = $user['username'];
+        header("Location: ../dasbord/home.php");
+        exit();
     } else {
-        echo "Akun tidak ditemukan!";
+        echo "Password salah!";
     }
+} else {
+    echo "Akun tidak ditemukan";
 }
 ?>
