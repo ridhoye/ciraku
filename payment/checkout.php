@@ -18,7 +18,7 @@ $cart = $_SESSION['cart'];
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
   <style>
     body {
-      background: linear-gradient(135deg, #fff5e1, #ffe5b4);
+      background: linear-gradient(135deg, #000, #000);
       font-family: 'Poppins', sans-serif;
     }
     .checkout-container {
@@ -31,7 +31,7 @@ $cart = $_SESSION['cart'];
     }
     h2 {
       font-weight: bold;
-      color: #333;
+      color: #fbbf24;
     }
     .btn-primary {
       background-color: #28a745;
