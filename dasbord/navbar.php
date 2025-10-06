@@ -56,6 +56,17 @@ $current_page = basename($_SERVER['PHP_SELF']);
   color: #fbbf24 !important;
 }
 
+/* Tambahan khusus buat ikon akun & keranjang */
+.navbar .icon-nav {
+  font-size: 26px !important; /* atur gede ikon (bisa 30px kalau mau lebih besar) */
+  color: #fff !important;
+  transition: 0.3s;
+}
+
+.navbar .icon-nav:hover {
+  color: #fbbf24 !important; /* efek hover biar keren */
+}
+
 </style>
 
 
@@ -95,17 +106,12 @@ $current_page = basename($_SERVER['PHP_SELF']);
       
 <div class="d-flex gap-3 align-items-center">
   <!-- User -->
-  <a href="../user/profile.php" class="text-white fs-5" title="Akun">
+  <a href="../user/profile.php" class="icon-nav" title="Akun">
     <i class="bi bi-person-circle"></i>
   </a>
 
-  <!-- Search -->
-  <a href="search.php" class="text-white fs-5" title="Cari">
-    <i class="bi bi-search"></i>
-  </a>
-
   <!-- Keranjang -->
-  <a href="cart.php" class="text-white fs-5 position-relative" title="Keranjang">
+  <a href="cart.php" class="icon-nav position-relative" title="Keranjang">
     <i class="bi bi-cart3"></i>
     <!-- Badge notif item di keranjang -->
     <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-warning text-dark">
@@ -113,7 +119,6 @@ $current_page = basename($_SERVER['PHP_SELF']);
     </span>
   </a>
 </div>
-
 
     </div>
   </div>

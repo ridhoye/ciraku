@@ -36,17 +36,54 @@ if (isset($_POST['checkout'])) {
   <style>
     body {
       font-family: 'Poppins', sans-serif;
-      background: linear-gradient(135deg, #fff8e1, #ffe0b2);
+      background: linear-gradient(135deg, #000, #111); /* background gelap */
+      color: #fff;
       min-height: 100vh;
     }
+    h1 span {
+      color: #fbbf24; /* warna kuning untuk kata Cireng */
+    }
+
+    /* Fade-in animasi */
+    @keyframes fadeInUp {
+      from {
+        opacity: 0;
+        transform: translateY(30px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    /* Card Style */
     .card {
       border-radius: 15px;
       overflow: hidden;
-      box-shadow: 0 5px 15px rgba(0,0,0,0.1);
-      transition: transform 0.3s ease;
+      background-color: #fff;
+      color: #000;
+      box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+      border: 3px solid transparent;
+      background-image: linear-gradient(#fff, #fff),
+                        linear-gradient(135deg, #fbbf24, #f59e0b);
+      background-origin: border-box;
+      background-clip: content-box, border-box;
+      animation: fadeInUp 0.8s ease forwards;
+      opacity: 0; /* awalnya invisible */
     }
-    .card:hover { transform: translateY(-8px); }
-    .price { font-weight: bold; color: #f59e0b; }
+    .card:hover { 
+      transform: translateY(-10px) scale(1.03);
+      box-shadow: 0 8px 20px rgba(251,191,36,0.4);
+    }
+
+    /* Stagger animasi untuk tiap card */
+    .card:nth-child(1) { animation-delay: 0.2s; }
+    .card:nth-child(2) { animation-delay: 0.4s; }
+    .card:nth-child(3) { animation-delay: 0.6s; }
+    .card:nth-child(4) { animation-delay: 0.8s; }
+
+    .price { font-weight: bold; color: #fbbf24; }
     .btn-warning { background-color: #fbbf24; border: none; font-weight: bold; }
     .btn-warning:hover { background-color: #f59e0b; }
     .btn-success { font-weight: bold; }
@@ -61,7 +98,9 @@ if (isset($_POST['checkout'])) {
 <body>
 
 <div class="container py-5">
-  <h1 class="text-center fw-bold mb-4">🍴 Pilih Cireng Favoritmu</h1>
+  <h1 class="text-center fw-bold mb-4">
+    🍴 Pilih <span>Cireng</span> Favoritmu
+  </h1>
   <form method="POST">
     <div class="row g-4">
 
