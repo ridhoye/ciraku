@@ -36,7 +36,7 @@ if (isset($_POST['checkout'])) {
   <style>
     body {
       font-family: 'Poppins', sans-serif;
-      background: linear-gradient(135deg, #000, #111); /* background gelap */
+      background: linear-gradient(135deg, #000, #000); /* background gelap */
       color: #fff;
       min-height: 100vh;
     }
