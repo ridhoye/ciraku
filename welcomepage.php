@@ -51,19 +51,21 @@
       to { opacity: 1; transform: translateY(0); }
     }
 
-    /* Kontrol musik */
-    .controls {
+    /* Logo musik */
+    .logo {
       position: fixed;
       top: 20px;
       left: 20px;
-      font-size: 2em;
-      color: #fff;
-      cursor: pointer;
-      text-shadow: 0px 0px 5px #000;
+      font-size: 2.5em;
+      color: #ff0;
+      text-shadow: 0px 0px 10px #f0f, 0px 0px 20px #0ff;
+      animation: pulse 2s infinite;
     }
 
-    .controls:hover {
-      color: #ff0;
+    @keyframes pulse {
+      0% { transform: scale(1); opacity: 0.7; }
+      50% { transform: scale(1.2); opacity: 1; }
+      100% { transform: scale(1); opacity: 0.7; }
     }
   </style>
 </head>
@@ -73,16 +75,13 @@
     <source src="bg.mp4" type="video/mp4">
   </video>
 
-  <!-- Kontrol musik -->
-  <div class="controls">
-    <i class="fa-solid fa-music" id="musicIcon"></i>
+  <!-- Logo musik -->
+  <div class="logo">
+    <i class="fa-solid fa-music"></i>
   </div>
 
   <!-- Box lirik -->
   <div class="lyrics" id="lyricBox"></div>
-
-  <!-- Audio -->
-  <audio id="song" src="lagu.mp3"></audio>
 
   <script>
     const lyrics = [
@@ -92,15 +91,13 @@
 
     let index = 0;
     const lyricBox = document.getElementById("lyricBox");
-    const song = document.getElementById("song");
-    const musicIcon = document.getElementById("musicIcon");
 
     function typeWriter(text, i, callback) {
       if (i < text.length) {
         lyricBox.innerHTML = text.substring(0, i + 1);
-        setTimeout(() => typeWriter(text, i + 1, callback), 50);
+        setTimeout(() => typeWriter(text, i + 1, callback), 100);
       } else if (callback) {
-        setTimeout(callback, 2500);
+        setTimeout(callback, 4000);
       }
     }
 
@@ -115,19 +112,6 @@
         });
       }
     }
-
-    // Music control
-    musicIcon.addEventListener("click", () => {
-      if (song.paused) {
-        song.play();
-        musicIcon.classList.remove("fa-music");
-        musicIcon.classList.add("fa-pause");
-      } else {
-        song.pause();
-        musicIcon.classList.remove("fa-pause");
-        musicIcon.classList.add("fa-music");
-      }
-    });
 
     // Start
     showLyrics();
