@@ -22,7 +22,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
             // arahkan sesuai role
             if ($user['role'] === 'admin') {
-                echo "<script>alert('Login berhasil, selamat datang Admin'); window.location='../admin/index.php';</script>";
+                echo "<script>alert('Login berhasil, selamat datang Admin'); window.location='../admin/panel_admin.php';</script>";
             } else {
                 echo "<script>alert('Login berhasil, selamat datang {$user['username']}'); window.location='../dasbord/home.php';</script>";
             }
