@@ -2,11 +2,6 @@
 session_start();
 include "../config/db.php";
 
-// Cek login admin
-if (!isset($_SESSION['admin_logged_in'])) {
-  header("Location: login.php");
-  exit;
-}
 ?>
 <!DOCTYPE html>
 <html lang="id">
