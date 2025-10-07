@@ -1,3 +1,25 @@
+<?php
+session_start();
+include "../config/db.php";
+
+// Cek login
+if (!isset($_SESSION['logged_in'])) {
+    header("Location: login.php");
+    exit;
+}
+
+// Ambil data user dari database berdasarkan session user_id
+$user_id = $_SESSION['user_id'];
+$sql = "SELECT * FROM users WHERE id = '$user_id' LIMIT 1";
+$result = mysqli_query($conn, $sql);
+$user = mysqli_fetch_assoc($result);
+
+// Kalau user gak ada (harusnya gak mungkin kalau session valid)
+if (!$user) {
+    echo "<script>alert('User tidak ditemukan'); window.location='login.php';</script>";
+    exit;
+}
+?>
 <!DOCTYPE html>
 <html lang="id">
 <head>
@@ -129,19 +151,25 @@
   <!-- Form -->
   <div class="col-md-6">
     <div class="form-box">
-      <form class="needs-validation" novalidate>
-        <div class="mb-3">
-          <input type="text" class="form-control" placeholder="Nama" required>
-          <div class="invalid-feedback">Nama wajib diisi.</div>
-        </div>
-        <div class="mb-3">
-          <input type="email" class="form-control" placeholder="Email" required>
-          <div class="invalid-feedback">Masukkan email yang valid.</div>
-        </div>
-        <div class="mb-3">
-          <input type="text" class="form-control" placeholder="No HP" pattern="^[0-9]{10,15}$" required>
-          <div class="invalid-feedback">Masukkan nomor HP yang benar (10–15 digit).</div>
-        </div>
+              <form class="needs-validation" novalidate method="POST" action="proses_kontak.php">
+          <div class="mb-3">
+            <input type="text" class="form-control" name="full_name" placeholder="Nama" 
+                  value="<?= htmlspecialchars($user['full_name'] ?? '') ?>" required>
+            <div class="invalid-feedback">Nama wajib diisi.</div>
+          </div>
+          <div class="mb-3">
+            <input type="email" class="form-control" name="email" placeholder="Email"
+                  value="<?= htmlspecialchars($user['email'] ?? '') ?>" required>
+            <div class="invalid-feedback">Masukkan email yang valid.</div>
+          </div>
+          <div class="mb-3">
+            <input type="text" class="form-control" name="phone" placeholder="No HP" pattern="^[0-9]{10,15}$"
+                  value="<?= htmlspecialchars($user['phone'] ?? '') ?>" required>
+            <div class="invalid-feedback">Masukkan nomor HP yang benar (10–15 digit).</div>
+          </div>
+          <!-- sisanya tetap sama -->
+        </form>
+
         <div class="mb-3">
           <select class="form-select" required>
             <option value="" disabled selected>Pilih Subjek</option>
