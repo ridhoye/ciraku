@@ -1,18 +1,14 @@
 <?php
 session_start();
-require_once "../config/db.php"; // sambungkan ke koneksi database
 
-// Ambil data user dari session (misalnya id disimpan saat login)
-$user_id = $_SESSION['user_id'] ?? null;
-
-if ($user_id) {
-    $result = mysqli_query($conn, "SELECT * FROM users WHERE id = '$user_id'");
-    $user = mysqli_fetch_assoc($result);
-} else {
-    // Jika belum login, redirect ke halaman login
-    header("Location: login.php");
-    exit;
-}
+// Data user (dummy dari config atau session)
+$user = [
+    "name" => "Yanto Renhan",
+    "username" => "yantorenhan20",
+    "email" => "yantorenhan20@gmail.com",
+    "phone" => "081234567890",
+    "photo" => "../assets/images/Screenshot 2025-09-25 080857.jpg",
+];
 ?>
 
 <!DOCTYPE html>
@@ -113,40 +109,33 @@ if ($user_id) {
 
 <div class="container">
   <div class="edit-card text-center">
-    <img src="<?= !empty($user['photo']) ? $user['photo'] : '../assets/images/default-profile.png' ?>" alt="Foto Profil" class="profile-img">
-    <h4 class="mb-3"><?= htmlspecialchars($user['name']) ?></h4>
+    <img src="<?= $user['photo'] ?>" alt="Foto Profil" class="profile-img">
+    <h4 class="mb-3"><?= $user['name'] ?></h4>
 
     <form action="update_profile.php" method="post" enctype="multipart/form-data" class="text-start">
-        <input type="hidden" name="id" value="<?= $user['id'] ?>">
-
         <div class="mb-3">
             <label for="photo" class="form-label">Foto Profil</label>
             <input type="file" id="photo" name="photo" class="form-control">
         </div>
-
         <div class="mb-3">
             <label for="name" class="form-label">Nama Lengkap</label>
-            <input type="text" id="name" name="name" class="form-control" value="<?= htmlspecialchars($user['name']) ?>">
+            <input type="text" id="name" name="name" class="form-control" value="<?= $user['name'] ?>">
         </div>
-
         <div class="mb-3">
             <label for="username" class="form-label">Username</label>
-            <input type="text" id="username" name="username" class="form-control" value="<?= htmlspecialchars($user['username']) ?>">
+            <input type="text" id="username" name="username" class="form-control" value="<?= $user['username'] ?>">
         </div>
-
         <div class="mb-3">
             <label for="email" class="form-label">Email</label>
-            <input type="email" id="email" name="email" class="form-control" value="<?= htmlspecialchars($user['email']) ?>">
+            <input type="email" id="email" name="email" class="form-control" value="<?= $user['email'] ?>">
         </div>
-
         <div class="mb-3">
-            <label for="phone" class="form-label">Nomor HP</label>
-            <input type="text" id="phone" name="phone" class="form-control" value="<?= htmlspecialchars($user['phone']) ?>">
-        </div>
-
-        <div class="mb-4">
             <label for="address" class="form-label">Alamat</label>
-            <textarea id="address" name="address" rows="3" class="form-control"><?= htmlspecialchars($user['address'] ?? '') ?></textarea>
+            <input type="text" id="address" name="email" class="form-control" value="<?= $user['address'] ?>">
+        </div>
+        <div class="mb-4">
+            <label for="phone" class="form-label">Nomor HP</label>
+            <input type="text" id="phone" name="phone" class="form-control" value="<?= $user['phone'] ?>">
         </div>
 
         <div class="d-flex gap-3">

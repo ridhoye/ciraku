@@ -63,13 +63,15 @@
 
   .form-control {
     border-radius: 10px;
+    padding: 12px 15px;
+    font-size: 1rem;
   }
 
   .btn-warning {
-    background-color: #fbbf24;
-    border: none;
-    color: #000;
-    font-weight: bold;
+    border-radius: 10px;
+    padding: 12px;
+    font-size: 1rem;
+    font-weight: 600;
   }
 
   .btn-warning:hover {
@@ -115,17 +117,15 @@
           <div class="login-box shadow-lg">
             <h4 class="text-center mb-4">Login</h4>
             <!-- di login.php -->
-            <form method="POST" action="login_action.php">
-              <div class="mb-3">
-                <input type="text" name="identifier" placeholder="Email • No.HP • Username">
-              </div>
-              <div class="mb-3">
-                <input type="password" name="password" placeholder="Password">
-              </div>
-              <button type="submit" class="btn btn-warning w-100">Log in</button>
-            </form>
-
-            
+              <form method="POST" action="login_action.php">
+                <div class="mb-3">
+                  <input type="text" name="identifier" class="form-control form-control-lg" placeholder="Email • No.HP • Username">
+                </div>
+                <div class="mb-3">
+                  <input type="password" name="password" class="form-control form-control-lg" placeholder="Password">
+                </div>
+                <button type="submit" class="btn btn-warning w-100 py-2">Log in</button>
+              </form>
             <div class="text-center mt-3">——— atau ———</div>
 
             

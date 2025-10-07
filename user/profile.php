@@ -1,24 +1,28 @@
 <?php
 session_start();
-include '../config/db.php'; // pastikan path benar
 
-// Cek apakah user sudah login
-if (!isset($_SESSION['user_id'])) {
-    header("Location: login.php");
-    exit();
-}
-
-// Ambil data user dari database
-$user_id = $_SESSION['user_id'];
-$query = "SELECT * FROM users WHERE id = '$user_id'";
-$result = mysqli_query($conn, $query);
-$user = mysqli_fetch_assoc($result);
-
-// Jika tidak ditemukan user (harusnya tidak terjadi)
-if (!$user) {
-    echo "User tidak ditemukan!";
-    exit();
-}
+// Data dummy (nanti bisa diganti ambil dari database)
+$user = [
+    "name" => "Yanto Renhan",
+    "username" => "@yantorenhan",
+    "email" => "yantorenhan20@gmail.com",
+    "phone" => "081234567890",
+    "address" => "Jl. Mawar No. 45, Bandung, Jawa Barat", // 🏠 Tambahan alamat
+    "joined" => "12 Januari 2025",
+    "photo" => "../assets/images/Screenshot 2025-09-25 080857.jpg",
+    "orders" => [
+        [
+            "item" => "Cireng Isi Ayam Pedas",
+            "date" => "02 Oktober 2025",
+            "status" => "Selesai"
+        ],
+        [
+            "item" => "Cireng Isi Sosis",
+            "date" => "29 September 2025",
+            "status" => "Diproses"
+        ]
+    ]
+];
 ?>
 <!DOCTYPE html>
 <html lang="id">
@@ -104,6 +108,27 @@ if (!$user) {
       font-weight: 600;
       margin-bottom: 10px;
     }
+    .order-card {
+      background-color: #1a1a1a;
+      border: 1px solid #2e2e2e;
+      border-radius: 12px;
+      padding: 15px 20px;
+      margin-bottom: 12px;
+    }
+    .order-status {
+      font-weight: 600;
+      padding: 5px 10px;
+      border-radius: 6px;
+      font-size: 0.85rem;
+    }
+    .status-done {
+      background: #00b74a;
+      color: white;
+    }
+    .status-process {
+      background: #ffae00;
+      color: black;
+    }
     footer {
       text-align: center;
       padding: 15px;
@@ -121,17 +146,20 @@ if (!$user) {
   <img src="../assets/images/Maskot-bulat.png">
   <div>
     <a href="../dasbord/home.php" class="btn btn-home me-2"><i class="bi bi-house"></i> Beranda</a>
-    <a href="logout.php" class="btn btn-logout"><i class="bi bi-box-arrow-right"></i> Logout</a>
+    <a href="login.php" class="btn btn-logout"><i class="bi bi-box-arrow-right"></i> Logout</a>
   </div>
 </nav>
-
+<!-- Notifikasi update sukses -->
+<?php if (isset($_GET['update']) && $_GET['update'] === 'success'): ?>
+  <div class="alert alert-success text-center mb-3">
+    <i class="bi bi-check-circle-fill"></i> Profil berhasil diperbarui!
+  </div>
+<?php endif; ?>
 <!-- Profile -->
 <div class="container profile-container">
-  <img src="<?= !empty($user['photo']) ? $user['photo'] : '../assets/images/default-profile.png' ?>" 
-     alt="Foto Profil" class="profile-photo">
-  <h5 class="profile-name"><?= htmlspecialchars($user['username']) ?></h5>
-  <p class="profile-username"><?= htmlspecialchars($user['email']) ?></p>
-  <p class="text-secondary"><?= htmlspecialchars($user['address'] ?? '-') ?></p>
+  <img src="<?= $user['photo'] ?>" alt="Foto Profil" class="profile-photo">
+  <h5 class="profile-name"><?= $user['name'] ?></h5>
+  <p class="profile-username"><?= $user['username'] ?> | <?= $user['email'] ?></p>
   <a href="edit_profile.php" class="btn btn-edit"><i class="bi bi-pencil-square"></i> Edit Profil</a>
 </div>
 
@@ -139,10 +167,31 @@ if (!$user) {
 <div class="container mt-4">
   <div class="card-custom">
     <h5 class="section-title"><i class="bi bi-person-badge"></i> Informasi Akun</h5>
-    <p><strong>Email:</strong> <?= htmlspecialchars($user['email']) ?></p>
-    <p><strong>Nomor HP:</strong> <?= htmlspecialchars($user['phone']) ?></p>
-    <p><strong>Alamat:</strong> <?= htmlspecialchars($user['address']) ?></p>
+    <p><strong>Email:</strong> <?= $user['email'] ?></p>
+    <p><strong>Nomor HP:</strong> <?= $user['phone'] ?></p>
+    <p><strong>Alamat:</strong> <?= $user['address'] ?></p> <!-- 🏠 Alamat muncul di sini -->
+    <p><strong>Bergabung Sejak:</strong> <?= $user['joined'] ?></p>
   </div>
+</div>
+
+<!-- Riwayat Pesanan -->
+<div class="container mt-4">
+  <h5 class="section-title"><i class="bi bi-bag-check"></i> Riwayat Pesanan</h5>
+  <?php foreach ($user['orders'] as $order): ?>
+  <div class="order-card d-flex justify-content-between align-items-center">
+    <div>
+      <h6 class="fw-bold"><?= $order['item'] ?></h6>
+      <small class="text-secondary">Tanggal: <?= $order['date'] ?></small>
+    </div>
+    <div>
+      <?php if ($order['status'] == "Selesai"): ?>
+        <span class="order-status status-done">Selesai</span>
+      <?php else: ?>
+        <span class="order-status status-process">Diproses</span>
+      <?php endif; ?>
+    </div>
+  </div>
+  <?php endforeach; ?>
 </div>
 
 <footer>
