@@ -6,18 +6,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $identifier = mysqli_real_escape_string($conn, $_POST['identifier']);
     $password   = $_POST['password'];
 
-    // cek dulu apakah dia admin manual
-    if ($identifier === "admin" && $password === "admin123") {
-        $_SESSION['user_id']   = "admin"; 
-        $_SESSION['username']  = "Administrator";
-        $_SESSION['role']      = "admin";
-        $_SESSION['logged_in'] = true;
-
-        echo "<script>alert('Login berhasil, selamat datang Admin'); window.location='../admin/index.php';</script>";
-        exit;
-    }
-
-    // kalau bukan admin, cek di database users
     $sql = "SELECT * FROM users 
             WHERE username='$identifier' OR email='$identifier' OR phone='$identifier' 
             LIMIT 1";
@@ -26,14 +14,18 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     if (mysqli_num_rows($result) === 1) {
         $user = mysqli_fetch_assoc($result);
 
-        // verifikasi password
         if (password_verify($password, $user['password'])) {
             $_SESSION['user_id']   = $user['id'];
             $_SESSION['username']  = $user['username'];
-            $_SESSION['role']      = "user";
+            $_SESSION['role']      = $user['role'];
             $_SESSION['logged_in'] = true;
 
-            echo "<script>alert('Login berhasil, selamat datang {$user['username']}'); window.location='../dasbord/home.php';</script>";
+            // arahkan sesuai role
+            if ($user['role'] === 'admin') {
+                echo "<script>alert('Login berhasil, selamat datang Admin'); window.location='../admin/index.php';</script>";
+            } else {
+                echo "<script>alert('Login berhasil, selamat datang {$user['username']}'); window.location='../dasbord/home.php';</script>";
+            }
             exit;
         } else {
             echo "<script>alert('Password salah'); window.location='login.php';</script>";
@@ -43,6 +35,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     }
 }
 ?>
+
 
 
 
