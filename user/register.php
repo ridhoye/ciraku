@@ -1,3 +1,32 @@
+<?php
+include "../config/db.php";
+
+// Cek apakah form disubmit
+if ($_SERVER["REQUEST_METHOD"] == "POST") {
+    $username = mysqli_real_escape_string($conn, $_POST['username']);
+    $email    = mysqli_real_escape_string($conn, $_POST['email']);
+    $phone    = mysqli_real_escape_string($conn, $_POST['phone']);
+    $password = password_hash($_POST['password'], PASSWORD_DEFAULT); // enkripsi password
+
+    // Cek apakah username sudah ada
+    $check = mysqli_query($conn, "SELECT * FROM users WHERE username='$username'");
+    if (mysqli_num_rows($check) > 0) {
+        echo "<script>alert('Username sudah digunakan, coba yang lain'); window.location='register.php';</script>";
+        exit;
+    }
+
+    // Insert ke DB
+    $sql = "INSERT INTO users (username, email, phone, password) 
+            VALUES ('$username', '$email', '$phone', '$password')";
+
+    if (mysqli_query($conn, $sql)) {
+        echo "<script>alert('Registrasi berhasil! Silahkan login'); window.location='login.php';</script>";
+    } else {
+        echo "Error: " . mysqli_error($conn);
+    }
+}
+?>
+
 
 <!DOCTYPE html>
 <html lang="id">
@@ -114,7 +143,7 @@
           <div class="register-box shadow-lg">
             <h4 class="text-center mb-4">Register</h4>
             <!-- di register.php -->
-              <form method="POST" action="register_action.php">
+              <form method="POST" action="">
                 <div class="mb-3">
                   <input type="text" name="username" class="form-control" placeholder="Username" required>
                 </div>

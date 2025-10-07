@@ -1,3 +1,39 @@
+<?php
+session_start();
+include "../config/db.php";
+
+if ($_SERVER["REQUEST_METHOD"] == "POST") {
+    $identifier = mysqli_real_escape_string($conn, $_POST['identifier']);
+    $password   = $_POST['password'];
+
+    // cek user bisa login pakai username / email / phone
+    $sql = "SELECT * FROM users 
+            WHERE username='$identifier' OR email='$identifier' OR phone='$identifier' 
+            LIMIT 1";
+    $result = mysqli_query($conn, $sql);
+
+    if (mysqli_num_rows($result) === 1) {
+        $user = mysqli_fetch_assoc($result);
+
+        // verifikasi password
+        if (password_verify($password, $user['password'])) {
+            // buat session login
+            $_SESSION['user_id']   = $user['id'];
+            $_SESSION['username']  = $user['username'];
+            $_SESSION['logged_in'] = true;
+
+            echo "<script>alert('Login berhasil, selamat datang {$user['username']}'); window.location='../dasbord/home.php';</script>";
+            exit;
+        } else {
+            echo "<script>alert('Password salah'); window.location='login.php';</script>";
+        }
+    } else {
+        echo "<script>alert('User tidak ditemukan'); window.location='login.php';</script>";
+    }
+}
+?>
+
+
 <!DOCTYPE html>
 <html lang="id">
 <head>
@@ -117,7 +153,7 @@
           <div class="login-box shadow-lg">
             <h4 class="text-center mb-4">Login</h4>
             <!-- di login.php -->
-              <form method="POST" action="login_action.php">
+              <form method="POST" action="">
                 <div class="mb-3">
                   <input type="text" name="identifier" class="form-control form-control-lg" placeholder="Email • No.HP • Username">
                 </div>
