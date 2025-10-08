@@ -7,16 +7,42 @@ if (!isset($_SESSION['logged_in']) || $_SESSION['role'] !== 'admin') {
   header("Location: ../user/login.php");
   exit;
 }
+
+// Ambil data jumlah user per bulan (group by YYYY-MM supaya aman dengan ONLY_FULL_GROUP_BY)
+$user_data_sql = "
+  SELECT DATE_FORMAT(created_at, '%Y-%m') AS ym, COUNT(*) AS total
+  FROM users
+  GROUP BY DATE_FORMAT(created_at, '%Y-%m')
+  ORDER BY DATE_FORMAT(created_at, '%Y-%m') ASC
+";
+$user_data = mysqli_query($conn, $user_data_sql);
+
+// Siapkan label dan total untuk Chart.js
+$labels = [];
+$totals = [];
+if ($user_data && mysqli_num_rows($user_data) > 0) {
+  while ($row = mysqli_fetch_assoc($user_data)) {
+    // $row['ym'] seperti "2025-10"
+    // Kita format ke bentuk "October 2025" (bahasa Inggris). Jika mau Indonesia, bisa mapping bulan.
+    $labels[] = date('F Y', strtotime($row['ym'] . '-01'));
+    $totals[] = (int)$row['total'];
+  }
+} else {
+  // jika tidak ada data, beri placeholder supaya Chart.js tidak error
+  $labels = ['No Data'];
+  $totals = [0];
+}
 ?>
 
 <!DOCTYPE html>
 <html lang="id">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Admin Dashboard - Ciraku</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
   <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <style>
     body {
       background-color: #0f0f0f;
@@ -54,21 +80,19 @@ if (!isset($_SESSION['logged_in']) || $_SESSION['role'] !== 'admin') {
       border: none;
       border-radius: 15px;
       transition: transform 0.2s ease-in-out;
-       color: #fff; /* Tambahkan ini untuk membuat semua teks dalam card jadi putih */
-    }
-    .card:hover {
-      transform: scale(1.03);
-    }
-    .card h4 {
-      color: #fbbf24;
-    }
-    .table {
       color: #fff;
     }
-    .table thead {
-      background: #fbbf24;
-      color: #000;
+    .card:hover { transform: scale(1.03); }
+    .card h4 { color: #fbbf24; }
+    .table { color: #fff; }
+    .table thead { background: #fbbf24; color: #000; }
+    #chart-container {
+      background: #1e1e1e;
+      border-radius: 15px;
+      padding: 20px;
+      margin-bottom: 30px;
     }
+    canvas { width: 100% !important; height: 200px !important; }
   </style>
 </head>
 <body>
@@ -77,7 +101,7 @@ if (!isset($_SESSION['logged_in']) || $_SESSION['role'] !== 'admin') {
   <div class="sidebar">
     <h4 class="text-warning mb-4">CIRAKU Admin</h4>
     <a href="panel_admin.php" class="active"><i class="bi bi-speedometer2"></i> Dashboard</a>
-    <a href="users.php"><i class="bi bi-people"></i> Data User</a>
+    <a href="data_users.php"><i class="bi bi-people"></i> Data User</a>
     <a href="kontak_pesan.php"><i class="bi bi-envelope"></i> Pesan Masuk</a>
     <a href="produk.php"><i class="bi bi-box"></i> Produk</a>
     <a href="pesanan.php"><i class="bi bi-bag"></i> Pesanan</a>
@@ -97,13 +121,14 @@ if (!isset($_SESSION['logged_in']) || $_SESSION['role'] !== 'admin') {
           <p>Total User</p>
           <h5>
             <?php
-              $result = mysqli_query($conn, "SELECT COUNT(*) AS total FROM users");
+              $result = mysqli_query($conn, "SELECT COUNT(*) AS total FROM users WHERE role='user'");
               $data = mysqli_fetch_assoc($result);
               echo $data['total'];
             ?>
           </h5>
         </div>
       </div>
+
       <div class="col-md-4">
         <div class="card p-4 text-center">
           <h4><i class="bi bi-envelope"></i></h4>
@@ -121,6 +146,7 @@ if (!isset($_SESSION['logged_in']) || $_SESSION['role'] !== 'admin') {
           </h5>
         </div>
       </div>
+
       <div class="col-md-4">
         <div class="card p-4 text-center">
           <h4><i class="bi bi-bag"></i></h4>
@@ -138,6 +164,12 @@ if (!isset($_SESSION['logged_in']) || $_SESSION['role'] !== 'admin') {
           </h5>
         </div>
       </div>
+    </div>
+
+    <!-- Grafik User per bulan -->
+    <div id="chart-container">
+      <h4 class="mb-3 text-center text-warning">Grafik Pendaftaran User per Bulan</h4>
+      <canvas id="userChart"></canvas>
     </div>
 
     <!-- Data User Terbaru -->
@@ -163,7 +195,7 @@ if (!isset($_SESSION['logged_in']) || $_SESSION['role'] !== 'admin') {
                         <td>{$no}</td>
                         <td>{$u['username']}</td>
                         <td>{$u['email']}</td>
-                        <td><span class='badge bg-".($u['role']=='admin'?'warning text-dark':'secondary')."'>{$u['role']}</span></td>
+                        <td><span class='badge bg-secondary'>{$u['role']}</span></td>
                         <td>{$u['created_at']}</td>
                       </tr>";
                 $no++;
@@ -173,7 +205,44 @@ if (!isset($_SESSION['logged_in']) || $_SESSION['role'] !== 'admin') {
         </table>
       </div>
     </div>
+
   </div>
+
+  <!-- Chart.js config -->
+  <script>
+    const ctx = document.getElementById('userChart').getContext('2d');
+    const labels = <?php echo json_encode($labels); ?>;
+    const totals = <?php echo json_encode($totals); ?>;
+
+    new Chart(ctx, {
+      type: 'line',
+      data: {
+        labels: labels,
+        datasets: [{
+          label: 'Jumlah User',
+          data: totals,
+          borderColor: '#fbbf24',
+          backgroundColor: 'rgba(251,191,36,0.2)',
+          tension: 0.3,
+          fill: true,
+          borderWidth: 2,
+          pointRadius: 4,
+          pointHoverRadius: 6
+        }]
+      },
+      options: {
+        plugins: {
+          legend: { labels: { color: '#fff' } }
+        },
+        scales: {
+          x: { ticks: { color: '#fff' }, grid: { color: '#333' } },
+          y: { ticks: { color: '#fff' }, grid: { color: '#333' }, beginAtZero: true }
+        },
+        responsive: true,
+        maintainAspectRatio: false
+      }
+    });
+  </script>
 
 </body>
 </html>

@@ -2,22 +2,31 @@
 session_start();
 include "../config/db.php";
 
-// Cek login
 if (!isset($_SESSION['logged_in'])) {
-    header("Location: login.php");
-    exit;
+  header("Location: login.php");
+  exit;
 }
 
-// Ambil data user dari database berdasarkan session user_id
+// Ambil data user
 $user_id = $_SESSION['user_id'];
-$sql = "SELECT * FROM users WHERE id = '$user_id' LIMIT 1";
-$result = mysqli_query($conn, $sql);
-$user = mysqli_fetch_assoc($result);
+$user = mysqli_fetch_assoc(mysqli_query($conn, "SELECT * FROM users WHERE id='$user_id'"));
 
-// Kalau user gak ada (harusnya gak mungkin kalau session valid)
-if (!$user) {
-    echo "<script>alert('User tidak ditemukan'); window.location='login.php';</script>";
+// Proses kirim pesan langsung di sini
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+  $nama = mysqli_real_escape_string($conn, $_POST['full_name']);
+  $email = mysqli_real_escape_string($conn, $_POST['email']);
+  $phone = mysqli_real_escape_string($conn, $_POST['phone']);
+  $subjek = mysqli_real_escape_string($conn, $_POST['subjek']);
+  $pesan = mysqli_real_escape_string($conn, $_POST['pesan']);
+
+  $query = "INSERT INTO kontak_pesan (nama, email, phone, subjek, pesan)
+            VALUES ('$nama', '$email', '$phone', '$subjek', '$pesan')";
+  if (mysqli_query($conn, $query)) {
+    echo "<script>alert('Pesan berhasil dikirim!'); window.location='kontak.php';</script>";
     exit;
+  } else {
+    echo "<script>alert('Terjadi kesalahan. Coba lagi!');</script>";
+  }
 }
 ?>
 <!DOCTYPE html>
@@ -27,7 +36,7 @@ if (!$user) {
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Kontak Kami - Ciraku</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet"> <!-- Bootstrap Icons -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
   <style>
     body {
@@ -38,16 +47,8 @@ if (!$user) {
     }
     .navbar { border-bottom: 3px solid #fbbf24; }
     .kontak { padding:80px 20px; }
-
-    /* Heading dengan span warna */
-    .section-title {
-      text-align:center;
-      font-weight:700;
-      margin-bottom:10px;
-      color:#fff;
-    }
+    .section-title { text-align:center; font-weight:700; margin-bottom:10px; color:#fff; }
     .section-title span { color:#fbbf24; }
-
     .kontak p { text-align:center; margin-bottom:40px; color:#ccc; }
     .map { width:100%; height:350px; border:0; border-radius:15px; }
     .form-box { background:#1a1a1a; padding:25px; border-radius:15px; }
@@ -64,153 +65,104 @@ if (!$user) {
       padding:10px 20px; border-radius:8px;
     }
     .btn-warning:hover { background:#f59e0b; }
-    .info-box {
-      background:#1a1a1a;
-      padding:20px;
-      border-radius:15px;
-      margin-top:20px;
-    }
+    .info-box { background:#1a1a1a; padding:20px; border-radius:15px; margin-top:20px; }
     .info-box i { color:#fbbf24; margin-right:8px; }
-    .info-box a { color:#fbbf24; margin-right:10px; font-size:1.2rem; }
-    .info-box a:hover { color:#f59e0b; }
-    footer {
-      background:#222; padding:20px; text-align:center;
-      color:#aaa; margin-top:50px;
-    }
-    footer a { color:#fbbf24; margin:0 8px; text-decoration:none; }
-    footer a:hover { text-decoration:underline; }
-
-    .info-box p {
-      margin-bottom: 4px;
-      font-size: 15px;
-      line-height: 1.4;
-    }
-    .info-box h5 {
-      margin-bottom: 8px;
-    }
-    .info-box .mt-2 a {
-      font-size: 18px;
-      margin-right: 10px;
-    }
-
-    /* icons sosmed */
-    .sosmed {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      width: 40px;
-      height: 40px;
-      border-radius: 50%;
-      color: #fff;
-      font-size: 18px;
-      transition: 0.3s;
-      text-decoration: none;
-    }
-    .sosmed:hover {
-      transform: scale(1.1);
-      opacity: 0.9;
-    }
-    .sosmed.wa { background-color: #25D366; } 
-    .sosmed.ig { 
-      background: radial-gradient(circle at 30% 107%, #fdf497 0%, #fd5949 45%, #d6249f 60%, #285AEB 90%);
-    }
-    .sosmed.tiktok { 
-      background: linear-gradient(135deg, #000 50%, #ff0050 75%, #00f2ea 100%);
-    }
+    .info-box p { margin-bottom: 4px; font-size: 15px; line-height: 1.4; }
+    .info-box a { color:#fbbf24; font-size:1.2rem; margin-right:10px; }
+    .sosmed { display:flex; align-items:center; justify-content:center; width:40px; height:40px; border-radius:50%; color:#fff; font-size:18px; transition:0.3s; text-decoration:none; }
+    .sosmed:hover { transform:scale(1.1); opacity:0.9; }
+    .sosmed.wa { background-color:#25D366; }
+    .sosmed.ig { background: radial-gradient(circle at 30% 107%, #fdf497 0%, #fd5949 45%, #d6249f 60%, #285AEB 90%); }
+    .sosmed.tiktok { background: linear-gradient(135deg, #000 50%, #ff0050 75%, #00f2ea 100%); }
   </style>
 </head>
 <body>
-  <?php include 'navbar.php'; ?>
 
-  <section class="kontak container">
-    <h2 class="section-title"><span>Kontak</span> Kami</h2>
-    <p>Hubungi kami untuk pemesanan atau informasi lebih lanjut.</p>
-    <div class="row g-4">
-      
-      <div class="row g-4">
-  
-  <!-- Maps + Info -->
-  <div class="col-md-6">
-    <iframe src="https://www.google.com/maps/embed?pb=!1m17!1m12!1m3!1d3966.2771839272245!2d106.69842507475062!3d-6.227138893760954!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m2!1m1!2zNsKwMTMnMzcuNyJTIDEwNsKwNDInMDMuNiJF!5e0!3m2!1sen!2sid!4v1759155163104!5m2!1sen!2sid" 
+<?php include 'navbar.php'; ?>
+
+<section class="kontak container">
+  <h2 class="section-title"><span>Kontak</span> Kami</h2>
+  <p>Hubungi kami untuk pemesanan atau informasi lebih lanjut.</p>
+  <div class="row g-4">
+
+    <!-- Maps dan Info -->
+    <div class="col-md-6">
+<iframe src="https://www.google.com/maps/embed?pb=!1m17!1m12!1m3!1d3966.2771839272245!2d106.69842507475062!3d-6.227138893760954!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m2!1m1!2zNsKwMTMnMzcuNyJTIDEwNsKwNDInMDMuNiJF!5e0!3m2!1sen!2sid!4v1759155163104!5m2!1sen!2sid" 
       allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade" class="map"></iframe>
 
-    <div class="info-box mt-4">
-      <h5 class="text-warning">Informasi Kontak</h5>
-      <p><i class="bi bi-geo-alt"></i> Komplek Griya Kencana 1, Jalan Bodong Gang Bodong City RT 01/RW 12, Pedurenan, Karang Tengah, KOTA TANGERANG</p>
-      <p><i class="bi bi-telephone"></i> 085784740736</p>
-      <p><i class="bi bi-envelope"></i> support@ciraku.com</p>
-      <p><i class="bi bi-clock"></i> Buka: 08.00 - 21.00 WIB</p>
-      <div class="mt-3 d-flex gap-2">
-        <a href="https://wa.me/085784740736" class="sosmed wa"><i class="bi bi-whatsapp"></i></a>
-        <a href="https://instagram.com/ciraku" class="sosmed ig"><i class="bi bi-instagram"></i></a>
-        <a href="https://tiktok.com/@ciraku" class="sosmed tiktok"><i class="bi bi-tiktok"></i></a>
+      <div class="info-box mt-4">
+        <h5 class="text-warning">Informasi Kontak</h5>
+        <p><i class="bi bi-geo-alt"></i> Komplek Griya Kencana 1, Pedurenan, Karang Tengah, Tangerang</p>
+        <p><i class="bi bi-telephone"></i> 085784740736</p>
+        <p><i class="bi bi-envelope"></i> support@ciraku.com</p>
+        <p><i class="bi bi-clock"></i> Buka: 08.00 - 21.00 WIB</p>
+        <div class="mt-3 d-flex gap-2">
+          <a href="https://wa.me/085784740736" class="sosmed wa"><i class="bi bi-whatsapp"></i></a>
+          <a href="https://instagram.com/ciraku" class="sosmed ig"><i class="bi bi-instagram"></i></a>
+          <a href="https://tiktok.com/@ciraku" class="sosmed tiktok"><i class="bi bi-tiktok"></i></a>
+        </div>
       </div>
     </div>
-  </div>
 
-  <!-- Form -->
-  <div class="col-md-6">
-    <div class="form-box">
-              <form class="needs-validation" novalidate method="POST" action="proses_kontak.php">
+    <!-- Form -->
+    <div class="col-md-6">
+      <div class="form-box">
+        <form class="needs-validation" method="POST" novalidate>
           <div class="mb-3">
-            <input type="text" class="form-control" name="full_name" placeholder="Nama" 
-                  value="<?= htmlspecialchars($user['full_name'] ?? '') ?>" required>
+            <input type="text" name="full_name" class="form-control" placeholder="Nama"
+                   value="<?= htmlspecialchars($user['full_name'] ?? '') ?>" required>
             <div class="invalid-feedback">Nama wajib diisi.</div>
           </div>
           <div class="mb-3">
-            <input type="email" class="form-control" name="email" placeholder="Email"
-                  value="<?= htmlspecialchars($user['email'] ?? '') ?>" required>
+            <input type="email" name="email" class="form-control" placeholder="Email"
+                   value="<?= htmlspecialchars($user['email'] ?? '') ?>" required>
             <div class="invalid-feedback">Masukkan email yang valid.</div>
           </div>
           <div class="mb-3">
-            <input type="text" class="form-control" name="phone" placeholder="No HP" pattern="^[0-9]{10,15}$"
-                  value="<?= htmlspecialchars($user['phone'] ?? '') ?>" required>
+            <input type="text" name="phone" class="form-control" placeholder="No HP"
+                   value="<?= htmlspecialchars($user['phone'] ?? '') ?>" pattern="^[0-9]{10,15}$" required>
             <div class="invalid-feedback">Masukkan nomor HP yang benar (10–15 digit).</div>
           </div>
-          <!-- sisanya tetap sama -->
+          <div class="mb-3">
+            <select name="subjek" class="form-select" required>
+              <option value="" disabled selected>Pilih Subjek</option>
+              <option value="pemesanan">Pemesanan</option>
+              <option value="produk">Tanya Produk</option>
+              <option value="saran">Saran / Kritik</option>
+              <option value="kerjasama">Kerjasama</option>
+              <option value="lainnya">Lainnya</option>
+            </select>
+            <div class="invalid-feedback">Pilih salah satu subjek.</div>
+          </div>
+          <div class="mb-3">
+            <textarea name="pesan" class="form-control" rows="4" placeholder="Pesan" required></textarea>
+            <div class="invalid-feedback">Pesan wajib diisi.</div>
+          </div>
+          <button type="submit" class="btn btn-warning w-100">Kirim</button>
         </form>
-
-        <div class="mb-3">
-          <select class="form-select" required>
-            <option value="" disabled selected>Pilih Subjek</option>
-            <option value="pemesanan">Pemesanan</option>
-            <option value="produk">Tanya Produk</option>
-            <option value="saran">Saran / Kritik</option>
-            <option value="kerjasama">Kerjasama</option>
-            <option value="lainnya">Lainnya</option>
-          </select>
-          <div class="invalid-feedback">Pilih salah satu subjek.</div>
-        </div>
-        <div class="mb-3">
-          <textarea class="form-control" rows="4" placeholder="Pesan" required></textarea>
-          <div class="invalid-feedback">Pesan wajib diisi.</div>
-        </div>
-        <button type="submit" class="btn btn-warning w-100">Kirim</button>
-      </form>
+      </div>
     </div>
+
   </div>
+</section>
 
-</div>
-  </section>
+<?php include 'footer.php'; ?>
 
-  <?php include 'footer.php' ?>
-
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
-  <script>
-    // Script validasi Bootstrap
-    (function () {
-      'use strict'
-      const forms = document.querySelectorAll('.needs-validation')
-      Array.from(forms).forEach(form => {
-        form.addEventListener('submit', event => {
-          if (!form.checkValidity()) {
-            event.preventDefault()
-            event.stopPropagation()
-          }
-          form.classList.add('was-validated')
-        }, false)
-      })
-    })()
-  </script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+(() => {
+  'use strict';
+  const forms = document.querySelectorAll('.needs-validation');
+  Array.from(forms).forEach(form => {
+    form.addEventListener('submit', e => {
+      if (!form.checkValidity()) {
+        e.preventDefault();
+        e.stopPropagation();
+      }
+      form.classList.add('was-validated');
+    }, false);
+  });
+})();
+</script>
 </body>
 </html>
