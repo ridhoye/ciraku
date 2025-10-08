@@ -110,8 +110,9 @@ $current_page = basename($_SERVER['PHP_SELF']);
     <i class="bi bi-person-circle"></i>
   </a>
 
+
   <!-- Keranjang -->
-  <a href="cart.php" class="icon-nav position-relative" title="Keranjang">
+  <a href="shop.php" class="icon-nav position-relative" title="Keranjang">
     <i class="bi bi-cart3"></i>
     <!-- Badge notif item di keranjang -->
     <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-warning text-dark">
