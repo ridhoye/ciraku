@@ -146,7 +146,7 @@ $users = mysqli_query($conn, "SELECT * FROM users $queryCondition ORDER BY id DE
     <a href="panel_admin.php"><i class="bi bi-speedometer2"></i> Dashboard</a>
     <a href="data_users.php" class="active"><i class="bi bi-people"></i> Data User</a>
     <a href="kontak_pesan.php"><i class="bi bi-envelope"></i> Pesan Masuk</a>
-    <a href="produk.php"><i class="bi bi-box"></i> Produk</a>
+    <a href="produks/produk.php"><i class="bi bi-box"></i> Produk</a>
     <a href="pesanan.php"><i class="bi bi-bag"></i> Pesanan</a>
     <hr class="border-secondary">
     <a href="../user/logout.php"><i class="bi bi-box-arrow-right"></i> Logout</a>
