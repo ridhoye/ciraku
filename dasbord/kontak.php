@@ -2,17 +2,25 @@
 session_start();
 include "../config/db.php";
 
-if (!isset($_SESSION['logged_in'])) {
-  header("Location: login.php");
-  exit;
+// Jika user sudah login, ambil datanya
+$user = null;
+if (isset($_SESSION['logged_in']) && isset($_SESSION['user_id'])) {
+  $user_id = $_SESSION['user_id'];
+  $user = mysqli_fetch_assoc(mysqli_query($conn, "SELECT * FROM users WHERE id='$user_id'"));
 }
 
-// Ambil data user
-$user_id = $_SESSION['user_id'];
-$user = mysqli_fetch_assoc(mysqli_query($conn, "SELECT * FROM users WHERE id='$user_id'"));
-
-// Proses kirim pesan langsung di sini
+// Proses kirim pesan
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+  // Jika belum login → arahkan ke register
+  if (!isset($_SESSION['logged_in'])) {
+    echo "<script>
+            alert('Silakan login atau daftar terlebih dahulu untuk mengirim pesan.');
+            window.location='../user/register.php';
+          </script>";
+    exit;
+  }
+
+  // Kalau sudah login, proses simpan pesan
   $nama = mysqli_real_escape_string($conn, $_POST['full_name']);
   $email = mysqli_real_escape_string($conn, $_POST['email']);
   $phone = mysqli_real_escape_string($conn, $_POST['phone']);
@@ -38,43 +46,86 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
   <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
-  <style>
-    body {
-      font-family: 'Poppins', sans-serif;
-      margin: 0;
-      background-color: #000;
-      color: #fff;
-    }
-    .navbar { border-bottom: 3px solid #fbbf24; }
-    .kontak { padding:80px 20px; }
-    .section-title { text-align:center; font-weight:700; margin-bottom:10px; color:#fff; }
-    .section-title span { color:#fbbf24; }
-    .kontak p { text-align:center; margin-bottom:40px; color:#ccc; }
-    .map { width:100%; height:350px; border:0; border-radius:15px; }
-    .form-box { background:#1a1a1a; padding:25px; border-radius:15px; }
-    .form-control, .form-select {
-      background:#222; border:1px solid #555; color:#fff; border-radius:10px;
-    }
-    .form-control:focus, .form-select:focus {
-      background:#222; color:#fff; border-color:#fbbf24; box-shadow:none;
-    }
-    .form-control::placeholder { color:#bbb; }
-    .invalid-feedback { color:#f87171; }
-    .btn-warning {
-      background:#fbbf24; border:none; font-weight:600;
-      padding:10px 20px; border-radius:8px;
-    }
-    .btn-warning:hover { background:#f59e0b; }
-    .info-box { background:#1a1a1a; padding:20px; border-radius:15px; margin-top:20px; }
-    .info-box i { color:#fbbf24; margin-right:8px; }
-    .info-box p { margin-bottom: 4px; font-size: 15px; line-height: 1.4; }
-    .info-box a { color:#fbbf24; font-size:1.2rem; margin-right:10px; }
-    .sosmed { display:flex; align-items:center; justify-content:center; width:40px; height:40px; border-radius:50%; color:#fff; font-size:18px; transition:0.3s; text-decoration:none; }
-    .sosmed:hover { transform:scale(1.1); opacity:0.9; }
-    .sosmed.wa { background-color:#25D366; }
-    .sosmed.ig { background: radial-gradient(circle at 30% 107%, #fdf497 0%, #fd5949 45%, #d6249f 60%, #285AEB 90%); }
-    .sosmed.tiktok { background: linear-gradient(135deg, #000 50%, #ff0050 75%, #00f2ea 100%); }
-  </style>
+<style>
+  body {
+    font-family: 'Poppins', sans-serif;
+    margin: 0;
+    background-color: #000;
+    color: #fff;
+  }
+  .navbar { border-bottom: 3px solid #fbbf24; }
+  .kontak { padding:80px 20px; }
+  .section-title { text-align:center; font-weight:700; margin-bottom:10px; color:#fff; }
+  .section-title span { color:#fbbf24; }
+  .kontak p { text-align:center; margin-bottom:40px; color:#ccc; }
+  .map { width:100%; height:350px; border:0; border-radius:15px; }
+
+  /* FORM STYLE */
+  .form-box {
+    background:#1a1a1a;
+    padding:25px;
+    border-radius:15px;
+  }
+  .form-control, .form-select, textarea {
+    background:#222 !important;
+    border:1px solid #555;
+    color:#fff !important;
+    border-radius:10px;
+  }
+  .form-control:focus, .form-select:focus, textarea:focus {
+    background:#222;
+    color:#fff;
+    border-color:#fbbf24;
+    box-shadow: 0 0 5px #fbbf24;
+  }
+  /* Warna placeholder biar terlihat */
+  .form-control::placeholder,
+  textarea::placeholder {
+    color:#bbb !important;
+    opacity:1;
+  }
+  select.form-select option {
+    background-color:#1a1a1a;
+    color:#fff;
+  }
+  .btn-warning {
+    background:#fbbf24;
+    border:none;
+    font-weight:600;
+    padding:10px 20px;
+    border-radius:8px;
+    color:#000;
+  }
+  .btn-warning:hover { background:#f59e0b; color:#000; }
+
+  .info-box {
+    background:#1a1a1a;
+    padding:20px;
+    border-radius:15px;
+    margin-top:20px;
+  }
+  .info-box i { color:#fbbf24; margin-right:8px; }
+  .info-box p { margin-bottom: 4px; font-size: 15px; line-height: 1.4; }
+
+  .sosmed {
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    width:40px; height:40px;
+    border-radius:50%;
+    color:#fff; font-size:18px;
+    transition:0.3s; text-decoration:none;
+  }
+  .sosmed:hover { transform:scale(1.1); opacity:0.9; }
+  .sosmed.wa { background-color:#25D366; }
+  .sosmed.ig {
+    background: radial-gradient(circle at 30% 107%, #fdf497 0%, #fd5949 45%, #d6249f 60%, #285AEB 90%);
+  }
+  .sosmed.tiktok {
+    background: linear-gradient(135deg, #000 50%, #ff0050 75%, #00f2ea 100%);
+  }
+</style>
+
 </head>
 <body>
 
@@ -87,8 +138,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     <!-- Maps dan Info -->
     <div class="col-md-6">
-<iframe src="https://www.google.com/maps/embed?pb=!1m17!1m12!1m3!1d3966.2771839272245!2d106.69842507475062!3d-6.227138893760954!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m2!1m1!2zNsKwMTMnMzcuNyJTIDEwNsKwNDInMDMuNiJF!5e0!3m2!1sen!2sid!4v1759155163104!5m2!1sen!2sid" 
-      allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade" class="map"></iframe>
+      <iframe src="https://www.google.com/maps/embed?pb=!1m17!1m12!1m3!1d3966.2771839272245!2d106.69842507475062!3d-6.227138893760954!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m2!1m1!2zNsKwMTMnMzcuNyJTIDEwNsKwNDInMDMuNiJF!5e0!3m2!1sen!2sid!4v1759155163104!5m2!1sen!2sid" 
+        allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade" class="map"></iframe>
 
       <div class="info-box mt-4">
         <h5 class="text-warning">Informasi Kontak</h5>
@@ -111,17 +162,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
           <div class="mb-3">
             <input type="text" name="full_name" class="form-control" placeholder="Nama"
                    value="<?= htmlspecialchars($user['full_name'] ?? '') ?>" required>
-            <div class="invalid-feedback">Nama wajib diisi.</div>
           </div>
           <div class="mb-3">
             <input type="email" name="email" class="form-control" placeholder="Email"
                    value="<?= htmlspecialchars($user['email'] ?? '') ?>" required>
-            <div class="invalid-feedback">Masukkan email yang valid.</div>
           </div>
           <div class="mb-3">
             <input type="text" name="phone" class="form-control" placeholder="No HP"
                    value="<?= htmlspecialchars($user['phone'] ?? '') ?>" pattern="^[0-9]{10,15}$" required>
-            <div class="invalid-feedback">Masukkan nomor HP yang benar (10–15 digit).</div>
           </div>
           <div class="mb-3">
             <select name="subjek" class="form-select" required>
@@ -132,11 +180,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
               <option value="kerjasama">Kerjasama</option>
               <option value="lainnya">Lainnya</option>
             </select>
-            <div class="invalid-feedback">Pilih salah satu subjek.</div>
           </div>
           <div class="mb-3">
             <textarea name="pesan" class="form-control" rows="4" placeholder="Pesan" required></textarea>
-            <div class="invalid-feedback">Pesan wajib diisi.</div>
           </div>
           <button type="submit" class="btn btn-warning w-100">Kirim</button>
         </form>
