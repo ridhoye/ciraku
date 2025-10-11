@@ -137,12 +137,31 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
   .social-login a:hover {
     color: #fbbf24;
   }
+
+.btn-outline-light {
+  border-radius: 10px;
+  font-weight: 500;
+  backdrop-filter: blur(5px);
+}
+
+.btn-outline-light:hover {
+  background-color: #fbbf24;
+  color: #000;
+  border-color: #fbbf24;
+  transition: 0.3s;
+}
+
 </style>
 
 </head>
 <body>
   <div class="bg">
     <div class="overlay container">
+      <!-- Tombol Kembali ke Home -->
+<a href="../dasbord/home.php" class="btn btn-outline-light position-absolute top-0 start-0 m-4 px-3 py-2">
+  <i class="bi bi-arrow-left"></i> 
+</a>
+
       <div class="row align-items-center w-100">
         
         <!-- Kolom kiri (Logo) -->
