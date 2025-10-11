@@ -1,6 +1,27 @@
 <?php
 session_start();
 
+// 🔒 Cek apakah user sudah login
+if (!isset($_SESSION['user_id'])) {
+    echo "
+    <script src='https://cdn.jsdelivr.net/npm/sweetalert2@11'></script>
+    <script>
+      document.addEventListener('DOMContentLoaded', function() {
+        Swal.fire({
+          title: 'Akses Ditolak!',
+          text: 'Kamu harus daftar atau login dulu sebelum bisa order 😅',
+          icon: 'warning',
+          confirmButtonText: 'Daftar Sekarang',
+          confirmButtonColor: '#fbbf24',
+        }).then(() => {
+          window.location.href = '../user/register.php';
+        });
+      });
+    </script>
+    ";
+    exit();
+}
+
 // Proses pesan sekarang (langsung checkout)
 if (isset($_POST['checkout'])) {
     $_SESSION['cart'] = []; // reset dulu biar ga dobel
@@ -14,7 +35,6 @@ if (isset($_POST['checkout'])) {
     exit();
 }
 
-
 // Proses tambah ke keranjang
 if (isset($_POST['add_to_cart'])) {
     $items = $_POST['items'];
@@ -26,8 +46,6 @@ if (isset($_POST['add_to_cart'])) {
     header("Location: order.php");
     exit();
 }
-
-
 ?>
 <!DOCTYPE html>
 <html lang="id">
@@ -40,27 +58,15 @@ if (isset($_POST['add_to_cart'])) {
   <style>
     body {
       font-family: 'Poppins', sans-serif;
-      background: linear-gradient(135deg, #000, #000); /* background gelap */
+      background: linear-gradient(135deg, #000, #000);
       color: #fff;
       min-height: 100vh;
     }
-    h1 span {
-      color: #fbbf24; /* warna kuning untuk kata Cireng */
-    }
-
-    /* Fade-in animasi */
+    h1 span { color: #fbbf24; }
     @keyframes fadeInUp {
-      from {
-        opacity: 0;
-        transform: translateY(30px);
-      }
-      to {
-        opacity: 1;
-        transform: translateY(0);
-      }
+      from { opacity: 0; transform: translateY(30px); }
+      to { opacity: 1; transform: translateY(0); }
     }
-
-    /* Card Style */
     .card {
       border-radius: 15px;
       overflow: hidden;
@@ -74,47 +80,34 @@ if (isset($_POST['add_to_cart'])) {
       background-origin: border-box;
       background-clip: content-box, border-box;
       animation: fadeInUp 0.8s ease forwards;
-      opacity: 0; /* awalnya invisible */
+      opacity: 0;
     }
     .card:hover { 
       transform: translateY(-10px) scale(1.03);
       box-shadow: 0 8px 20px rgba(251,191,36,0.4);
     }
-
-    /* Stagger animasi untuk tiap card */
     .card:nth-child(1) { animation-delay: 0.2s; }
     .card:nth-child(2) { animation-delay: 0.4s; }
     .card:nth-child(3) { animation-delay: 0.6s; }
     .card:nth-child(4) { animation-delay: 0.8s; }
-
     .price { font-weight: bold; color: #fbbf24; }
-
-    .btn-warning { 
-       background-color: #fbbf24;
-       border: none; 
-       font-weight: bold; }
+    .btn-warning { background-color: #fbbf24; border: none; font-weight: bold; }
     .btn-warning:hover { background-color: #f59e0b; }
     .btn-success { font-weight: bold; }
     .qty-input {
-      width: 75px;
-      text-align: center;
-      margin: auto;
-      font-weight: bold;
-      border: 2px solid #fbbf24; /* border kuning */
-      border-radius: 8px; /* biar agak halus */
+      width: 75px; text-align: center; margin: auto;
+      font-weight: bold; border: 2px solid #fbbf24;
+      border-radius: 8px;
     }
     .qty-input:focus {
-     outline: none;
-     box-shadow: 0 0 8px #fbbf24; /* efek glow kuning pas fokus */
-}
+      outline: none; box-shadow: 0 0 8px #fbbf24;
+    }
   </style>
 </head>
 <body>
 
 <div class="container py-5">
-  <h1 class="text-center fw-bold mb-4">
-    🍴 Pilih <span>Cireng</span> Favoritmu
-  </h1>
+  <h1 class="text-center fw-bold mb-4">🍴 Pilih <span>Cireng</span> Favoritmu</h1>
   <form method="POST">
     <div class="row g-4">
 
@@ -172,15 +165,12 @@ if (isset($_POST['add_to_cart'])) {
 
     </div>
 
-<!-- Tombol utama di bawah -->
-<div class="text-center mt-5">
- <button type="button" class="btn btn-warning btn-lg me-3" onclick="addToCart()">
-  🛒 Tambah ke Keranjang
-</button>
-
-  <button type="submit" name="checkout" class="btn btn-success btn-lg me-3">💳 Pesan Sekarang</button>
-  <a href="../dasbord/home.php" class="btn btn-secondary btn-lg">⬅️ Kembali</a>
-</div>
+    <!-- Tombol utama -->
+    <div class="text-center mt-5">
+      <button type="button" class="btn btn-warning btn-lg me-3" onclick="addToCart()">🛒 Tambah ke Keranjang</button>
+      <button type="submit" name="checkout" class="btn btn-success btn-lg me-3">💳 Pesan Sekarang</button>
+      <a href="../dasbord/home.php" class="btn btn-secondary btn-lg">⬅️ Kembali</a>
+    </div>
   </form>
 </div>
 
@@ -204,14 +194,12 @@ function addToCart() {
     return;
   }
 
-  // bikin hidden input add_to_cart
   let input = document.createElement("input");
   input.type = "hidden";
   input.name = "add_to_cart";
   input.value = "1";
   document.querySelector("form").appendChild(input);
 
-  // SweetAlert animasi sukses
   Swal.fire({
     title: 'Berhasil!',
     text: 'Barang berhasil ditambahkan ke keranjang!',
@@ -229,7 +217,7 @@ function addToCart() {
 // intercept tombol checkout
 document.querySelector('button[name="checkout"]').addEventListener('click', function(e) {
   if (!hasItems()) {
-    e.preventDefault(); // cegah submit
+    e.preventDefault();
     Swal.fire({
       title: 'Ups!',
       text: 'Kamu belum memilih jumlah cireng',
@@ -238,8 +226,6 @@ document.querySelector('button[name="checkout"]').addEventListener('click', func
     });
   }
 });
-
-
 </script>
 
 </body>
