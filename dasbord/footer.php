@@ -46,12 +46,6 @@
         <a href="#" class="btn btn-outline-light btn-floating m-1"><i class="bi bi-facebook"></i></a>
         <a href="#" class="btn btn-outline-light btn-floating m-1"><i class="bi bi-youtube"></i></a>
 
-        <form class="mt-3">
-          <div class="input-group">
-            <input type="email" class="form-control" placeholder="Email kamu" required>
-            <button class="btn btn-warning" type="submit">Subscribe</button>
-          </div>
-        </form>
       </div>
     </div>
 
