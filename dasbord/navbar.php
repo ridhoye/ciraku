@@ -1,6 +1,18 @@
 <?php
+session_start();
+include "../config/db.php"; // sesuaikan path-nya
+
 $current_page = basename($_SERVER['PHP_SELF']);
+
+$user = null;
+if (isset($_SESSION['logged_in']) && isset($_SESSION['user_id'])) {
+  $user_id = $_SESSION['user_id'];
+  $sql = "SELECT full_name, profile_pic FROM users WHERE id = '$user_id' LIMIT 1";
+  $result = mysqli_query($conn, $sql);
+  $user = mysqli_fetch_assoc($result);
+}
 ?>
+
 <!-- Navbar + CSS -->
 <style>
  /* Navbar Global Style */
@@ -67,6 +79,15 @@ $current_page = basename($_SERVER['PHP_SELF']);
   color: #fbbf24 !important; /* efek hover biar keren */
 }
 
+.icon-nav img {
+  transition: 0.3s;
+}
+.icon-nav img:hover {
+  transform: scale(1.1);
+  box-shadow: 0 0 10px #fbbf24;
+}
+
+
 </style>
 
 
@@ -105,10 +126,23 @@ $current_page = basename($_SERVER['PHP_SELF']);
       </ul>
       
 <div class="d-flex gap-3 align-items-center">
-  <!-- User -->
-  <a href="../user/profile.php" class="icon-nav" title="Akun">
+  <!-- user -->
+<!-- Ikon / Foto Profil -->
+<?php if ($user): ?>
+  <a href="../user/profile.php" class="icon-nav" title="<?= htmlspecialchars($user['full_name']) ?>">
+    <?php if (!empty($user['profile_pic'])): ?>
+      <img src="../uploads/<?= htmlspecialchars($user['profile_pic']) ?>" 
+           alt="Foto Profil"
+           style="width:32px; height:32px; border-radius:50%; object-fit:cover; border:2px solid #fbbf24;">
+    <?php else: ?>
+      <i class="bi bi-person-check" style="color:#fbbf24;"></i>
+    <?php endif; ?>
+  </a>
+<?php else: ?>
+  <a href="../user/login.php" class="icon-nav" title="Login">
     <i class="bi bi-person-circle"></i>
   </a>
+<?php endif; ?>
 
 
   <!-- Keranjang -->
