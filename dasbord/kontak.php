@@ -2,6 +2,8 @@
 session_start();
 include "../config/db.php";
 
+$swal = null;
+
 // Jika user sudah login, ambil datanya
 $user = null;
 if (isset($_SESSION['logged_in']) && isset($_SESSION['user_id'])) {
@@ -11,29 +13,35 @@ if (isset($_SESSION['logged_in']) && isset($_SESSION['user_id'])) {
 
 // Proses kirim pesan
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-  // Jika belum login → arahkan ke register
-  if (!isset($_SESSION['logged_in'])) {
-    echo "<script>
-            alert('Silakan login atau daftar terlebih dahulu untuk mengirim pesan.');
-            window.location='../user/register.php';
-          </script>";
-    exit;
-  }
-
-  // Kalau sudah login, proses simpan pesan
-  $nama = mysqli_real_escape_string($conn, $_POST['full_name']);
-  $email = mysqli_real_escape_string($conn, $_POST['email']);
-  $phone = mysqli_real_escape_string($conn, $_POST['phone']);
-  $subjek = mysqli_real_escape_string($conn, $_POST['subjek']);
-  $pesan = mysqli_real_escape_string($conn, $_POST['pesan']);
-
-  $query = "INSERT INTO kontak_pesan (nama, email, phone, subjek, pesan)
-            VALUES ('$nama', '$email', '$phone', '$subjek', '$pesan')";
-  if (mysqli_query($conn, $query)) {
-    echo "<script>alert('Pesan berhasil dikirim!'); window.location='kontak.php';</script>";
-    exit;
+  if (!isset($_SESSION['logged_in']) || !$user) {
+    $swal = [
+      'icon' => 'warning',
+      'title' => 'Ups!',
+      'text'  => 'Silakan login atau daftar terlebih dahulu untuk mengirim pesan.'
+    ];
   } else {
-    echo "<script>alert('Terjadi kesalahan. Coba lagi!');</script>";
+    $nama  = mysqli_real_escape_string($conn, $user['full_name']);
+    $email = mysqli_real_escape_string($conn, $user['email']);
+    $phone = mysqli_real_escape_string($conn, $user['phone']);
+    $subjek = mysqli_real_escape_string($conn, $_POST['subjek']);
+    $pesan  = mysqli_real_escape_string($conn, $_POST['pesan']);
+
+    $query = "INSERT INTO kontak_pesan (user_id, nama, email, phone, subjek, pesan)
+              VALUES ('$user_id', '$nama', '$email', '$phone', '$subjek', '$pesan')";
+
+    if (mysqli_query($conn, $query)) {
+      $swal = [
+        'icon' => 'success',
+        'title' => 'Berhasil!',
+        'text'  => 'Pesan kamu sudah dikirim. Terima kasih telah menghubungi kami!'
+      ];
+    } else {
+      $swal = [
+        'icon' => 'error',
+        'title' => 'Gagal!',
+        'text'  => 'Terjadi kesalahan saat mengirim pesan. Coba lagi ya!'
+      ];
+    }
   }
 }
 ?>
@@ -46,6 +54,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
   <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <style>
   body {
     font-family: 'Poppins', sans-serif;
@@ -60,7 +69,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   .kontak p { text-align:center; margin-bottom:40px; color:#ccc; }
   .map { width:100%; height:350px; border:0; border-radius:15px; }
 
-  /* FORM STYLE */
   .form-box {
     background:#1a1a1a;
     padding:25px;
@@ -73,21 +81,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     border-radius:10px;
   }
   .form-control:focus, .form-select:focus, textarea:focus {
-    background:#222;
-    color:#fff;
     border-color:#fbbf24;
     box-shadow: 0 0 5px #fbbf24;
   }
-  /* Warna placeholder biar terlihat */
-  .form-control::placeholder,
-  textarea::placeholder {
-    color:#bbb !important;
-    opacity:1;
-  }
-  select.form-select option {
-    background-color:#1a1a1a;
-    color:#fff;
-  }
+  .form-control::placeholder, textarea::placeholder { color:#bbb !important; opacity:1; }
+  select.form-select option { background-color:#1a1a1a; color:#fff; }
+
   .btn-warning {
     background:#fbbf24;
     border:none;
@@ -108,13 +107,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   .info-box p { margin-bottom: 4px; font-size: 15px; line-height: 1.4; }
 
   .sosmed {
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    width:40px; height:40px;
-    border-radius:50%;
-    color:#fff; font-size:18px;
-    transition:0.3s; text-decoration:none;
+    display:flex; align-items:center; justify-content:center;
+    width:40px; height:40px; border-radius:50%;
+    color:#fff; font-size:18px; transition:0.3s; text-decoration:none;
   }
   .sosmed:hover { transform:scale(1.1); opacity:0.9; }
   .sosmed.wa { background-color:#25D366; }
@@ -125,7 +120,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     background: linear-gradient(135deg, #000 50%, #ff0050 75%, #00f2ea 100%);
   }
 </style>
-
 </head>
 <body>
 
@@ -138,7 +132,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     <!-- Maps dan Info -->
     <div class="col-md-6">
-      <iframe src="https://www.google.com/maps/embed?pb=!1m17!1m12!1m3!1d3966.2771839272245!2d106.69842507475062!3d-6.227138893760954!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m2!1m1!2zNsKwMTMnMzcuNyJTIDEwNsKwNDInMDMuNiJF!5e0!3m2!1sen!2sid!4v1759155163104!5m2!1sen!2sid" 
+      <iframe src="https://www.google.com/maps/embed?pb=!1m17!1m12!1m3!1d3966.2771839272245!2d106.69842507475062!3d-6.227138893760954!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m2!1m1!2zNsKwMTMnMzcuNyJTIDEwNsKwNDInMDMuNiJF!5e0!3m2!1sen!2sid!4v1759155163104!5m2!1sen!2sid"
         allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade" class="map"></iframe>
 
       <div class="info-box mt-4">
@@ -159,18 +153,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <div class="col-md-6">
       <div class="form-box">
         <form class="needs-validation" method="POST" novalidate>
-          <div class="mb-3">
-            <input type="text" name="full_name" class="form-control" placeholder="Nama"
-                   value="<?= htmlspecialchars($user['full_name'] ?? '') ?>" required>
-          </div>
-          <div class="mb-3">
-            <input type="email" name="email" class="form-control" placeholder="Email"
-                   value="<?= htmlspecialchars($user['email'] ?? '') ?>" required>
-          </div>
-          <div class="mb-3">
-            <input type="text" name="phone" class="form-control" placeholder="No HP"
-                   value="<?= htmlspecialchars($user['phone'] ?? '') ?>" pattern="^[0-9]{10,15}$" required>
-          </div>
+          <input type="hidden" name="full_name" value="<?= htmlspecialchars($user['full_name'] ?? '') ?>">
+          <input type="hidden" name="email" value="<?= htmlspecialchars($user['email'] ?? '') ?>">
+          <input type="hidden" name="phone" value="<?= htmlspecialchars($user['phone'] ?? '') ?>">
+
           <div class="mb-3">
             <select name="subjek" class="form-select" required>
               <option value="" disabled selected>Pilih Subjek</option>
@@ -181,9 +167,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
               <option value="lainnya">Lainnya</option>
             </select>
           </div>
+
           <div class="mb-3">
             <textarea name="pesan" class="form-control" rows="4" placeholder="Pesan" required></textarea>
           </div>
+
           <button type="submit" class="btn btn-warning w-100">Kirim</button>
         </form>
       </div>
@@ -209,6 +197,24 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }, false);
   });
 })();
+
+// Notifikasi SweetAlert dari PHP
+<?php if ($swal): ?>
+Swal.fire({
+  icon: '<?= $swal['icon'] ?>',
+  title: '<?= $swal['title'] ?>',
+  text: '<?= $swal['text'] ?>',
+  confirmButtonColor: '#fbbf24',
+  background: '#1a1a1a',
+  color: '#fff'
+}).then(() => {
+  <?php if ($swal['icon'] === 'success'): ?>
+    window.location = 'kontak.php';
+  <?php elseif ($swal['icon'] === 'warning'): ?>
+    window.location = '../user/register.php';
+  <?php endif; ?>
+});
+<?php endif; ?>
 </script>
 </body>
 </html>
