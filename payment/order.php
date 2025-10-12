@@ -63,10 +63,12 @@ if (isset($_POST['add_to_cart'])) {
       min-height: 100vh;
     }
     h1 span { color: #fbbf24; }
+
     @keyframes fadeInUp {
       from { opacity: 0; transform: translateY(30px); }
       to { opacity: 1; transform: translateY(0); }
     }
+
     .card {
       border-radius: 15px;
       overflow: hidden;
@@ -90,17 +92,45 @@ if (isset($_POST['add_to_cart'])) {
     .card:nth-child(2) { animation-delay: 0.4s; }
     .card:nth-child(3) { animation-delay: 0.6s; }
     .card:nth-child(4) { animation-delay: 0.8s; }
+
     .price { font-weight: bold; color: #fbbf24; }
     .btn-warning { background-color: #fbbf24; border: none; font-weight: bold; }
     .btn-warning:hover { background-color: #f59e0b; }
     .btn-success { font-weight: bold; }
-    .qty-input {
-      width: 75px; text-align: center; margin: auto;
-      font-weight: bold; border: 2px solid #fbbf24;
-      border-radius: 8px;
+
+    /* Tombol + - custom */
+    .qty-wrapper {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 8px;
+      margin-top: 10px;
     }
-    .qty-input:focus {
-      outline: none; box-shadow: 0 0 8px #fbbf24;
+    .qty-input {
+      width: 50px;
+      text-align: center;
+      font-weight: bold;
+      border: 2px solid #fbbf24;
+      border-radius: 8px;
+      background-color: #fff;
+      color: #000;
+    }
+    .btn-qty {
+      width: 32px;
+      height: 32px;
+      font-size: 20px;
+      border-radius: 8px;
+      padding: 0;
+      line-height: 1;
+      color: #fff;
+      background-color: #fbbf24;
+      border: none;
+      font-weight: bold;
+      transition: transform 0.1s ease;
+    }
+    .btn-qty:hover {
+      background-color: #f59e0b;
+      transform: scale(1.1);
     }
   </style>
 </head>
@@ -120,7 +150,11 @@ if (isset($_POST['add_to_cart'])) {
           <input type="hidden" name="items[0][gambar]" value="ayam.png">
           <input type="hidden" name="items[0][nama]" value="Cireng Ayam">
           <input type="hidden" name="items[0][harga]" value="3000">
-          <input type="number" name="items[0][jumlah]" class="form-control qty-input" min="0" value="0">
+          <div class="qty-wrapper">
+            <button type="button" class="btn-qty" onclick="decreaseQty(this)">−</button>
+            <input type="text" name="items[0][jumlah]" class="qty-input" value="0" readonly>
+            <button type="button" class="btn-qty" onclick="increaseQty(this)">+</button>
+          </div>
         </div>
       </div>
 
@@ -133,7 +167,11 @@ if (isset($_POST['add_to_cart'])) {
           <input type="hidden" name="items[1][gambar]" value="kornet.png">
           <input type="hidden" name="items[1][nama]" value="Cireng Kornet">
           <input type="hidden" name="items[1][harga]" value="3000">
-          <input type="number" name="items[1][jumlah]" class="form-control qty-input" min="0" value="0">
+          <div class="qty-wrapper">
+            <button type="button" class="btn-qty" onclick="decreaseQty(this)">−</button>
+            <input type="text" name="items[1][jumlah]" class="qty-input" value="0" readonly>
+            <button type="button" class="btn-qty" onclick="increaseQty(this)">+</button>
+          </div>
         </div>
       </div>
 
@@ -146,7 +184,11 @@ if (isset($_POST['add_to_cart'])) {
           <input type="hidden" name="items[2][gambar]" value="keju.png">
           <input type="hidden" name="items[2][nama]" value="Cireng Keju">
           <input type="hidden" name="items[2][harga]" value="3000">
-          <input type="number" name="items[2][jumlah]" class="form-control qty-input" min="0" value="0">
+          <div class="qty-wrapper">
+            <button type="button" class="btn-qty" onclick="decreaseQty(this)">−</button>
+            <input type="text" name="items[2][jumlah]" class="qty-input" value="0" readonly>
+            <button type="button" class="btn-qty" onclick="increaseQty(this)">+</button>
+          </div>
         </div>
       </div>
 
@@ -159,7 +201,11 @@ if (isset($_POST['add_to_cart'])) {
           <input type="hidden" name="items[3][gambar]" value="sosis.png">
           <input type="hidden" name="items[3][nama]" value="Cireng Sosis">
           <input type="hidden" name="items[3][harga]" value="3000">
-          <input type="number" name="items[3][jumlah]" class="form-control qty-input" min="0" value="0">
+          <div class="qty-wrapper">
+            <button type="button" class="btn-qty" onclick="decreaseQty(this)">−</button>
+            <input type="text" name="items[3][jumlah]" class="qty-input" value="0" readonly>
+            <button type="button" class="btn-qty" onclick="increaseQty(this)">+</button>
+          </div>
         </div>
       </div>
 
@@ -175,6 +221,18 @@ if (isset($_POST['add_to_cart'])) {
 </div>
 
 <script>
+function increaseQty(btn) {
+  let input = btn.parentElement.querySelector('.qty-input');
+  let val = parseInt(input.value) || 0;
+  input.value = val + 1;
+}
+
+function decreaseQty(btn) {
+  let input = btn.parentElement.querySelector('.qty-input');
+  let val = parseInt(input.value) || 0;
+  if (val > 0) input.value = val - 1;
+}
+
 function hasItems() {
   let qtyInputs = document.querySelectorAll('.qty-input');
   for (let input of qtyInputs) {
