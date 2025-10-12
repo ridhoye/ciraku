@@ -123,14 +123,30 @@ if (!$user) {
 
 <div class="container">
   <div class="edit-card text-center">
-    <img src="<?= $user['profile_pic'] ?: '../assets/images/default.png' ?>" alt="Foto Profil" class="profile-img">
+    <!-- foto profil -->
+    <img id="previewImage" 
+     src="<?= !empty($user['profile_pic']) ? '../uploads/' . htmlspecialchars($user['profile_pic']) : '../assets/images/default.png' ?>" 
+     alt="Foto Profil" class="profile-img">
+
     <h4 class="mb-3"><?= htmlspecialchars($user['full_name'] ?? 'Belum diisi') ?></h4>
 
     <form action="update_profile.php" method="post" enctype="multipart/form-data" class="text-start">
-        <div class="mb-3">
-            <label for="photo" class="form-label">Foto Profil</label>
-            <input type="file" id="photo" name="photo" class="form-control">
-        </div>
+
+        <div class="mb-3 text-center">
+  <label for="photo" class="form-label d-block">Foto Profil</label>
+
+  <!-- Label berfungsi sebagai tombol upload -->
+  <label for="photo" class="btn btn-warning fw-bold px-4 py-2 rounded-3" style="cursor:pointer;">
+    📸 Tambahkan Foto
+  </label>
+
+  <!-- Nama file yang dipilih -->
+  <span id="fileName" class="d-block mt-2 text-secondary" style="font-size: 14px;">Belum ada foto dipilih</span>
+
+  <!-- Input aslinya disembunyikan -->
+  <input type="file" id="photo" name="photo" class="form-control" style="display:none;">
+</div>
+
         <div class="mb-3">
             <label for="full_name" class="form-label">Nama Lengkap</label>
             <input type="text" id="full_name" name="full_name" class="form-control" 
@@ -167,6 +183,37 @@ if (!$user) {
 <footer>
   © 2025 CIRAKU | Semua hak dilindungi.
 </footer>
+
+<script>
+  document.getElementById('photo').addEventListener('change', function (event) {
+    const file = event.target.files[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = function (e) {
+        document.getElementById('previewImage').src = e.target.result;
+      };
+      reader.readAsDataURL(file);
+    }
+  });
+
+//   biar nama file muncul setelah dipilih
+   document.getElementById('photo').addEventListener('change', function (event) {
+    const file = event.target.files[0];
+    const fileNameSpan = document.getElementById('fileName');
+    if (file) {
+      fileNameSpan.textContent = file.name;
+    } else {
+      fileNameSpan.textContent = "Belum ada foto dipilih";
+    }
+
+    // Preview foto baru (sekalian dari sebelumnya)
+    const reader = new FileReader();
+    reader.onload = function (e) {
+      document.getElementById('previewImage').src = e.target.result;
+    };
+    reader.readAsDataURL(file);
+  });
+</script>
 
 </body>
 </html>
