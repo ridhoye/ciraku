@@ -61,4 +61,13 @@ if (mysqli_stmt_execute($stmt)) {
 } else {
     echo "Error: " . mysqli_error($conn);
 }
+
+if (!empty($_FILES['photo']['name'])) {
+    $photo_name = time() . '_' . basename($_FILES['photo']['name']);
+    $target_path = '../uploads/' . $photo_name;
+    move_uploaded_file($_FILES['photo']['tmp_name'], $target_path);
+} else {
+    $photo_name = $_POST['old_photo'] ?: 'default.png';
+}
+
 ?>

@@ -124,9 +124,11 @@ if (!$user) {
 <div class="container">
   <div class="edit-card text-center">
     <!-- foto profil -->
-    <img id="previewImage" 
-     src="<?= !empty($user['profile_pic']) ? '../uploads/' . htmlspecialchars($user['profile_pic']) : '../assets/images/default.png' ?>" 
+   <!-- Foto profil -->
+<img id="previewImage" 
+     src="<?= !empty($user['profile_pic']) ? '../uploads/' . htmlspecialchars($user['profile_pic']) : '../assets/images/default.jpg' ?>" 
      alt="Foto Profil" class="profile-img">
+
 
     <h4 class="mb-3"><?= htmlspecialchars($user['full_name'] ?? 'Belum diisi') ?></h4>
 
