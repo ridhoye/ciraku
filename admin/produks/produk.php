@@ -175,61 +175,94 @@ $produk = mysqli_query($conn, "SELECT * FROM produk ORDER BY id DESC");
             </tr>
           </thead>
           <tbody>
-            <?php $no=1; while ($p = mysqli_fetch_assoc($produk)) { ?>
-              <tr>
-                <td><?= $no++; ?></td>
-                <td><img src="../../assets/images/<?= $p['gambar']; ?>" alt="<?= $p['nama_produk']; ?>"></td>
-                <td><?= $p['nama_produk']; ?></td>
-                <td><?= $p['deskripsi']; ?></td>
-                <td>Rp <?= number_format($p['harga'], 0, ',', '.'); ?></td>
-                <td>
-                  <button class="btn btn-sm btn-primary" data-bs-toggle="modal" data-bs-target="#editModal<?= $p['id']; ?>">Edit</button>
-                  <a href="?hapus=<?= $p['id']; ?>" class="btn btn-sm btn-danger" onclick="return confirm('Hapus produk ini?')">Hapus</a>
-                </td>
-              </tr>
+            <?php 
+              $no = 1; 
+              $modal_list = "";
 
-              <!-- Modal Edit -->
-              <div class="modal fade" id="editModal<?= $p['id']; ?>" tabindex="-1">
-                <div class="modal-dialog">
-                  <div class="modal-content bg-dark text-white">
-                    <div class="modal-header">
-                      <h5 class="modal-title">Edit Produk</h5>
-                      <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+              while ($p = mysqli_fetch_assoc($produk)) { 
+                $modal_id = "editModal" . $p['id'];
+                echo "
+                  <tr>
+                    <td>{$no}</td>
+                    <td><img src='../../assets/images/{$p['gambar']}' alt='{$p['nama_produk']}'></td>
+                    <td>{$p['nama_produk']}</td>
+                    <td>{$p['deskripsi']}</td>
+                    <td>Rp " . number_format($p['harga'], 0, ',', '.') . "</td>
+                    <td>
+                      <button class='btn btn-sm btn-primary' data-bs-toggle='modal' data-bs-target='#{$modal_id}'>Edit</button>
+                      <button class='btn btn-sm btn-danger' onclick=\"hapusProduk({$p['id']})\">Hapus</button>
+                    </td>
+                  </tr>
+                ";
+
+                $modal_list .= "
+                  <div class='modal fade' id='{$modal_id}' tabindex='-1'>
+                    <div class='modal-dialog'>
+                      <div class='modal-content bg-dark text-white'>
+                        <div class='modal-header'>
+                          <h5 class='modal-title'>Edit Produk</h5>
+                          <button type='button' class='btn-close btn-close-white' data-bs-dismiss='modal'></button>
+                        </div>
+                        <form method='POST' enctype='multipart/form-data'>
+                          <div class='modal-body'>
+                            <input type='hidden' name='id' value='{$p['id']}'>
+                            <div class='mb-3'>
+                              <label>Nama Produk</label>
+                              <input type='text' name='nama' class='form-control' value='{$p['nama_produk']}' required>
+                            </div>
+                            <div class='mb-3'>
+                              <label>Harga</label>
+                              <input type='number' name='harga' class='form-control' value='{$p['harga']}' required>
+                            </div>
+                            <div class='mb-3'>
+                              <label>Deskripsi</label>
+                              <textarea name='deskripsi' class='form-control' rows='3'>{$p['deskripsi']}</textarea>
+                            </div>
+                            <div class='mb-3'>
+                              <label>Gambar (kosongkan jika tidak diganti)</label>
+                              <input type='file' name='gambar' class='form-control'>
+                            </div>
+                          </div>
+                          <div class='modal-footer'>
+                            <button type='submit' name='edit' class='btn btn-warning'>Simpan</button>
+                          </div>
+                        </form>
+                      </div>
                     </div>
-                    <form method="POST" enctype="multipart/form-data">
-                      <div class="modal-body">
-                        <input type="hidden" name="id" value="<?= $p['id']; ?>">
-                        <div class="mb-3">
-                          <label>Nama Produk</label>
-                          <input type="text" name="nama" class="form-control" value="<?= $p['nama_produk']; ?>" required>
-                        </div>
-                        <div class="mb-3">
-                          <label>Harga</label>
-                          <input type="number" name="harga" class="form-control" value="<?= $p['harga']; ?>" required>
-                        </div>
-                        <div class="mb-3">
-                          <label>Deskripsi</label>
-                          <textarea name="deskripsi" class="form-control" rows="3"><?= $p['deskripsi']; ?></textarea>
-                        </div>
-                        <div class="mb-3">
-                          <label>Gambar (kosongkan jika tidak diganti)</label>
-                          <input type="file" name="gambar" class="form-control">
-                        </div>
-                      </div>
-                      <div class="modal-footer">
-                        <button type="submit" name="edit" class="btn btn-warning">Simpan</button>
-                      </div>
-                    </form>
-                  </div>
-                </div>
-              </div>
-            <?php } ?>
+                  </div>";
+                $no++;
+              }
+            ?>
           </tbody>
         </table>
       </div>
     </div>
+
+    <!-- Tempatkan semua modal di luar tabel -->
+    <?= $modal_list ?>
   </div>
 
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
+  <script>
+    // SweetAlert konfirmasi hapus produk
+    function hapusProduk(id) {
+      Swal.fire({
+        title: "Hapus produk ini?",
+        text: "Data tidak bisa dikembalikan setelah dihapus!",
+        icon: "warning",
+        showCancelButton: true,
+        confirmButtonColor: "#d33",
+        cancelButtonColor: "#3085d6",
+        confirmButtonText: "Ya, hapus!",
+        cancelButtonText: "Batal"
+      }).then((result) => {
+        if (result.isConfirmed) {
+          window.location.href = "?hapus=" + id;
+        }
+      });
+    }
+  </script>
+
 </body>
 </html>
