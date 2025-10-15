@@ -126,7 +126,7 @@ if (!$user) {
     <!-- foto profil -->
    <!-- Foto profil -->
 <img id="previewImage" 
-     src="<?= !empty($user['profile_pic']) ? '../uploads/' . htmlspecialchars($user['profile_pic']) : '../assets/images/default.jpg' ?>" 
+     src="<?= !empty($user['profile_pic']) ? '../uploads/' . htmlspecialchars($user['profile_pic']) : '../assets/images/guestdef.jpg' ?>" 
      alt="Foto Profil" class="profile-img">
 
 
