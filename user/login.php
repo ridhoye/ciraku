@@ -50,108 +50,169 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
   <!-- Bootstrap Icons -->
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
 
-  <style>
-  body, html {
-    height: 100%;
-    margin: 0;
-    font-family: 'Poppins', sans-serif;
-  }
+ 
+<style>
+body, html {
+  height: 100%;
+  margin: 0;
+  font-family: 'Poppins', sans-serif;
+  overflow-x: hidden;
+}
 
-  .bg {
-    background: url(../assets/images/bg1.webp) no-repeat center center/cover;
-    height: 100%;
-    display: flex;
-    align-items: center;
-    position: relative; /* penting buat overlay */
-  }
+.bg {
+  background: url(../assets/images/bg1.webp) no-repeat center center/cover;
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+}
 
-  /* Overlay Gelap */
-  .bg::before {
-    content: "";
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: rgba(0, 0, 0, 0.5); /* atur opacity sesuai selera */
-    z-index: 1;
-  }
+/* Overlay Gelap */
+.bg::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.55);
+  z-index: 1;
+}
 
-  .container {
-    position: relative;
-    z-index: 2; /* biar konten di atas overlay */
-  }
+.container {
+  position: relative;
+  z-index: 2;
+}
 
-  .logo-box {
-    text-align: center;
-    color: white;
+/* ✨ Animasi Fade-in */
+@keyframes fadeInUp {
+  0% {
+    opacity: 0;
+    transform: translateY(40px);
   }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
 
-  .logo-box img {
-    width: 300px;
-    margin-bottom: 20px;
-  }
+@keyframes fadeIn {
+  0% { opacity: 0; }
+  100% { opacity: 1; }
+}
 
-  .login-box {
-    background: rgba(91, 84, 84, 0.15);
-    backdrop-filter: blur(10px);
-    border-radius: 15px;
-    padding: 70px;
-    width: 100%;
-    max-width: 400px;
-    color: white;
-  }
+/* Logo Animasi */
+.logo-box {
+  text-align: center;
+  color: white;
+  animation: fadeIn 1.3s ease-out;
+}
 
-  .form-control {
-    border-radius: 10px;
-    padding: 12px 15px;
-    font-size: 1rem;
-  }
+.logo-box img {
+  width: 260px;
+  max-width: 80%;
+  margin-bottom: 20px;
+}
 
-  .btn-warning {
-    border-radius: 10px;
-    padding: 12px;
-    font-size: 1rem;
-    font-weight: 600;
-  }
+/* Box Login */
+.login-box {
+  background: rgba(91, 84, 84, 0.15);
+  backdrop-filter: blur(10px);
+  border-radius: 15px;
+  padding: 40px 30px;
+  width: 100%;
+  max-width: 380px;
+  color: white;
+  animation: fadeInUp 1.2s ease-out;
+}
 
-  .btn-warning:hover {
-    background-color: #f59e0b;
-    color: #000;
-  }
+h4 {
+  animation: fadeIn 1s ease-in;
+}
 
-  .social-login {
-    display: flex;
-    justify-content: center;
-    gap: 20px;
-    margin: 15px 0;
-  }
+.form-control {
+  border-radius: 10px;
+  padding: 12px 15px;
+  font-size: 1rem;
+}
 
-  .social-login a {
-    font-size: 22px;
-    color: white;
-    text-decoration: none;
-    transition: 0.3s;
-  }
+.btn-warning {
+  border-radius: 10px;
+  padding: 12px;
+  font-size: 1rem;
+  font-weight: 600;
+}
 
-  .social-login a:hover {
-    color: #fbbf24;
-  }
+.btn-warning:hover {
+  background-color: #f59e0b;
+  color: #000;
+  transition: 0.3s;
+}
+
+.social-login {
+  display: flex;
+  justify-content: center;
+  gap: 20px;
+  margin: 15px 0;
+}
+
+.social-login a {
+  font-size: 22px;
+  color: white;
+  text-decoration: none;
+  transition: 0.3s;
+}
+
+.social-login a:hover {
+  color: #fbbf24;
+  transform: scale(1.2);
+}
 
 .btn-outline-light {
   border-radius: 10px;
   font-weight: 500;
   backdrop-filter: blur(5px);
+  transition: 0.3s;
 }
 
 .btn-outline-light:hover {
   background-color: #fbbf24;
   color: #000;
   border-color: #fbbf24;
-  transition: 0.3s;
 }
 
+/* 🔹 RESPONSIVE FIX */
+@media (max-width: 992px) {
+  .row {
+    flex-direction: column;
+  }
+  .logo-box img {
+    width: 200px;
+    margin-bottom: 10px;
+  }
+  .login-box {
+    padding: 35px 25px;
+    max-width: 90%;
+  }
+}
+
+@media (max-width: 576px) {
+  .bg {
+    padding: 20px;
+  }
+  .login-box {
+    padding: 30px 20px;
+    max-width: 100%;
+  }
+  h4 {
+    font-size: 1.2rem;
+  }
+  .btn-outline-light {
+    font-size: 0.85rem;
+    padding: 6px 10px;
+  }
+}
 </style>
+
+
 
 </head>
 <body>
@@ -162,7 +223,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
   <i class="bi bi-arrow-left"></i> 
 </a>
 
-      <div class="row align-items-center w-100">
+      <div class="row align-items-center justify-content-center w-100">
         
         <!-- Kolom kiri (Logo) -->
         <div class="col-lg-6 d-flex justify-content-center mb-5 mb-lg-0">
