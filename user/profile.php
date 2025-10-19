@@ -132,7 +132,7 @@ if (!$user) {
    <?php
 $profile_pic_path = !empty($user['profile_pic']) 
     ? "../uploads/" . htmlspecialchars($user['profile_pic']) 
-    : "../assets/images/default.jpg";
+    : "../assets/images/guestdef.jpg";
 ?>
 <img src="<?= $profile_pic_path ?>" alt="Foto Profil" class="profile-photo">
 
