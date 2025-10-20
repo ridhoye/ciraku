@@ -72,7 +72,7 @@
       }
       .hero p {
         font-size: 1.4rem;
-        max-width: 600px;
+        max-width: 750px;
       }
       .hero-content {
         padding-left: 2rem; /* desktop geser lebih */
