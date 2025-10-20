@@ -9,6 +9,7 @@
    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
   <style>
     body {
+      margin: 0;
       font-family: 'Poppins', sans-serif;
       margin: 0;
       background-color: #000;
@@ -88,6 +89,7 @@
       border-radius: 12px;
       font-size: 1.1rem;
     }
+
     .btn-warning:hover {
       background-color: #f59e0b;
       color: #000;
