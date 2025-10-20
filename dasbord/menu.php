@@ -1,3 +1,8 @@
+<?php
+// Koneksi ke database
+include '../config/db.php'; 
+?>
+
 <!DOCTYPE html>
 <html lang="id">
 <head>
@@ -40,7 +45,7 @@
       margin-bottom: 50px;
     }
     .section-title span {
-      color: #fbbf24; /* kata pertama kuning */
+      color: #fbbf24;
     }
 
     /* Card menu */
@@ -75,46 +80,30 @@
   <section class="menu-section container">
     <h2 class="section-title"><span>Menu</span> Kami</h2>
     <div class="row g-4">
-      <!-- Item 1 -->
-      <div class="col-md-3 col-sm-6">
-        <div class="card">
-          <img src="../assets/images/ayam.png" class="card-img-top" alt="Cireng Isi Ayam">
-          <div class="card-body">
-            <h5 class="card-title">Cireng Isi Ayam</h5>
-            <p class="card-text">Cireng renyah dengan isian ayam suwir pedas yang gurih dan nikmat.</p>
+      <?php
+      // Ambil data produk dari database
+      $query = mysqli_query($conn, "SELECT * FROM produk ORDER BY id DESC");
+
+      if (mysqli_num_rows($query) > 0) {
+        while ($p = mysqli_fetch_assoc($query)) { ?>
+          <div class="col-md-3 col-sm-6">
+            <div class="card">
+              <img src="../assets/images/<?php echo htmlspecialchars($p['gambar']); ?>" 
+                   class="card-img-top" 
+                   alt="<?php echo htmlspecialchars($p['nama_produk']); ?>">
+              <div class="card-body">
+                <h5 class="card-title"><?php echo htmlspecialchars($p['nama_produk']); ?></h5>
+                <p class="card-text"><?php echo htmlspecialchars($p['deskripsi']); ?></p>
+                <p class="text-warning fw-bold">Rp <?php echo number_format($p['harga'], 0, ',', '.'); ?></p>
+              </div>
+            </div>
           </div>
-        </div>
-      </div>
-      <!-- Item 2 -->
-      <div class="col-md-3 col-sm-6">
-        <div class="card">
-          <img src="../assets/images/kornet.png" class="card-img-top" alt="Cireng Isi Kornet">
-          <div class="card-body">
-            <h5 class="card-title">Cireng Isi Kornet</h5>
-            <p class="card-text">Cireng crispy dengan isian kornet sapi lezat, cocok untuk camilan hangat.</p>
-          </div>
-        </div>
-      </div>
-      <!-- Item 3 -->
-      <div class="col-md-3 col-sm-6">
-        <div class="card">
-          <img src="../assets/images/keju.png" class="card-img-top" alt="Cireng Isi Keju">
-          <div class="card-body">
-            <h5 class="card-title">Cireng Isi Keju</h5>
-            <p class="card-text">Cireng garing dengan lelehan keju creamy di dalamnya, rasa gurih dan lumer.</p>
-          </div>
-        </div>
-      </div>
-      <!-- Item 4 -->
-      <div class="col-md-3 col-sm-6">
-        <div class="card">
-          <img src="../assets/images/sosis.png" class="card-img-top" alt="Cireng Isi Sosis">
-          <div class="card-body">
-            <h5 class="card-title">Cireng Isi Sosis</h5>
-            <p class="card-text">Cireng kenyal dengan isian sosis pilihan, pas banget untuk semua usia.</p>
-          </div>
-        </div>
-      </div>
+      <?php 
+        }
+      } else { 
+        echo "<p class='text-center text-secondary'>Belum ada produk tersedia.</p>";
+      }
+      ?>
     </div>
   </section>
 
