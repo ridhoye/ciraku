@@ -1,3 +1,35 @@
+<?php
+session_start();
+
+// Ambil data dari checkout
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+  $nama = htmlspecialchars($_POST['nama']);
+  $alamat = htmlspecialchars($_POST['alamat']);
+  $no_hp = htmlspecialchars($_POST['no_hp']);
+  $metode = htmlspecialchars($_POST['metode']);
+  $total_belanja = (int)$_POST['total_belanja'];
+  $ongkir = (int)$_POST['ongkir'];
+  $total_bayar = (int)$_POST['total_bayar'];
+
+  // 🔥 Hapus hanya item yang dipilih, bukan semua keranjang
+  if (isset($_POST['selected_items']) && isset($_SESSION['cart'])) {
+    foreach ($_POST['selected_items'] as $key) {
+      if (isset($_SESSION['cart'][$key])) {
+        unset($_SESSION['cart'][$key]);
+      }
+    }
+
+    // Hapus session keranjang kalau udah kosong
+    if (empty($_SESSION['cart'])) {
+      unset($_SESSION['cart']);
+    }
+  }
+} else {
+  // Jika halaman diakses langsung tanpa data checkout, kembalikan ke order
+  header("Location: order.php");
+  exit;
+}
+?>
 <!DOCTYPE html>
 <html lang="id">
 <head>
@@ -48,7 +80,6 @@
       border-radius: 2px;
     }
 
-    /* progress bar hijau */
     .steps::after {
       content: '';
       position: absolute;
@@ -129,11 +160,10 @@
   </style>
 </head>
 <body>
-  <div class="card" style="--active-step:2;"> <!-- ubah angka sesuai step aktif (1,2,3) -->
+  <div class="card" style="--active-step:2;">
     <div class="success">✅ Pesanan Berhasil!</div>
-    <p>Terima kasih <b>TES</b>, pesananmu sedang diproses.</p>
+    <p>Terima kasih <b><?= $nama ?></b>, pesananmu sedang diproses.</p>
 
-    <!-- Progress Steps -->
     <div class="steps">
       <div class="step active">1</div>
       <div class="step active">2</div>
@@ -145,19 +175,17 @@
       <div>Sampai</div>
     </div>
 
-    <!-- Rincian -->
     <div class="rincian">
       <p><b>Rincian Pembayaran:</b></p>
-      <p>Total Belanja: Rp 69.000</p>
-      <p>Ongkir: Rp 5.000</p>
-      <p><b>Total Bayar: Rp 74.000</b></p>
-      <p><b>Metode Bayar:</b> Transfer Bank BCA</p>
+      <p>Total Belanja: Rp <?= number_format($total_belanja, 0, ',', '.') ?></p>
+      <p>Ongkir: Rp <?= number_format($ongkir, 0, ',', '.') ?></p>
+      <p><b>Total Bayar: Rp <?= number_format($total_bayar, 0, ',', '.') ?></b></p>
+      <p><b>Metode Bayar:</b> <?= $metode ?></p>
       <hr>
-      <p><b>Alamat Pengiriman:</b> tes</p>
-      <p><b>No. HP:</b> 0812112121</p>
+      <p><b>Alamat Pengiriman:</b> <?= $alamat ?></p>
+      <p><b>No. HP:</b> <?= $no_hp ?></p>
     </div>
 
-    <!-- Tombol -->
     <div class="buttons">
       <a href="order.php" class="btn btn-belanja">⬅️ Kembali Belanja</a>
       <a href="../dasbord/home.php" class="btn btn-home">🏠 Ke Homepage</a>

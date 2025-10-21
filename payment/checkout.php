@@ -1,12 +1,30 @@
 <?php
 session_start();
 
-// cek apakah ada data keranjang
+// Kalau gak ada data keranjang
 if (!isset($_SESSION['cart']) || empty($_SESSION['cart'])) {
     header("Location: order.php"); 
     exit;
 }
-$cart = $_SESSION['cart'];
+
+// Ambil item yang dipilih dari halaman order.php
+$selected_items = $_POST['selected_items'] ?? [];
+
+// Kalau gak ada item yang dikirim dari form, tampilkan semua (biar aman)
+if (empty($selected_items)) {
+    $cart = $_SESSION['cart'];
+} else {
+    // Filter hanya item yang dipilih
+    $cart = [];
+    foreach ($selected_items as $index) {
+        if (isset($_SESSION['cart'][$index])) {
+            $cart[] = $_SESSION['cart'][$index];
+        }
+    }
+}
+
+// Simpan item checkout di session baru (buat status.php)
+$_SESSION['checkout_items'] = $cart;
 ?>
 
 <!DOCTYPE html>
@@ -40,16 +58,12 @@ $cart = $_SESSION['cart'];
     .btn-primary:hover {
       background-color: #218838;
     }
-    /* Modal styling biar lebih clean */
     .modal-content {
       border-radius: 15px;
       padding: 20px;
     }
-    .modal-header {
-      border-bottom: none;
-    }
-    .modal-footer {
-      border-top: none;
+    .modal-header, .modal-footer {
+      border: none;
     }
     .form-control {
       border-radius: 10px;
@@ -112,7 +126,9 @@ $cart = $_SESSION['cart'];
         <h5 class="modal-title fw-bold" id="paymentModalLabel">💳 Detail Pembayaran</h5>
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Tutup"></button>
       </div>
-      <form action="status.php" method="POST"> <!-- arahkan ke status.php -->
+
+      <!-- Arahkan ke file status.php -->
+      <form action="status.php" method="POST">
         <div class="modal-body">
           <div class="mb-3">
             <label class="form-label">Nama Lengkap</label>
@@ -127,59 +143,55 @@ $cart = $_SESSION['cart'];
             <input type="text" class="form-control" name="no_hp" placeholder="08xxxxxxxxxx" required>
           </div>
 
-<!-- Metode Pembayaran -->
-<div class="mb-3">
-  <label class="form-label fw-bold">Metode Pembayaran</label>
-  <div class="border rounded p-3">
-    <div class="form-check">
-      <input class="form-check-input" type="radio" name="metode" value="Transfer Bank" id="transfer" required>
-      <label class="form-check-label" for="transfer">🏦 Transfer Bank</label>
-    </div>
-    <div class="form-check">
-      <input class="form-check-input" type="radio" name="metode" value="COD" id="cod">
-      <label class="form-check-label" for="cod">🚚 Bayar di Tempat (COD)</label>
-    </div>
-    <div class="form-check">
-      <input class="form-check-input" type="radio" name="metode" value="E-Wallet" id="ewallet">
-      <label class="form-check-label" for="ewallet">📱 E-Wallet (Dana, OVO, GoPay)</label>
-    </div>
-  </div>
-</div>
+          <!-- Metode Pembayaran -->
+          <div class="mb-3">
+            <label class="form-label fw-bold">Metode Pembayaran</label>
+            <div class="border rounded p-3">
+              <div class="form-check">
+                <input class="form-check-input" type="radio" name="metode" value="Transfer Bank" id="transfer" required>
+                <label class="form-check-label" for="transfer">🏦 Transfer Bank</label>
+              </div>
+              <div class="form-check">
+                <input class="form-check-input" type="radio" name="metode" value="COD" id="cod">
+                <label class="form-check-label" for="cod">🚚 Bayar di Tempat (COD)</label>
+              </div>
+              <div class="form-check">
+                <input class="form-check-input" type="radio" name="metode" value="E-Wallet" id="ewallet">
+                <label class="form-check-label" for="ewallet">📱 E-Wallet (Dana, OVO, GoPay)</label>
+              </div>
+            </div>
+          </div>
 
-<!-- Instruksi Pembayaran (akan muncul dinamis) -->
-<div id="payment-instructions" class="alert alert-info d-none mt-3"></div>
+          <div id="payment-instructions" class="alert alert-info d-none mt-3"></div>
 
-<script>
-document.querySelectorAll('input[name="metode"]').forEach((radio) => {
-  radio.addEventListener('change', function() {
-    let instructions = document.getElementById("payment-instructions");
-    instructions.classList.remove("d-none");
+          <script>
+          document.querySelectorAll('input[name="metode"]').forEach((radio) => {
+            radio.addEventListener('change', function() {
+              let instructions = document.getElementById("payment-instructions");
+              instructions.classList.remove("d-none");
 
-    if (this.value === "Transfer Bank") {
-      instructions.innerHTML = `
-        <h6>🏦 Instruksi Transfer Bank</h6>
-        <p>Silakan transfer ke rekening berikut:</p>
-        <p><b>BCA - 123456789 a.n. Temen Lu</b></p>
-      `;
-    } else if (this.value === "E-Wallet") {
-      instructions.innerHTML = `
-        <h6>📱 Instruksi E-Wallet</h6>
-        <p>Silakan transfer ke salah satu E-Wallet berikut:</p>
-        <ul>
-          <li>DANA: 0812-XXXX-XXXX</li>
-          <li>OVO: 0812-YYYY-YYYY</li>
-          <li>GoPay: 0812-ZZZZ-ZZZZ</li>
-        </ul>
-      `;
-    } else if (this.value === "COD") {
-      instructions.innerHTML = `
-        <h6>🚚 Bayar di Tempat</h6>
-        <p>Silakan siapkan uang pas saat pesanan diantar.</p>
-      `;
-    }
-  });
-});
-</script>
+              if (this.value === "Transfer Bank") {
+                instructions.innerHTML = `
+                  <h6>🏦 Instruksi Transfer Bank</h6>
+                  <p>Silakan transfer ke rekening berikut:</p>
+                  <p><b>BCA - 123456789 a.n. Ciraku Food</b></p>`;
+              } else if (this.value === "E-Wallet") {
+                instructions.innerHTML = `
+                  <h6>📱 Instruksi E-Wallet</h6>
+                  <p>Silakan transfer ke salah satu E-Wallet berikut:</p>
+                  <ul>
+                    <li>DANA: 0812-1111-2222</li>
+                    <li>OVO: 0812-3333-4444</li>
+                    <li>GoPay: 0812-5555-6666</li>
+                  </ul>`;
+              } else if (this.value === "COD") {
+                instructions.innerHTML = `
+                  <h6>🚚 Bayar di Tempat</h6>
+                  <p>Silakan siapkan uang pas saat pesanan diantar.</p>`;
+              }
+            });
+          });
+          </script>
 
           <hr>
           <h6 class="fw-bold">🧾 Rincian Belanja</h6>
@@ -193,6 +205,12 @@ document.querySelectorAll('input[name="metode"]').forEach((radio) => {
           <input type="hidden" name="total_belanja" value="<?= $total ?>">
           <input type="hidden" name="ongkir" value="5000">
           <input type="hidden" name="total_bayar" value="<?= $total + 5000 ?>">
+
+          <!-- 🔥 kirim item yang dipilih ke status.php -->
+          <?php foreach ($selected_items as $key): ?>
+            <input type="hidden" name="selected_items[]" value="<?= htmlspecialchars($key) ?>">
+          <?php endforeach; ?>
+
         </div>
         <div class="modal-footer">
           <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
@@ -203,6 +221,6 @@ document.querySelectorAll('input[name="metode"]').forEach((radio) => {
   </div>
 </div>
 
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
