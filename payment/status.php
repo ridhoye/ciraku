@@ -159,7 +159,7 @@
 
     <!-- Tombol -->
     <div class="buttons">
-      <a href="order.php" class="btn btn-belanja">← Kembali Belanja</a>
+      <a href="order.php" class="btn btn-belanja">⬅️ Kembali Belanja</a>
       <a href="../dasbord/home.php" class="btn btn-home">🏠 Ke Homepage</a>
     </div>
   </div>

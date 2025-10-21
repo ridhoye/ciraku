@@ -96,7 +96,7 @@ $cart = $_SESSION['cart'];
     </table>
 
     <div class="d-flex justify-content-between mt-4">
-      <a href="order.php" class="btn btn-warning">⬅ Kembali Belanja</a>
+      <a href="order.php" class="btn btn-warning">⬅️ Kembali Belanja</a>
       <!-- Tombol trigger modal -->
       <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#paymentModal">
         💳 Lanjut ke Pembayaran

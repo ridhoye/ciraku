@@ -55,84 +55,132 @@ if (isset($_POST['add_to_cart'])) {
   <title>Order Cireng</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-  <style>
-    body {
-      font-family: 'Poppins', sans-serif;
-      background: linear-gradient(135deg, #000, #000);
-      color: #fff;
-      min-height: 100vh;
-    }
-    h1 span { color: #fbbf24; }
+<style>
+  body {
+    font-family: 'Poppins', sans-serif;
+    background: linear-gradient(135deg, #000, #111);
+    color: #fff;
+    min-height: 100vh;
+  }
 
-    @keyframes fadeInUp {
-      from { opacity: 0; transform: translateY(30px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
+  h1 span { color: #fbbf24; }
 
-    .card {
-      border-radius: 15px;
-      overflow: hidden;
-      background-color: #fff;
-      color: #000;
-      box-shadow: 0 5px 15px rgba(0,0,0,0.2);
-      transition: transform 0.3s ease, box-shadow 0.3s ease;
-      border: 3px solid transparent;
-      background-image: linear-gradient(#fff, #fff),
-                        linear-gradient(135deg, #fbbf24, #f59e0b);
-      background-origin: border-box;
-      background-clip: content-box, border-box;
-      animation: fadeInUp 0.8s ease forwards;
-      opacity: 0;
-    }
-    .card:hover { 
-      transform: translateY(-10px) scale(1.03);
-      box-shadow: 0 8px 20px rgba(251,191,36,0.4);
-    }
-    .card:nth-child(1) { animation-delay: 0.2s; }
-    .card:nth-child(2) { animation-delay: 0.4s; }
-    .card:nth-child(3) { animation-delay: 0.6s; }
-    .card:nth-child(4) { animation-delay: 0.8s; }
+  @keyframes fadeInUp {
+    from { opacity: 0; transform: translateY(30px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
 
-    .price { font-weight: bold; color: #fbbf24; }
-    .btn-warning { background-color: #fbbf24; border: none; font-weight: bold; }
-    .btn-warning:hover { background-color: #f59e0b; }
-    .btn-success { font-weight: bold; }
+  /* 🍊 Card lebih berwarna */
+  .card {
+    border-radius: 16px;
+    overflow: hidden;
+    background: linear-gradient(180deg, #fff8e1, #fff);
+    color: #000;
+    border: 3px solid #fbbf24;
+    box-shadow: 0 6px 14px rgba(251,191,36,0.25);
+    transition: all 0.25s ease;
+    animation: fadeInUp 0.8s ease forwards;
+    opacity: 0;
+    padding: 15px;
+  }
 
-    /* Tombol + - custom */
-    .qty-wrapper {
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      gap: 8px;
-      margin-top: 10px;
-    }
-    .qty-input {
-      width: 50px;
-      text-align: center;
-      font-weight: bold;
-      border: 2px solid #fbbf24;
-      border-radius: 8px;
-      background-color: #fff;
-      color: #000;
-    }
-    .btn-qty {
-      width: 32px;
-      height: 32px;
-      font-size: 20px;
-      border-radius: 8px;
-      padding: 0;
-      line-height: 1;
-      color: #fff;
-      background-color: #fbbf24;
-      border: none;
-      font-weight: bold;
-      transition: transform 0.1s ease;
-    }
-    .btn-qty:hover {
-      background-color: #f59e0b;
-      transform: scale(1.1);
-    }
-  </style>
+  .card:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 10px 22px rgba(251,191,36,0.4);
+    background: linear-gradient(180deg, #fff2cc, #fffaf0);
+  }
+
+  .card img {
+    width: 85%;
+    margin: 10px auto;
+    display: block;
+    border-radius: 12px;
+    box-shadow: 0 3px 8px rgba(0,0,0,0.15);
+  }
+
+  .card h5 {
+    font-size: 1.1rem;
+    margin-top: 6px;
+    margin-bottom: 6px;
+    font-weight: 600;
+  }
+
+  .price {
+    font-weight: bold;
+    color: #f59e0b;
+    font-size: 1rem;
+    margin-bottom: 6px;
+  }
+
+  .qty-wrapper {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 6px;
+    margin-top: 8px;
+  }
+
+  .qty-input {
+    width: 44px;
+    text-align: center;
+    font-weight: bold;
+    border: 2px solid #fbbf24;
+    border-radius: 8px;
+    background-color: #fff;
+    color: #000;
+  }
+
+  .btn-qty {
+    width: 30px;
+    height: 30px;
+    font-size: 18px;
+    border-radius: 8px;
+    color: #fff;
+    background-color: #fbbf24;
+    border: none;
+    font-weight: bold;
+    line-height: 1;
+    transition: transform 0.1s ease, background-color 0.2s ease;
+  }
+
+  .btn-qty:hover {
+    background-color: #f59e0b;
+    transform: scale(1.1);
+  }
+
+  .btn-warning {
+    background: linear-gradient(90deg, #fbbf24, #f59e0b);
+    border: none;
+    font-weight: bold;
+    color: #fff;
+    box-shadow: 0 3px 8px rgba(251,191,36,0.4);
+  }
+
+  .btn-warning:hover {
+    background: linear-gradient(90deg, #f59e0b, #d97706);
+    transform: scale(1.03);
+  }
+
+  .btn-success {
+    background: linear-gradient(90deg, #22c55e, #16a34a);
+    font-weight: bold;
+    color: #fff;
+  }
+
+  .btn-success:hover {
+    transform: scale(1.03);
+  }
+
+  .btn-secondary {
+    background-color: #374151;
+    color: #fff;
+    font-weight: 600;
+  }
+
+  .btn-secondary:hover {
+    background-color: #4b5563;
+  }
+</style>
 </head>
 <body>
 
