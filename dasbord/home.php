@@ -115,5 +115,60 @@
 
   <!-- Bootstrap JS -->
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
+
+  <!-- untukk geser geser kanan kiri  navbar tanpa mencet navbar nya -->
+  <script>
+let startX = 0;
+let endX = 0;
+let pages = [
+  "home.php",
+  "tentang.php",
+  "menu.php",
+  "kontak.php"
+];
+
+// Deteksi halaman aktif sekarang
+let currentIndex = pages.findIndex(p => window.location.href.includes(p));
+
+function goToPage(index) {
+  if (index >= 0 && index < pages.length) {
+    window.location.href = pages[index];
+  }
+}
+
+// Untuk layar sentuh (HP)
+document.addEventListener("touchstart", e => {
+  startX = e.touches[0].clientX;
+});
+
+document.addEventListener("touchend", e => {
+  endX = e.changedTouches[0].clientX;
+  handleSwipe();
+});
+
+// Untuk mouse (laptop/PC)
+document.addEventListener("mousedown", e => {
+  startX = e.clientX;
+});
+document.addEventListener("mouseup", e => {
+  endX = e.clientX;
+  handleSwipe();
+});
+
+function handleSwipe() {
+  let diff = endX - startX;
+  if (Math.abs(diff) > 80) { // jarak minimal geser
+    if (diff > 0) {
+      // geser kanan -> halaman sebelumnya
+      goToPage(currentIndex - 1);
+    } else {
+      // geser kiri -> halaman selanjutnya
+      goToPage(currentIndex + 1);
+    }
+  }
+}
+</script>
+
 </body>
 </html>
