@@ -23,22 +23,57 @@ if (!isset($_SESSION['user_id'])) {
 // Ambil produk
 $produk = mysqli_query($conn, "SELECT * FROM produk ORDER BY id ASC");
 
-// Proses checkout
-if (isset($_POST['checkout'])) {
-    $_SESSION['cart'] = [];
-    foreach ($_POST['items'] as $item) {
-        if ($item['jumlah'] > 0) $_SESSION['cart'][] = $item;
-    }
-    header("Location: checkout.php");
-    exit();
-}
-
-// Tambah ke keranjang
+// 🛒 Tambah ke keranjang
 if (isset($_POST['add_to_cart'])) {
     foreach ($_POST['items'] as $item) {
-        if ($item['jumlah'] > 0) $_SESSION['cart'][] = $item;
+        if (!empty($item['jumlah']) && intval($item['jumlah']) > 0) {
+            $_SESSION['cart'][] = $item;
+        }
     }
     header("Location: order.php");
+    exit;
+}
+
+// 💳 Proses checkout langsung TANPA mengubah keranjang
+if (isset($_POST['checkout'])) {
+    $checkout_items = [];
+
+    if (isset($_POST['items'])) {
+        foreach ($_POST['items'] as $item) {
+            if (!empty($item['jumlah']) && intval($item['jumlah']) > 0) {
+                $checkout_items[] = $item;
+            }
+        }
+    }
+
+    if (empty($checkout_items)) {
+        echo "
+        <script src='https://cdn.jsdelivr.net/npm/sweetalert2@11'></script>
+        <script>
+        document.addEventListener('DOMContentLoaded', function() {
+          Swal.fire({
+            title: 'Ups!',
+            text: 'Kamu belum memilih jumlah cireng 😅',
+            icon: 'warning',
+            background: '#111',
+            color: '#fff',
+            confirmButtonText: 'OK',
+            confirmButtonColor: '#fbbf24',
+            iconColor: '#fbbf24',
+            backdrop: 'rgba(0,0,0,0.7)',
+          }).then(() => {
+            window.history.back();
+          });
+        });
+        </script>";
+        exit();
+    }
+
+    // Simpan data sementara untuk checkout
+    $_SESSION['checkout_items'] = $checkout_items;
+
+    // 🚀 Pindah ke checkout page
+    header("Location: ../payment/checkout.php");
     exit();
 }
 
@@ -53,6 +88,7 @@ $cartCount = isset($_SESSION['cart']) ? count($_SESSION['cart']) : 0;
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
   <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
 
   <style>
     body {
@@ -61,43 +97,18 @@ $cartCount = isset($_SESSION['cart']) ? count($_SESSION['cart']) : 0;
       color: #fff; min-height: 100vh;
     }
     h1 span { color: #fbbf24; }
-
-    /* 🔸 Posisi ikon keranjang di kanan atas */
     .cart-icon {
-      position: fixed;
-      top: 20px;
-      right: 30px;
-      z-index: 1000;
-      cursor: pointer;
-      font-size: 26px;
-      color: #fbbf24;
+      position: fixed; top: 20px; right: 30px;
+      z-index: 1000; cursor: pointer; font-size: 26px; color: #fbbf24;
     }
     .cart-icon:hover { transform: scale(1.1); color: #f59e0b; transition: .2s; }
-
     .cart-badge {
-      position: absolute;
-      top: -8px;
-      right: -10px;
-      background: red;
-      color: #fff;
-      font-size: 12px;
-      border-radius: 50%;
-      padding: 2px 6px;
+      position: absolute; top: -8px; right: -10px;
+      background: red; color: #fff; font-size: 12px;
+      border-radius: 50%; padding: 2px 6px;
     }
-
-    .fly-img {
-      position: absolute;
-      z-index: 999;
-      transition: all 1s ease-in-out;
-      pointer-events: none;
-      border-radius: 10px;
-    }
-
-    @keyframes fadeInUp {
-      from { opacity: 0; transform: translateY(30px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
-
+    .fly-img { position: absolute; z-index: 999; transition: all 1s ease-in-out; pointer-events: none; border-radius: 10px; }
+    @keyframes fadeInUp { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
     .card {
       border-radius: 16px; overflow: hidden;
       background: linear-gradient(180deg, #fff8e1, #fff);
@@ -108,29 +119,16 @@ $cartCount = isset($_SESSION['cart']) ? count($_SESSION['cart']) : 0;
       padding: 15px;
     }
     .card:hover { transform: translateY(-8px); box-shadow: 0 10px 22px rgba(251,191,36,0.4); }
-    .card img {
-      width: 85%; margin: 10px auto; display: block;
-      border-radius: 12px; box-shadow: 0 3px 8px rgba(0,0,0,0.15);
-    }
-    .card h5 { font-size: 1.1rem; margin-top: 6px; font-weight: 600; }
+    .card img { width: 85%; margin: 10px auto; display: block; border-radius: 12px; box-shadow: 0 3px 8px rgba(0,0,0,0.15); }
     .price { font-weight: bold; color: #f59e0b; font-size: 1rem; }
-
     .qty-wrapper { display: flex; justify-content: center; align-items: center; gap: 6px; margin-top: 8px; }
     .qty-input {
       width: 44px; text-align: center; font-weight: bold;
       border: 2px solid #fbbf24; border-radius: 8px; background-color: #fff; color: #000;
     }
-    .btn-qty {
-      width: 30px; height: 30px; font-size: 18px; border-radius: 8px;
-      color: #fff; background-color: #fbbf24; border: none; font-weight: bold;
-    }
+    .btn-qty { width: 30px; height: 30px; font-size: 18px; border-radius: 8px; color: #fff; background-color: #fbbf24; border: none; font-weight: bold; }
     .btn-qty:hover { background-color: #f59e0b; transform: scale(1.1); }
-
-    .btn-warning {
-      background: linear-gradient(90deg, #fbbf24, #f59e0b);
-      border: none; font-weight: bold; color: #fff;
-      box-shadow: 0 3px 8px rgba(251,191,36,0.4);
-    }
+    .btn-warning { background: linear-gradient(90deg, #fbbf24, #f59e0b); border: none; font-weight: bold; color: #fff; box-shadow: 0 3px 8px rgba(251,191,36,0.4); }
     .btn-warning:hover { background: linear-gradient(90deg, #f59e0b, #d97706); transform: scale(1.03); }
     .btn-success { background: linear-gradient(90deg, #22c55e, #16a34a); font-weight: bold; color: #fff; }
     .btn-secondary { background-color: #374151; color: #fff; font-weight: 600; }
@@ -199,7 +197,7 @@ function hasItems() {
 
 // ✨ Animasi tambah ke keranjang
 function animateToCart(imgEl) {
-  const cart = document.querySelector('.bi-cart3'); // ambil ikon cart dari pojok kanan
+  const cart = document.querySelector('.bi-cart3');
   const clone = imgEl.cloneNode(true);
   const rect = imgEl.getBoundingClientRect();
   clone.classList.add('fly-img');
@@ -223,7 +221,16 @@ function animateToCart(imgEl) {
 
 document.getElementById('addToCartBtn').addEventListener('click', () => {
   if (!hasItems()) {
-    Swal.fire({ title: 'Ups!', text: 'Kamu belum memilih jumlah cireng', icon: 'warning', confirmButtonColor: '#fbbf24' });
+    Swal.fire({ 
+      title: 'Ups!', 
+      text: 'Kamu belum memilih jumlah cireng 😅', 
+      icon: 'warning', 
+      background: '#111',
+      color: '#fff',
+      confirmButtonColor: '#fbbf24',
+      iconColor: '#fbbf24',
+      backdrop: 'rgba(0,0,0,0.7)'
+    });
     return;
   }
 
@@ -235,8 +242,15 @@ document.getElementById('addToCartBtn').addEventListener('click', () => {
   });
 
   Swal.fire({
-    title: 'Berhasil!', text: 'Barang ditambahkan ke keranjang!',
-    icon: 'success', showConfirmButton: false, timer: 1200, timerProgressBar: true
+    title: 'Berhasil!',
+    text: 'Barang ditambahkan ke keranjang!',
+    icon: 'success',
+    background: '#111',
+    color: '#fff',
+    iconColor: '#fbbf24',
+    showConfirmButton: false,
+    timer: 1200,
+    timerProgressBar: true
   });
 
   setTimeout(() => {
@@ -245,6 +259,24 @@ document.getElementById('addToCartBtn').addEventListener('click', () => {
     document.querySelector("form").appendChild(input);
     document.querySelector("form").submit();
   }, 1300);
+});
+
+// 💳 Alert hitam-oranye untuk tombol Pesan Sekarang
+document.querySelector('button[name="checkout"]').addEventListener('click', function(e) {
+  if (!hasItems()) {
+    e.preventDefault();
+    Swal.fire({
+      title: 'Ups!',
+      text: 'Kamu belum memilih jumlah cireng 😅',
+      icon: 'warning',
+      background: '#111',
+      color: '#fff',
+      confirmButtonText: 'OK',
+      confirmButtonColor: '#fbbf24',
+      iconColor: '#fbbf24',
+      backdrop: 'rgba(0,0,0,0.7)'
+    });
+  }
 });
 </script>
 </body>

@@ -1,54 +1,61 @@
 <?php
 session_start();
-include "../config/db.php"; // koneksi ke database
+include "../config/db.php";
 
-// 🔒 Cek apakah user sudah login
+// 🔒 Cek login
 if (!isset($_SESSION['user_id'])) {
     header("Location: ../user/login.php");
     exit;
 }
 
-// 🔍 Ambil data user
 $user_id = $_SESSION['user_id'];
 
-// 🛒 Ambil item yang dipilih dari shop.php
-if (!isset($_POST['selected_items']) || empty($_POST['selected_items'])) {
+// 🔙 Jika user batal
+if (isset($_GET['cancel'])) {
+    unset($_SESSION['checkout_items']);
+    header("Location: ../dasbord/shop.php");
+    exit;
+}
+
+// 🔎 Ambil item checkout dari session
+if (!isset($_SESSION['checkout_items']) || empty($_SESSION['checkout_items'])) {
     echo "<script>alert('Tidak ada item yang dipilih!'); window.location.href='../dasbord/shop.php';</script>";
     exit;
 }
 
-$selected_indexes = $_POST['selected_items'];
+$checkout_items = $_SESSION['checkout_items'];
 $total_all = 0;
-
-// Siapkan data untuk tampil
 $items = [];
-foreach ($selected_indexes as $i) {
-    if (isset($_SESSION['cart'][$i])) {
-        $item = $_SESSION['cart'][$i];
-        $subtotal = $item['harga'] * $item['jumlah'];
-        $total_all += $subtotal;
-        $items[] = [
-            'nama' => $item['nama'],
-            'harga' => $item['harga'],
-            'jumlah' => $item['jumlah'],
-            'total' => $subtotal
-        ];
-    }
+
+// Hitung total per produk
+foreach ($checkout_items as $item) {
+    $nama = $item['nama'];
+    $harga = (int)$item['harga'];
+    $jumlah = (int)$item['jumlah'];
+    $total = $harga * $jumlah;
+
+    $items[] = [
+        'nama' => $nama,
+        'harga' => $harga,
+        'jumlah' => $jumlah,
+        'total' => $total
+    ];
+
+    $total_all += $total;
 }
 
-// Proses simpan ke tabel pesanan
+// 💾 Simpan ke tabel pesanan
 if (isset($_POST['konfirmasi'])) {
     foreach ($items as $item) {
         $nama = mysqli_real_escape_string($conn, $item['nama']);
-        $harga = (int)$item['harga'];
-        $jumlah = (int)$item['jumlah'];
-        $total = (int)$item['total'];
+        $harga = $item['harga'];
+        $jumlah = $item['jumlah'];
+        $total = $item['total'];
         mysqli_query($conn, "INSERT INTO pesanan (user_id, nama_produk, jumlah, harga, total_harga, status)
                              VALUES ('$user_id', '$nama', '$jumlah', '$harga', '$total', 'Pending')");
     }
 
-    // Kosongkan cart setelah checkout
-    $_SESSION['cart'] = [];
+    unset($_SESSION['checkout_items']); // bersihkan data sementara
 
     echo "<script>
             alert('Pesanan berhasil dikirim!');
@@ -57,7 +64,6 @@ if (isset($_POST['konfirmasi'])) {
     exit;
 }
 ?>
-
 <!DOCTYPE html>
 <html lang="id">
 <head>
@@ -89,16 +95,9 @@ if (isset($_POST['konfirmasi'])) {
       font-weight: bold;
       border: none;
     }
-    .btn-warning:hover {
-      background-color: #f59e0b;
-    }
-    table {
-      color: #fff;
-    }
-    table thead {
-      background-color: #fbbf24;
-      color: #000;
-    }
+    .btn-warning:hover { background-color: #f59e0b; }
+    table { color: #fff; }
+    table thead { background-color: #fbbf24; color: #000; }
   </style>
 </head>
 <body>
@@ -130,12 +129,9 @@ if (isset($_POST['konfirmasi'])) {
   <h4 class="text-end mt-3">Total Semua: <span class="text-warning">Rp <?= number_format($total_all, 0, ',', '.'); ?></span></h4>
 
   <form method="POST">
-    <?php foreach ($selected_indexes as $i): ?>
-      <input type="hidden" name="selected_items[]" value="<?= $i; ?>">
-    <?php endforeach; ?>
     <div class="text-center mt-4">
       <button type="submit" name="konfirmasi" class="btn btn-warning px-5">Konfirmasi Pesanan</button>
-      <a href="../dasbord/shop.php" class="btn btn-secondary px-4">Kembali</a>
+      <a href="order.php?cancel=1" class="btn btn-secondary px-4">Batal</a>
     </div>
   </form>
 </div>
