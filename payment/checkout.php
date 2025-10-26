@@ -1,208 +1,144 @@
 <?php
 session_start();
+include "../config/db.php"; // koneksi ke database
 
-// cek apakah ada data keranjang
-if (!isset($_SESSION['cart']) || empty($_SESSION['cart'])) {
-    header("Location: order.php"); 
+// 🔒 Cek apakah user sudah login
+if (!isset($_SESSION['user_id'])) {
+    header("Location: ../user/login.php");
     exit;
 }
-$cart = $_SESSION['cart'];
+
+// 🔍 Ambil data user
+$user_id = $_SESSION['user_id'];
+
+// 🛒 Ambil item yang dipilih dari shop.php
+if (!isset($_POST['selected_items']) || empty($_POST['selected_items'])) {
+    echo "<script>alert('Tidak ada item yang dipilih!'); window.location.href='../dasbord/shop.php';</script>";
+    exit;
+}
+
+$selected_indexes = $_POST['selected_items'];
+$total_all = 0;
+
+// Siapkan data untuk tampil
+$items = [];
+foreach ($selected_indexes as $i) {
+    if (isset($_SESSION['cart'][$i])) {
+        $item = $_SESSION['cart'][$i];
+        $subtotal = $item['harga'] * $item['jumlah'];
+        $total_all += $subtotal;
+        $items[] = [
+            'nama' => $item['nama'],
+            'harga' => $item['harga'],
+            'jumlah' => $item['jumlah'],
+            'total' => $subtotal
+        ];
+    }
+}
+
+// Proses simpan ke tabel pesanan
+if (isset($_POST['konfirmasi'])) {
+    foreach ($items as $item) {
+        $nama = mysqli_real_escape_string($conn, $item['nama']);
+        $harga = (int)$item['harga'];
+        $jumlah = (int)$item['jumlah'];
+        $total = (int)$item['total'];
+        mysqli_query($conn, "INSERT INTO pesanan (user_id, nama_produk, jumlah, harga, total_harga, status)
+                             VALUES ('$user_id', '$nama', '$jumlah', '$harga', '$total', 'Pending')");
+    }
+
+    // Kosongkan cart setelah checkout
+    $_SESSION['cart'] = [];
+
+    echo "<script>
+            alert('Pesanan berhasil dikirim!');
+            window.location.href='../dasbord/home.php';
+          </script>";
+    exit;
+}
 ?>
 
 <!DOCTYPE html>
 <html lang="id">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Checkout Cireng</title>
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Checkout Ciraku</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
   <style>
     body {
-      background: linear-gradient(135deg, #000, #000);
+      background-color: #0d0d0d;
+      color: #fff;
       font-family: 'Poppins', sans-serif;
     }
-    .checkout-container {
-      max-width: 800px;
-      margin: 50px auto;
-      background: white;
-      padding: 30px;
+    .container {
+      max-width: 700px;
+      margin-top: 50px;
+      background: #1a1a1a;
       border-radius: 15px;
-      box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+      padding: 30px;
+      box-shadow: 0 0 20px rgba(251,191,36,0.2);
     }
     h2 {
-      font-weight: bold;
       color: #fbbf24;
+      font-weight: 600;
     }
-    .btn-primary {
-      background-color: #28a745;
+    .btn-warning {
+      background-color: #fbbf24;
+      color: #000;
+      font-weight: bold;
       border: none;
     }
-    .btn-primary:hover {
-      background-color: #218838;
+    .btn-warning:hover {
+      background-color: #f59e0b;
     }
-    /* Modal styling biar lebih clean */
-    .modal-content {
-      border-radius: 15px;
-      padding: 20px;
+    table {
+      color: #fff;
     }
-    .modal-header {
-      border-bottom: none;
-    }
-    .modal-footer {
-      border-top: none;
-    }
-    .form-control {
-      border-radius: 10px;
+    table thead {
+      background-color: #fbbf24;
+      color: #000;
     }
   </style>
 </head>
 <body>
-  <div class="checkout-container">
-    <h2 class="mb-4">🛒 Checkout Pesananmu</h2>
-    <table class="table table-bordered">
-      <thead class="table-warning">
-        <tr>
-          <th>Menu</th>
-          <th>Jumlah</th>
-          <th>Harga Satuan</th>
-          <th>Subtotal</th>
-        </tr>
-      </thead>
-      <tbody>
-        <?php
-        $total = 0;
-        foreach ($cart as $item) {
-            $nama = $item['nama'];
-            $jumlah = $item['jumlah'];
-            $harga = $item['harga'];
-            $subtotal = $jumlah * $harga;
-            $total += $subtotal;
-            echo "
-            <tr>
-              <td>$nama</td>
-              <td>$jumlah</td>
-              <td>Rp " . number_format($harga, 0, ',', '.') . "</td>
-              <td>Rp " . number_format($subtotal, 0, ',', '.') . "</td>
-            </tr>";
-        }
-        ?>
-      </tbody>
-      <tfoot>
-        <tr class="table-secondary">
-          <td colspan="3" class="text-end fw-bold">Total</td>
-          <td class="fw-bold">Rp <?= number_format($total, 0, ',', '.') ?></td>
-        </tr>
-      </tfoot>
-    </table>
 
-    <div class="d-flex justify-content-between mt-4">
-      <a href="order.php" class="btn btn-warning">⬅ Kembali Belanja</a>
-      <!-- Tombol trigger modal -->
-      <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#paymentModal">
-        💳 Lanjut ke Pembayaran
-      </button>
-    </div>
-  </div>
+<div class="container">
+  <h2 class="mb-4 text-center">Konfirmasi Checkout</h2>
 
-<!-- Modal -->
-<div class="modal fade" id="paymentModal" tabindex="-1" aria-labelledby="paymentModalLabel" aria-hidden="true">
-  <div class="modal-dialog modal-dialog-centered">
-    <div class="modal-content shadow-lg">
-      <div class="modal-header">
-        <h5 class="modal-title fw-bold" id="paymentModalLabel">💳 Detail Pembayaran</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Tutup"></button>
-      </div>
-      <form action="status.php" method="POST"> <!-- arahkan ke status.php -->
-        <div class="modal-body">
-          <div class="mb-3">
-            <label class="form-label">Nama Lengkap</label>
-            <input type="text" class="form-control" name="nama" placeholder="Masukkan nama lengkap" required>
-          </div>
-          <div class="mb-3">
-            <label class="form-label">Alamat</label>
-            <textarea class="form-control" name="alamat" rows="2" placeholder="Masukkan alamat lengkap" required></textarea>
-          </div>
-          <div class="mb-3">
-            <label class="form-label">No. HP</label>
-            <input type="text" class="form-control" name="no_hp" placeholder="08xxxxxxxxxx" required>
-          </div>
+  <table class="table table-dark table-striped">
+    <thead>
+      <tr>
+        <th>Produk</th>
+        <th>Jumlah</th>
+        <th>Harga</th>
+        <th>Total</th>
+      </tr>
+    </thead>
+    <tbody>
+      <?php foreach ($items as $it): ?>
+      <tr>
+        <td><?= htmlspecialchars($it['nama']); ?></td>
+        <td><?= $it['jumlah']; ?></td>
+        <td>Rp <?= number_format($it['harga'], 0, ',', '.'); ?></td>
+        <td>Rp <?= number_format($it['total'], 0, ',', '.'); ?></td>
+      </tr>
+      <?php endforeach; ?>
+    </tbody>
+  </table>
 
-<!-- Metode Pembayaran -->
-<div class="mb-3">
-  <label class="form-label fw-bold">Metode Pembayaran</label>
-  <div class="border rounded p-3">
-    <div class="form-check">
-      <input class="form-check-input" type="radio" name="metode" value="Transfer Bank" id="transfer" required>
-      <label class="form-check-label" for="transfer">🏦 Transfer Bank</label>
+  <h4 class="text-end mt-3">Total Semua: <span class="text-warning">Rp <?= number_format($total_all, 0, ',', '.'); ?></span></h4>
+
+  <form method="POST">
+    <?php foreach ($selected_indexes as $i): ?>
+      <input type="hidden" name="selected_items[]" value="<?= $i; ?>">
+    <?php endforeach; ?>
+    <div class="text-center mt-4">
+      <button type="submit" name="konfirmasi" class="btn btn-warning px-5">Konfirmasi Pesanan</button>
+      <a href="../dasbord/shop.php" class="btn btn-secondary px-4">Kembali</a>
     </div>
-    <div class="form-check">
-      <input class="form-check-input" type="radio" name="metode" value="COD" id="cod">
-      <label class="form-check-label" for="cod">🚚 Bayar di Tempat (COD)</label>
-    </div>
-    <div class="form-check">
-      <input class="form-check-input" type="radio" name="metode" value="E-Wallet" id="ewallet">
-      <label class="form-check-label" for="ewallet">📱 E-Wallet (Dana, OVO, GoPay)</label>
-    </div>
-  </div>
+  </form>
 </div>
 
-<!-- Instruksi Pembayaran (akan muncul dinamis) -->
-<div id="payment-instructions" class="alert alert-info d-none mt-3"></div>
-
-<script>
-document.querySelectorAll('input[name="metode"]').forEach((radio) => {
-  radio.addEventListener('change', function() {
-    let instructions = document.getElementById("payment-instructions");
-    instructions.classList.remove("d-none");
-
-    if (this.value === "Transfer Bank") {
-      instructions.innerHTML = `
-        <h6>🏦 Instruksi Transfer Bank</h6>
-        <p>Silakan transfer ke rekening berikut:</p>
-        <p><b>BCA - 123456789 a.n. Temen Lu</b></p>
-      `;
-    } else if (this.value === "E-Wallet") {
-      instructions.innerHTML = `
-        <h6>📱 Instruksi E-Wallet</h6>
-        <p>Silakan transfer ke salah satu E-Wallet berikut:</p>
-        <ul>
-          <li>DANA: 0812-XXXX-XXXX</li>
-          <li>OVO: 0812-YYYY-YYYY</li>
-          <li>GoPay: 0812-ZZZZ-ZZZZ</li>
-        </ul>
-      `;
-    } else if (this.value === "COD") {
-      instructions.innerHTML = `
-        <h6>🚚 Bayar di Tempat</h6>
-        <p>Silakan siapkan uang pas saat pesanan diantar.</p>
-      `;
-    }
-  });
-});
-</script>
-
-          <hr>
-          <h6 class="fw-bold">🧾 Rincian Belanja</h6>
-          <p class="mb-1">Total Belanja: <span class="fw-bold">Rp <?= number_format($total, 0, ',', '.') ?></span></p>
-          <p class="mb-1">Ongkir: <span class="fw-bold">Rp 5.000</span></p>
-          <p class="mb-0 text-success">Total Bayar: 
-            <span class="fw-bold">Rp <?= number_format($total + 5000, 0, ',', '.') ?></span>
-          </p>
-
-          <!-- kirim juga total belanja ke status.php -->
-          <input type="hidden" name="total_belanja" value="<?= $total ?>">
-          <input type="hidden" name="ongkir" value="5000">
-          <input type="hidden" name="total_bayar" value="<?= $total + 5000 ?>">
-        </div>
-        <div class="modal-footer">
-          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
-          <button type="submit" class="btn btn-success">✅ Bayar Sekarang</button>
-        </div>
-      </form>
-    </div>
-  </div>
-</div>
-
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

@@ -115,5 +115,82 @@
 
   <!-- Bootstrap JS -->
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
+ <!-- Geser kanan-kiri antar halaman tanpa klik navbar -->
+<script>
+let startX = 0;
+let currentX = 0;
+let endX = 0;
+let isSwiping = false;
+
+const pages = [
+  "home.php",
+  "tentang.php",
+  "menu.php",
+  "kontak.php"
+];
+
+// Deteksi halaman aktif sekarang
+let currentIndex = pages.findIndex(p => window.location.href.includes(p));
+
+// Fungsi pindah halaman
+function goToPage(index) {
+  if (index >= 0 && index < pages.length) {
+    window.location.href = pages[index];
+  }
+}
+
+// ======== Untuk layar sentuh (HP) ========
+document.addEventListener("touchstart", e => {
+  startX = e.touches[0].clientX;
+  isSwiping = true;
+});
+
+document.addEventListener("touchmove", e => {
+  if (!isSwiping) return;
+  currentX = e.touches[0].clientX;
+});
+
+document.addEventListener("touchend", e => {
+  if (!isSwiping) return;
+  endX = e.changedTouches[0].clientX;
+  handleSwipe(endX - startX);
+  isSwiping = false;
+});
+
+// ======== Untuk mouse (PC/Laptop) ========
+document.addEventListener("mousedown", e => {
+  startX = e.clientX;
+  isSwiping = true;
+});
+
+document.addEventListener("mousemove", e => {
+  if (!isSwiping) return;
+  currentX = e.clientX;
+});
+
+document.addEventListener("mouseup", e => {
+  if (!isSwiping) return;
+  endX = e.clientX;
+  handleSwipe(endX - startX);
+  isSwiping = false;
+});
+
+// ======== Fungsi Deteksi Geser ========
+function handleSwipe(diff) {
+  const threshold = 40; // jarak minimal geser biar enak
+  if (Math.abs(diff) > threshold) {
+    if (diff > 0) {
+      // Geser kanan -> halaman sebelumnya
+      goToPage(currentIndex - 1);
+    } else {
+      // Geser kiri -> halaman berikutnya
+      goToPage(currentIndex + 1);
+    }
+  }
+}
+</script>
+
+
 </body>
 </html>

@@ -61,7 +61,10 @@ include '../config/db.php';
     .card:hover {
       transform: scale(1.05);
     }
-    .card img {
+    .card-img-top {
+      width: 100%;
+      height: 190px; /* Sesuaikan tinggi gambar */
+      object-fit: cover; /* Potong gambar agar proporsional */
       border-bottom: 2px solid #fbbf24;
     }
     .card-title {
@@ -72,6 +75,7 @@ include '../config/db.php';
       font-size: 0.9rem;
       color: #ccc;
     }
+    
   </style>
 </head>
 <body>

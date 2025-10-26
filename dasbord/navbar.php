@@ -91,6 +91,22 @@ if (isset($_SESSION['logged_in']) && isset($_SESSION['user_id'])) {
   box-shadow: 0 0 10px #fbbf24;
 }
 
+/* Badge notif keranjang - kecil tapi tetap nempel rapi */
+.navbar .badge {
+  font-size: 10px !important;
+  padding: 2px 4px !important;
+  min-width: 16px;
+  height: 16px;
+  line-height: 12px;
+  border-radius: 50%;
+  background-color: #fbbf24 !important;
+  color: #000 !important;
+  position: absolute;
+  top: 0;
+  right: 0;
+  transform: translate(35%, -35%);
+  box-shadow: 0 0 3px rgba(0,0,0,0.3);
+}
 
 </style>
 
@@ -149,14 +165,21 @@ if (isset($_SESSION['logged_in']) && isset($_SESSION['user_id'])) {
 <?php endif; ?>
 
 
-  <!-- Keranjang -->
-  <a href="shop.php" class="icon-nav position-relative" title="Keranjang">
-    <i class="bi bi-cart3"></i>
-    <!-- Badge notif item di keranjang -->
+<!-- Keranjang -->
+<a href="shop.php" class="icon-nav position-relative" title="Keranjang">
+  <i class="bi bi-cart3"></i>
+
+  <?php 
+  // Hitung jumlah item di keranjang (kalau session keranjang ada)
+  $cart_count = isset($_SESSION['cart']) ? count($_SESSION['cart']) : 0;
+
+  // Tampilkan badge cuma kalau jumlah > 0
+  if ($cart_count > 0): ?>
     <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-warning text-dark">
-      1
+      <?= $cart_count ?>
     </span>
-  </a>
+  <?php endif; ?>
+</a>
 </div>
 
     </div>
