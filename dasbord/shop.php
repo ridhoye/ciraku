@@ -38,10 +38,13 @@ if (isset($_GET['remove'])) {
     $_SESSION['cart'] = array_values($_SESSION['cart']);
 }
 
-// --- Hapus semua item ---
 if (isset($_GET['clear'])) {
     $_SESSION['cart'] = [];
-    header("Location: shop.php");
+    $redirect = "shop.php";
+    if (isset($_GET['from']) && $_GET['from'] === "order") {
+        $redirect .= "?from=order";
+    }
+    header("Location: " . $redirect);
     exit();
 }
 
@@ -196,7 +199,9 @@ if (isset($_GET['from']) && $_GET['from'] === "order") {
         cancelButtonText: 'Batal'
       }).then((result) => {
         if (result.isConfirmed) {
-          window.location.href = '?clear=true';
+          const urlParams = new URLSearchParams(window.location.search);
+          const fromParam = urlParams.get('from') === 'order' ? '?clear=true&from=order' : '?clear=true';
+          window.location.href = fromParam;
         }
       });
     });

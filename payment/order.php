@@ -142,7 +142,9 @@ $cartCount = isset($_SESSION['cart']) ? count($_SESSION['cart']) : 0;
 <!-- 🛒 Hanya ikon keranjang -->
 <div class="cart-icon" onclick="window.location.href='http://localhost/ciraku/dasbord/shop.php?from=order'">
   <i class="bi bi-cart3"></i>
+  <?php if ($cartCount > 0): ?>
   <span class="cart-badge" id="cartCount"><?= $cartCount ?></span>
+  <?php endif; ?>
 </div>
 
 <div class="container py-5">
