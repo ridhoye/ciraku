@@ -44,6 +44,12 @@ if (isset($_GET['clear'])) {
     header("Location: shop.php");
     exit();
 }
+
+// --- Tentukan halaman sebelumnya ---
+$back_page = "http://localhost/ciraku/dasbord/home.php";
+if (isset($_GET['from']) && $_GET['from'] === "order") {
+    $back_page = "http://localhost/ciraku/payment/order.php";
+}
 ?>
 
 <!DOCTYPE html>
@@ -96,7 +102,6 @@ if (isset($_GET['clear'])) {
     }
     .checkout-btn:hover { transform: scale(1.05); background: linear-gradient(90deg, #ff5500, #ff8800); }
 
-    /* tombol hapus semua */
     .hapus-semua-btn {
       background: transparent; border: 1px solid #ff8800; color: #ff8800;
       padding: 8px 12px; border-radius: 8px; margin-left: 15px;
@@ -110,7 +115,8 @@ if (isset($_GET['clear'])) {
   <div class="container">
     <div class="header">
       <span>🛒 Keranjang Belanja</span>
-      <button class="back-btn" onclick="window.location.href='../dasbord/home.php'">← Kembali</button>
+      <!-- Tombol kembali otomatis -->
+      <button class="back-btn" onclick="window.location.href='<?= $back_page ?>'">← Kembali</button>
     </div>
 
     <?php if (!empty($_SESSION['cart'])): ?>
@@ -121,7 +127,7 @@ if (isset($_GET['clear'])) {
       ?>
       <div class="cart-item">
         <div class="cart-item-left">
-          <input type="checkbox" class="item-checkbox" data-harga="<?= $subtotal; ?>">
+          <input type="checkbox" class="item-checkbox" name="selected_items[]" value="<?= $index ?>" data-harga="<?= $subtotal; ?>">
           <img src="../assets/images/<?= htmlspecialchars($item['gambar']); ?>" alt="<?= htmlspecialchars($item['nama']); ?>">
           <div>
             <span class="cart-item-name"><?= htmlspecialchars($item['nama']); ?></span><br>
