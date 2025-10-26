@@ -2,6 +2,11 @@
 session_start();
 include "../config/db.php";
 
+// Hapus data checkout lama hanya jika user belum klik tombol Checkout
+if (!isset($_POST['selected_items']) && !isset($_GET['add'])) {
+    if (isset($_SESSION['checkout_items'])) unset($_SESSION['checkout_items']);
+}
+
 // --- Tambah produk ke keranjang ---
 if (isset($_GET['add'])) {
     $id_produk = intval($_GET['add']);
@@ -46,6 +51,26 @@ if (isset($_GET['clear'])) {
     }
     header("Location: " . $redirect);
     exit();
+}
+
+// --- Proses Checkout ---
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['selected_items'])) {
+    $selected = $_POST['selected_items'];
+    $checkout_items = [];
+
+    foreach ($selected as $index) {
+        if (isset($_SESSION['cart'][$index])) {
+            $checkout_items[] = $_SESSION['cart'][$index];
+        }
+    }
+
+    if (!empty($checkout_items)) {
+        $_SESSION['checkout_items'] = $checkout_items;
+        header("Location: ../payment/checkout.php");
+        exit;
+    } else {
+        echo "<script>alert('Pilih dulu item yang mau di-checkout!');</script>";
+    }
 }
 
 // --- Tentukan halaman sebelumnya ---
@@ -123,7 +148,7 @@ if (isset($_GET['from']) && $_GET['from'] === "order") {
     </div>
 
     <?php if (!empty($_SESSION['cart'])): ?>
-      <form method="POST" id="checkoutForm" action="../payment/checkout.php">
+      <form method="POST" id="checkoutForm" action="shop.php">
       <?php 
       foreach ($_SESSION['cart'] as $index => $item):
         $subtotal = $item['harga'] * $item['jumlah'];

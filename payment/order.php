@@ -2,6 +2,14 @@
 session_start();
 include "../config/db.php";
 
+// Bersihkan sisa checkout lama biar gak kebawa
+if (isset($_SESSION['checkout_items'])) {
+    unset($_SESSION['checkout_items']);
+}
+if (isset($_SESSION['temp_checkout'])) {
+    unset($_SESSION['temp_checkout']);
+}
+
 // 🔒 Cek login
 if (!isset($_SESSION['user_id'])) {
     echo "
