@@ -49,7 +49,6 @@
       font-size: 22px;
       font-weight: bold;
       color: #fff;
-      letter-spacing: 1px;
     }
 
     .logo span {
