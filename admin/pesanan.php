@@ -2,13 +2,13 @@
 session_start();
 include "../config/db.php";
 
-// 🔒 Cek login dan role
+// 🔒 cek login dan role admin
 if (!isset($_SESSION['logged_in']) || $_SESSION['role'] !== 'admin') {
   header("Location: ../user/login.php");
   exit;
 }
 
-// ✅ Update status pesanan
+// 🟡 update status pesanan
 if (isset($_POST['update_status'])) {
   $id = $_POST['id'];
   $status = $_POST['status'];
@@ -17,8 +17,20 @@ if (isset($_POST['update_status'])) {
   exit;
 }
 
-// ✅ Ambil semua data pesanan
-$result = mysqli_query($conn, "SELECT * FROM pesanan ORDER BY tanggal DESC");
+// 🔴 hapus pesanan
+if (isset($_GET['hapus'])) {
+  $id = $_GET['hapus'];
+  mysqli_query($conn, "DELETE FROM pesanan WHERE id=$id");
+  header("Location: pesanan.php");
+  exit;
+}
+
+// ✅ ambil semua pesanan + join ke tabel users
+$sql = "SELECT p.*, u.username, u.address, u.postal_code 
+        FROM pesanan p
+        LEFT JOIN users u ON p.user_id = u.id
+        ORDER BY p.tanggal DESC";
+$result = mysqli_query($conn, $sql);
 ?>
 
 <!DOCTYPE html>
@@ -29,54 +41,23 @@ $result = mysqli_query($conn, "SELECT * FROM pesanan ORDER BY tanggal DESC");
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
   <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
   <style>
-    body {
-      background-color: #0f0f0f;
-      color: #fff;
-      font-family: 'Poppins', sans-serif;
-    }
+    body { background-color: #0f0f0f; color: #fff; font-family: 'Poppins', sans-serif; }
     .sidebar {
-      width: 240px;
-      height: 100vh;
-      background: #1a1a1a;
-      position: fixed;
-      left: 0;
-      top: 0;
-      padding: 20px;
+      width: 240px; height: 100vh; background: #1a1a1a;
+      position: fixed; left: 0; top: 0; padding: 20px;
     }
     .sidebar a {
-      display: block;
-      color: #bbb;
-      text-decoration: none;
-      padding: 10px 15px;
-      margin: 5px 0;
-      border-radius: 8px;
-      transition: 0.3s;
+      display: block; color: #bbb; text-decoration: none;
+      padding: 10px 15px; margin: 5px 0; border-radius: 8px; transition: 0.3s;
     }
     .sidebar a.active, .sidebar a:hover {
-      background-color: #fbbf24;
-      color: #000;
+      background-color: #fbbf24; color: #000;
     }
-    .content {
-      margin-left: 260px;
-      padding: 30px;
-    }
-    .card {
-      background: #1e1e1e;
-      border: none;
-      border-radius: 15px;
-      color: #fff;
-    }
-    .table {
-      color: #fff;
-    }
-    .table thead {
-      background-color: #fbbf24;
-      color: #000;
-    }
-    select {
-      border-radius: 6px;
-      padding: 3px 8px;
-    }
+    .content { margin-left: 260px; padding: 30px; }
+    .card { background: #1e1e1e; border: none; border-radius: 15px; color: #fff; }
+    .table { color: #fff; }
+    .table thead { background-color: #fbbf24; color: #000; }
+    select { border-radius: 6px; padding: 3px 8px; }
   </style>
 </head>
 <body>
@@ -103,7 +84,9 @@ $result = mysqli_query($conn, "SELECT * FROM pesanan ORDER BY tanggal DESC");
           <thead>
             <tr>
               <th>ID</th>
-              <th>User ID</th>
+              <th>Username</th>
+              <th>Alamat</th>
+              <th>Kode Pos</th>
               <th>Produk</th>
               <th>Jumlah</th>
               <th>Harga</th>
@@ -118,7 +101,9 @@ $result = mysqli_query($conn, "SELECT * FROM pesanan ORDER BY tanggal DESC");
               <?php while ($row = mysqli_fetch_assoc($result)): ?>
                 <tr>
                   <td><?= $row['id'] ?></td>
-                  <td><?= $row['user_id'] ?></td>
+                  <td><?= htmlspecialchars($row['username'] ?? '-') ?></td>
+                  <td><?= htmlspecialchars($row['address'] ?? '-') ?></td>
+                  <td><?= htmlspecialchars($row['postal_code'] ?? '-') ?></td>
                   <td><?= htmlspecialchars($row['nama_produk']) ?></td>
                   <td><?= $row['jumlah'] ?></td>
                   <td>Rp <?= number_format($row['harga'], 0, ',', '.') ?></td>
@@ -141,7 +126,7 @@ $result = mysqli_query($conn, "SELECT * FROM pesanan ORDER BY tanggal DESC");
                 </tr>
               <?php endwhile; ?>
             <?php else: ?>
-              <tr><td colspan="9" class="text-center text-secondary">Belum ada pesanan masuk.</td></tr>
+              <tr><td colspan="11" class="text-center text-secondary">Belum ada pesanan masuk.</td></tr>
             <?php endif; ?>
           </tbody>
         </table>
