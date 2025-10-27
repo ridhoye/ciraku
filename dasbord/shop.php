@@ -66,6 +66,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['selected_items'])) {
 
     if (!empty($checkout_items)) {
         $_SESSION['checkout_items'] = $checkout_items;
+        $_SESSION['checkout_origin'] = 'order.php';
         header("Location: ../payment/checkout.php");
         exit;
     } else {
@@ -136,6 +137,20 @@ if (isset($_GET['from']) && $_GET['from'] === "order") {
       cursor: pointer; transition: 0.3s; display: none;
     }
     .hapus-semua-btn:hover { background-color: #ff8800; color: #fff; }
+
+        /*CSS Alert */
+    .swal2-border-radius {
+      border-radius: 15px !important;
+    }
+    .swal2-title-custom {
+      font-weight: 700;
+      color: #333;
+    }
+    .swal2-text-custom {
+      font-size: 15px;
+      color: #555;
+    }
+
   </style>
 </head>
 <body>
@@ -185,53 +200,87 @@ if (isset($_GET['from']) && $_GET['from'] === "order") {
     <?php endif; ?>
   </div>
 
-  <script>
-    const selectAll = document.getElementById('selectAll');
-    const checkboxes = document.querySelectorAll('.item-checkbox');
-    const totalValue = document.getElementById('totalValue');
-    const hapusSemuaBtn = document.getElementById('hapusSemuaBtn');
+<script>
+  const selectAll = document.getElementById('selectAll');
+  const checkboxes = document.querySelectorAll('.item-checkbox');
+  const totalValue = document.getElementById('totalValue');
+  const hapusSemuaBtn = document.getElementById('hapusSemuaBtn');
+  const checkoutForm = document.getElementById('checkoutForm');
 
-    function updateTotal() {
-      let total = 0;
-      checkboxes.forEach(cb => {
-        if (cb.checked) total += parseInt(cb.dataset.harga);
-      });
-      totalValue.textContent = total.toLocaleString('id-ID');
-    }
-
-    selectAll?.addEventListener('change', function() {
-      checkboxes.forEach(cb => cb.checked = this.checked);
-      updateTotal();
-      hapusSemuaBtn.style.display = this.checked ? 'inline-block' : 'none';
+  function updateTotal() {
+    let total = 0;
+    checkboxes.forEach(cb => {
+      if (cb.checked) total += parseInt(cb.dataset.harga);
     });
+    totalValue.textContent = total.toLocaleString('id-ID');
+  }
 
-    checkboxes.forEach(cb => cb.addEventListener('change', () => {
-      const allChecked = [...checkboxes].every(c => c.checked);
-      selectAll.checked = allChecked;
-      updateTotal();
-      hapusSemuaBtn.style.display = allChecked ? 'inline-block' : 'none';
-    }));
+  selectAll?.addEventListener('change', function() {
+    checkboxes.forEach(cb => cb.checked = this.checked);
+    updateTotal();
+    hapusSemuaBtn.style.display = this.checked ? 'inline-block' : 'none';
+  });
 
-    hapusSemuaBtn?.addEventListener('click', () => {
+  checkboxes.forEach(cb => cb.addEventListener('change', () => {
+    const allChecked = [...checkboxes].every(c => c.checked);
+    selectAll.checked = allChecked;
+    updateTotal();
+    hapusSemuaBtn.style.display = allChecked ? 'inline-block' : 'none';
+  }));
+
+  hapusSemuaBtn?.addEventListener('click', () => {
+Swal.fire({
+  title: 'Hapus semua produk?',
+  text: 'Semua item di keranjang akan dihapus!',
+  icon: 'warning',
+  background: '#fff',          // Putih
+  color: '#333',               // Teks abu tua
+  iconColor: '#fbbf24',        // Ikon oren kekuningan
+  backdrop: 'rgba(0, 0, 0, 0.6)',
+  showCancelButton: true,
+  confirmButtonColor: '#fbbf24',
+  cancelButtonColor: '#ccc',
+  confirmButtonText: 'Ya, hapus semua!',
+  cancelButtonText: 'Batal',
+  customClass: {
+    popup: 'swal2-border-radius',
+    title: 'swal2-title-custom',
+    htmlContainer: 'swal2-text-custom'
+  }
+}).then((result) => {
+  if (result.isConfirmed) {
+    const urlParams = new URLSearchParams(window.location.search);
+    const fromParam = urlParams.get('from') === 'order' ? '?clear=true&from=order' : '?clear=true';
+    window.location.href = fromParam;
+  }
+});
+  });
+
+  // ✅ Validasi tombol Checkout (gaya putih-oren)
+  checkoutForm?.addEventListener('submit', function(e) {
+    const selected = document.querySelectorAll('.item-checkbox:checked');
+    if (selected.length === 0) {
+      e.preventDefault();
       Swal.fire({
-        title: 'Hapus semua produk?',
-        text: 'Semua item di keranjang akan dihapus!',
+        title: 'Ups!',
+        text: 'Kamu belum memilih item untuk di-checkout 😅',
         icon: 'warning',
-        showCancelButton: true,
-        confirmButtonColor: '#ff5500',
-        cancelButtonColor: '#555',
-        confirmButtonText: 'Ya, hapus semua!',
-        cancelButtonText: 'Batal'
-      }).then((result) => {
-        if (result.isConfirmed) {
-          const urlParams = new URLSearchParams(window.location.search);
-          const fromParam = urlParams.get('from') === 'order' ? '?clear=true&from=order' : '?clear=true';
-          window.location.href = fromParam;
+        background: '#fff', // Putih
+        color: '#333', // Teks abu tua
+        confirmButtonColor: '#fbbf24', // Oren kekuningan
+        confirmButtonText: 'OK',
+        iconColor: '#fbbf24', // Warna ikon oranye
+        backdrop: 'rgba(0, 0, 0, 0.6)', // Background transparan gelap
+        customClass: {
+          popup: 'swal2-border-radius',
+          title: 'swal2-title-custom',
+          htmlContainer: 'swal2-text-custom'
         }
       });
-    });
+    }
+  });
 
-    updateTotal();
-  </script>
+  updateTotal();
+</script>
 </body>
 </html>

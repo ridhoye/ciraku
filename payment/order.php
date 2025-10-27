@@ -139,8 +139,48 @@ $cartCount = isset($_SESSION['cart']) ? count($_SESSION['cart']) : 0;
     .btn-warning { background: linear-gradient(90deg, #fbbf24, #f59e0b); border: none; font-weight: bold; color: #fff; box-shadow: 0 3px 8px rgba(251,191,36,0.4); }
     .btn-warning:hover { background: linear-gradient(90deg, #f59e0b, #d97706); transform: scale(1.03); }
     .btn-success { background: linear-gradient(90deg, #22c55e, #16a34a); font-weight: bold; color: #fff; }
-    .btn-secondary { background-color: #374151; color: #fff; font-weight: 600; }
-    .btn-secondary:hover { background-color: #4b5563; }
+    
+    /* ✨ Efek hover tombol Kembali biar muncul halus */
+    .btn-secondary {
+      background-color: #374151;
+      color: #fff;
+      font-weight: 600;
+      transition: all 0.25s ease;
+    }
+
+    .btn-secondary:hover {
+      background-color: #4b5563;
+      transform: scale(1.05);
+      box-shadow: 0 0 10px rgba(255, 255, 255, 0.15); /* lembut banget */
+      color: #000; /* teks jadi hitam pas hover */
+    }
+
+        .btn-success {
+      background: linear-gradient(90deg, #22c55e, #16a34a);
+      font-weight: bold;
+      color: #fff;
+      border: none;
+      transition: all 0.3s ease;
+    }
+
+    .btn-success:hover {
+      background: linear-gradient(90deg, #86efac, #4ade80); /* hijau lebih terang */
+      color: #000; /* teks jadi hitam */
+      transform: scale(1.05);
+    }
+    
+    /*CSS Alert */
+    .swal2-border-radius {
+      border-radius: 15px !important;
+    }
+    .swal2-title-custom {
+      font-weight: 700;
+      color: #333;
+    }
+    .swal2-text-custom {
+      font-size: 15px;
+      color: #555;
+    }
   </style>
 </head>
 <body>
@@ -229,17 +269,23 @@ function animateToCart(imgEl) {
 
 document.getElementById('addToCartBtn').addEventListener('click', () => {
   if (!hasItems()) {
-    Swal.fire({ 
-      title: 'Ups!', 
-      text: 'Kamu belum memilih jumlah cireng 😅', 
-      icon: 'warning', 
-      background: '#111',
-      color: '#fff',
-      confirmButtonColor: '#fbbf24',
-      iconColor: '#fbbf24',
-      backdrop: 'rgba(0,0,0,0.7)'
+    Swal.fire({
+      title: 'Ups!',
+      text: 'Kamu belum memilih jumlah cireng 😅',
+      icon: 'warning',
+      background: '#fff', // Putih
+      color: '#333', // Teks abu tua
+      confirmButtonColor: '#fbbf24', // Oren kekuningan
+      confirmButtonText: 'OK',
+      iconColor: '#fbbf24', // Warna ikon oranye
+      backdrop: 'rgba(0, 0, 0, 0.6)', // Abu-abu transparan di belakang
+      customClass: {
+        popup: 'swal2-border-radius',
+        title: 'swal2-title-custom',
+        htmlContainer: 'swal2-text-custom'
+  }
     });
-    return;
+      return;
   }
 
   document.querySelectorAll('.qty-input').forEach((input) => {
@@ -249,17 +295,22 @@ document.getElementById('addToCartBtn').addEventListener('click', () => {
     }
   });
 
-  Swal.fire({
-    title: 'Berhasil!',
-    text: 'Barang ditambahkan ke keranjang!',
-    icon: 'success',
-    background: '#111',
-    color: '#fff',
-    iconColor: '#fbbf24',
-    showConfirmButton: false,
-    timer: 1200,
-    timerProgressBar: true
-  });
+      Swal.fire({
+      title: 'Berhasil!',
+      text: 'Barang ditambahkan ke keranjang!',
+      icon: 'success',
+      background: '#fff', // Putih
+      color: '#333', // Teks abu tua
+      confirmButtonColor: '#fbbf24', // Oren kekuningan
+      confirmButtonText: 'OK',
+      iconColor: '#fbbf24', // Warna ikon oranye
+      backdrop: 'rgba(0, 0, 0, 0.6)', // Abu-abu transparan di belakang
+      customClass: {
+        popup: 'swal2-border-radius',
+        title: 'swal2-title-custom',
+        htmlContainer: 'swal2-text-custom'
+  }
+    });
 
   setTimeout(() => {
     const input = document.createElement("input");
@@ -269,20 +320,26 @@ document.getElementById('addToCartBtn').addEventListener('click', () => {
   }, 1300);
 });
 
-// 💳 Alert hitam-oranye untuk tombol Pesan Sekarang
+// 💳 Alert untuk tombol Pesan Sekarang
 document.querySelector('button[name="checkout"]').addEventListener('click', function(e) {
   if (!hasItems()) {
     e.preventDefault();
+
     Swal.fire({
       title: 'Ups!',
       text: 'Kamu belum memilih jumlah cireng 😅',
       icon: 'warning',
-      background: '#111',
-      color: '#fff',
+      background: '#fff', // Putih
+      color: '#333', // Teks abu tua
+      confirmButtonColor: '#fbbf24', // Oren kekuningan
       confirmButtonText: 'OK',
-      confirmButtonColor: '#fbbf24',
-      iconColor: '#fbbf24',
-      backdrop: 'rgba(0,0,0,0.7)'
+      iconColor: '#fbbf24', // Warna ikon oranye
+      backdrop: 'rgba(0, 0, 0, 0.6)', // Abu-abu transparan di belakang
+      customClass: {
+        popup: 'swal2-border-radius',
+        title: 'swal2-title-custom',
+        htmlContainer: 'swal2-text-custom'
+  }
     });
   }
 });

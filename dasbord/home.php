@@ -123,6 +123,18 @@
         font-size: 1rem;
       }
     }
+
+    .swal2-border-radius {
+      border-radius: 15px !important;
+    }
+    .swal2-title-custom {
+      font-weight: 700;
+      color: #333;
+    }
+    .swal2-text-custom {
+      font-size: 15px;
+      color: #555;
+    }
   </style>
 </head>
 <body>
@@ -166,5 +178,58 @@
       }
     });
   </script>
+
+    <!-- JS -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <script>
+    // Inisialisasi AOS
+    AOS.init({
+      duration: 1000,
+      easing: 'ease-out-cubic',
+      once: true
+    });
+
+    // Navbar blur effect saat scroll
+    window.addEventListener('scroll', function() {
+      const navbar = document.querySelector('.navbar');
+      if (window.scrollY > 50) {
+        navbar.classList.add('scrolled');
+      } else {
+        navbar.classList.remove('scrolled');
+      }
+    });
+
+    // 🔒 Cek login sebelum order
+    document.addEventListener('DOMContentLoaded', function() {
+      const orderBtn = document.querySelector('.btn-warning');
+
+      orderBtn.addEventListener('click', function(event) {
+        <?php if (!isset($_SESSION['user_id'])): ?>
+          event.preventDefault();
+          Swal.fire({
+            title: 'Akses Ditolak!',
+            text: 'Kamu harus login dulu sebelum order 🥲',
+            icon: 'warning',
+            background: '#fff', // Putih
+            color: '#333', // Teks abu tua
+            confirmButtonColor: '#fbbf24', // Oren kekuningan
+            confirmButtonText: 'Daftar Sekarang',
+            iconColor: '#fbbf24', // Warna ikon oranye
+            backdrop: 'rgba(0, 0, 0, 0.6)', // Abu-abu transparan di belakang
+            customClass: {
+              popup: 'swal2-border-radius',
+              title: 'swal2-title-custom',
+              htmlContainer: 'swal2-text-custom'
+            }
+          }).then(() => {
+            window.location.href = '../user/login.php';
+          });
+        <?php endif; ?>
+      });
+    });
+  </script>
+
 </body>
 </html>

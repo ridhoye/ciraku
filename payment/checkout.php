@@ -23,11 +23,8 @@ if (isset($_POST['cancel_checkout'])) {
     // Hapus data checkout
     unset($_SESSION['checkout_items']);
 
-    // Kembali ke halaman shop (bukan reload data lama)
-    echo "<script>
-        alert('Pesanan dibatalkan.');
-        window.location.href='../order/shop.php';
-    </script>";
+    // Langsung kembali ke halaman keranjang di home 
+    header("Location: ../dasbord/shop.php");
     exit;
 }
 
@@ -239,11 +236,70 @@ if (isset($_POST['konfirmasi'])) {
       <form method="POST">
         <div class="button-group">
           <button type="submit" name="konfirmasi" class="btn btn-warning">Lanjut ke Pembayaran</button>
-          <a href="order.php?cancel=1" class="btn btn-secondary">Batal</a>
+          <button type="submit" name="cancel_checkout" class="btn btn-secondary">Batal</button>
         </div>
       </form>
     </div>
   </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+  const cancelBtn = document.querySelector('button[name="cancel_checkout"]');
+  const form = document.querySelector('form'); // form utama checkout
+
+  if (cancelBtn && form) {
+    cancelBtn.addEventListener('click', function(e) {
+      e.preventDefault();
+
+      Swal.fire({
+        title: 'Batalkan Pesanan?',
+        text: 'Apakah kamu yakin ingin membatalkan pesanan ini?',
+        icon: 'warning',
+        background: '#fff',
+        color: '#333',
+        iconColor: '#fbbf24',
+        backdrop: 'rgba(0, 0, 0, 0.6)',
+        showCancelButton: true,
+        confirmButtonColor: '#fbbf24',
+        cancelButtonColor: '#ccc',
+        confirmButtonText: 'Ya, batalkan',
+        cancelButtonText: 'Tidak',
+        customClass: {
+          popup: 'swal2-border-radius',
+          title: 'swal2-title-custom',
+          htmlContainer: 'swal2-text-custom'
+        }
+      }).then((result) => {
+        if (result.isConfirmed) {
+          // Tambahkan input hidden agar PHP mendeteksi tombol ini
+          const hiddenInput = document.createElement('input');
+          hiddenInput.type = 'hidden';
+          hiddenInput.name = 'cancel_checkout';
+          hiddenInput.value = '1';
+          form.appendChild(hiddenInput);
+
+          form.submit(); // kirim form
+        }
+      });
+    });
+  }
+});
+</script>
+
+<style>
+.swal2-border-radius {
+  border-radius: 15px !important;
+}
+.swal2-title-custom {
+  font-weight: 700;
+  color: #333;
+}
+.swal2-text-custom {
+  font-size: 15px;
+  color: #555;
+}
+</style>
 
 </body>
 </html>
