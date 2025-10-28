@@ -148,6 +148,11 @@ if (!$user) {
   <!-- Input aslinya disembunyikan -->
   <input type="file" id="photo" name="photo" class="form-control" style="display:none;">
 </div>
+<div class="mb-3">
+    <label for="username" class="form-label">Username</label>
+    <input type="text" id="username" name="username" class="form-control"
+           value="<?= htmlspecialchars($user['username'] ?? '') ?>" required>
+</div>
 
         <div class="mb-3">
             <label for="full_name" class="form-label">Nama Lengkap</label>

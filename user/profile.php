@@ -277,13 +277,19 @@ if (!$user) {
       <div class="info-label"><i class="bi bi-calendar"></i> Bergabung Sejak</div>
       <div class="info-value">
         <?php 
-          if (isset($user['created_at'])) {
-              // Locale untuk Linux & Windows
-              setlocale(LC_TIME, 'id_ID.UTF-8', 'Indonesian_indonesia.1252', 'id_ID', 'id');
-              echo strftime('%d %B %Y', strtotime($user['created_at']));
-          } else {
-              echo '-';
-          }
+    if (isset($user['created_at'])) {
+        $tanggal = new IntlDateFormatter(
+            'id_ID',
+            IntlDateFormatter::LONG,
+            IntlDateFormatter::NONE,
+            'Asia/Jakarta',
+            IntlDateFormatter::GREGORIAN,
+            'd MMMM yyyy'
+        );
+        echo $tanggal->format(strtotime($user['created_at']));
+    } else {
+        echo '-';
+    }
         ?>
       </div>
     </div>
