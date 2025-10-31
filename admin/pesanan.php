@@ -115,6 +115,7 @@ $result = mysqli_query($conn, $sql);
                       <select name="status" class="form-select form-select-sm bg-dark text-white border-warning" style="width:120px;">
                         <option value="Pending" <?= $row['status']=='Pending'?'selected':'' ?>>Pending</option>
                         <option value="Diproses" <?= $row['status']=='Diproses'?'selected':'' ?>>Diproses</option>
+                        <option value="Dikirim" <?= $row['status']=='Dikirim'?'selected':'' ?>>Dikirim</option>
                         <option value="Selesai" <?= $row['status']=='Selesai'?'selected':'' ?>>Selesai</option>
                       </select>
                       <button type="submit" name="update_status" class="btn btn-sm btn-warning">Update</button>

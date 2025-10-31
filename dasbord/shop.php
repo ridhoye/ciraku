@@ -159,7 +159,7 @@ if (isset($_GET['from']) && $_GET['from'] === "order") {
     <div class="header">
       <span>🛒 Keranjang Belanja</span>
       <!-- Tombol kembali otomatis -->
-      <button class="back-btn" onclick="window.location.href='<?= $back_page ?>'">← Kembali</button>
+      <button class="back-btn" onclick="window.location.href='<?= $back_page ?>'">⬅️ Kembali</button>
     </div>
 
     <?php if (!empty($_SESSION['cart'])): ?>
