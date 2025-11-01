@@ -24,7 +24,8 @@ if (isset($_POST['cancel_checkout'])) {
     unset($_SESSION['checkout_items']);
 
     // Langsung kembali ke halaman keranjang di home 
-    header("Location: ../dasbord/shop.php");
+    header("Location: ../dasbord/order.php?from_checkout=1");
+
     exit;
 }
 
@@ -67,17 +68,17 @@ if (isset($_POST['konfirmasi'])) {
                              VALUES ('$user_id', '$nama', '$jumlah', '$harga', '$total', 'Pending')");
     }
 
-    // 🧹 Hapus data keranjang sesuai item yang dibayar
-    if (isset($_SESSION['cart']) && isset($_SESSION['checkout_items'])) {
-        foreach ($_SESSION['checkout_items'] as $checkoutItem) {
-            foreach ($_SESSION['cart'] as $index => $cartItem) {
-                if ($cartItem['id'] == $checkoutItem['id']) {
-                    unset($_SESSION['cart'][$index]);
-                }
+if (isset($_SESSION['cart']) && isset($_SESSION['checkout_items'])) {
+    foreach ($_SESSION['checkout_items'] as $checkoutItem) {
+        foreach ($_SESSION['cart'] as $index => $cartItem) {
+            if ($cartItem['nama'] == $checkoutItem['nama']) { // bisa pakai id juga
+                unset($_SESSION['cart'][$index]);
             }
         }
-        $_SESSION['cart'] = array_values($_SESSION['cart']); // reset index
     }
+    $_SESSION['cart'] = array_values($_SESSION['cart']); // tetap jaga index
+}
+
 
     // 🧹 Bersihkan checkout session
     unset($_SESSION['checkout_items']);
