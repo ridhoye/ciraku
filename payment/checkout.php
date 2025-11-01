@@ -24,7 +24,8 @@ if (isset($_POST['cancel_checkout'])) {
     unset($_SESSION['checkout_items']);
 
     // Langsung kembali ke halaman keranjang di home 
-    header("Location: ../dasbord/order.php?from_checkout=1");
+    header("Location: ../payment/order.php");
+
 
     exit;
 }
