@@ -22,6 +22,9 @@ $query = "SELECT * FROM kontak_pesan WHERE
           nama LIKE '%$cari%' OR email LIKE '%$cari%' OR subjek LIKE '%$cari%' OR phone LIKE '%$cari%' 
           ORDER BY tanggal DESC";
 $result = mysqli_query($conn, $query);
+
+$pageTitle = "Data Users - Ciraku";
+include "includes/header.php";
 ?>
 <!DOCTYPE html>
 <html lang="id">
@@ -33,9 +36,6 @@ $result = mysqli_query($conn, $query);
   <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
   <style>
     body { background:#0f0f0f; color:#fff; font-family:'Poppins',sans-serif; }
-    .sidebar { width:240px; height:100vh; background:#1a1a1a; position:fixed; left:0; top:0; padding:20px; }
-    .sidebar a { display:block; color:#bbb; padding:10px 15px; border-radius:8px; text-decoration:none; margin:5px 0; }
-    .sidebar a.active, .sidebar a:hover { background:#fbbf24; color:#000; }
     .content { margin-left:260px; padding:30px; }
     .card { background:#1e1e1e; border:none; border-radius:15px; }
     .table { color:#fff; }
@@ -46,19 +46,7 @@ $result = mysqli_query($conn, $query);
   </style>
 </head>
 <body>
-
-<!-- Sidebar -->
-<div class="sidebar">
-  <h4 class="text-warning mb-4">CIRAKU Admin</h4>
-  <a href="panel_admin.php"><i class="bi bi-speedometer2"></i> Dashboard</a>
-  <a href="data_users.php"><i class="bi bi-people"></i> Data User</a>
-  <a href="kontak_pesan.php" class="active"><i class="bi bi-envelope"></i> Pesan Masuk</a>
-  <a href="produks/produk.php"><i class="bi bi-box"></i> Produk</a>
-  <a href="pesanan.php"><i class="bi bi-bag"></i> Pesanan</a>
-  <hr class="border-secondary">
-  <a href="../user/logout.php"><i class="bi bi-box-arrow-right"></i> Logout</a>
-</div>
-
+<?php include "includes/sidebar.php"; ?>
 <!-- Konten -->
 <div class="content">
   <h2 class="mb-4">Pesan Masuk</h2>

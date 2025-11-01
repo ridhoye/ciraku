@@ -32,6 +32,9 @@ if ($user_data && mysqli_num_rows($user_data) > 0) {
   $labels = ['No Data'];
   $totals = [0];
 }
+
+$pageTitle = "Data Users - Ciraku";
+include "includes/header.php";
 ?>
 
 <!DOCTYPE html>
@@ -96,7 +99,7 @@ if ($user_data && mysqli_num_rows($user_data) > 0) {
   </style>
 </head>
 <body>
-
+<?php include "includes/sidebar.php"; ?>
   <!-- Sidebar -->
   <div class="sidebar">
     <h4 class="text-warning mb-4">CIRAKU Admin</h4>
