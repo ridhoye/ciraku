@@ -10,6 +10,42 @@ if (!isset($_SESSION['user_id'])) {
 
 $user_id = $_SESSION['user_id'];
 
+// Ambil data user
+$user = mysqli_fetch_assoc(mysqli_query($conn, "SELECT * FROM users WHERE id = '$user_id'"));
+
+// Update alamat jika form disubmit
+if (isset($_POST['save_address'])) {
+    $full_name   = mysqli_real_escape_string($conn, $_POST['full_name']);
+    $phone       = mysqli_real_escape_string($conn, $_POST['phone']);
+    $address     = mysqli_real_escape_string($conn, $_POST['address']);
+    $postal_code = mysqli_real_escape_string($conn, $_POST['postal_code']);
+
+    $check = mysqli_fetch_assoc(mysqli_query($conn, "SELECT * FROM users WHERE id='$user_id'"));
+
+    if (
+        $check['full_name'] == $full_name &&
+        $check['phone'] == $phone &&
+        $check['address'] == $address &&
+        $check['postal_code'] == $postal_code
+    ) {
+        echo "nochange";
+        exit;
+    }
+
+    $update = mysqli_query($conn, "
+        UPDATE users 
+        SET full_name='$full_name', phone='$phone', address='$address', postal_code='$postal_code' 
+        WHERE id='$user_id'
+    ");
+
+    if ($update) {
+        echo "success";
+    } else {
+        echo "failed: " . mysqli_error($conn); // 🔥 tambahin ini
+    }
+    exit;
+}
+
 // Kalau user belum pilih item tapi masih ada sisa data lama, hapus dulu
 if (!isset($_SESSION['checkout_items']) && isset($_SESSION['last_cancelled_items'])) {
     unset($_SESSION['last_cancelled_items']);
@@ -42,17 +78,30 @@ $items = [];
 
 // Hitung total per produk
 foreach ($checkout_items as $item) {
-    $nama = $item['nama'];
+    $nama = mysqli_real_escape_string($conn, $item['nama']);
     $harga = (int)$item['harga'];
     $jumlah = (int)$item['jumlah'];
     $total = $harga * $jumlah;
 
+    // ✅ Cek koneksi dan ambil gambar produk
+    $query = "SELECT gambar FROM produk WHERE nama_produk = '$nama' LIMIT 1";
+    $result = mysqli_query($conn, $query);
+
+    if ($result && mysqli_num_rows($result) > 0) {
+        $row = mysqli_fetch_assoc($result);
+        $gambar = $row['gambar'];
+    } else {
+        $gambar = 'default.png';
+    }
+
     $items[] = [
-        'nama' => $nama,
-        'harga' => $harga,
+        'nama'   => $nama,
+        'harga'  => $harga,
         'jumlah' => $jumlah,
-        'total' => $total
+        'total'  => $total,
+        'gambar' => $gambar
     ];
+
 
     $total_all += $total;
 }
@@ -100,6 +149,7 @@ if (isset($_SESSION['cart']) && isset($_SESSION['checkout_items'])) {
 
   <!-- Bootstrap CSS (optional, for utility) -->
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
   <style>
     /* ===== Theme colors (Ciraku dark + gold) ===== */
@@ -268,6 +318,7 @@ if (isset($_SESSION['cart']) && isset($_SESSION['checkout_items'])) {
       .right-section{ order: 3; }
     }
 
+    
   </style>
 </head>
 <body>
@@ -276,25 +327,61 @@ if (isset($_SESSION['cart']) && isset($_SESSION['checkout_items'])) {
     <div class="left-col">
       <div class="page-title">Checkout</div>
 
-      <!-- Card 1: Alamat Pengiriman -->
-      <div class="card-ui address">
-        <div class="title-row">
-          <div style="font-weight:700;color:var(--gold-1)">ALAMAT PENGIRIMAN</div>
-          <button class="change-btn" type="button">Ganti</button>
-        </div>
-        <!-- Dummy: lu bisa ganti pake data dinamis user -->
-        <div class="address-meta">
-          <div style="margin-bottom:8px;"><strong><?= htmlspecialchars($_SESSION['username'] ?? 'Pelanggan'); ?></strong> • Rumah</div>
-          <div>Jl. Contoh Alamat No. 12, RT 01 RW 02, Kecamatan Contoh, Kota — Provinsi</div>
-          <div style="margin-top:8px;color:var(--muted)"><?= htmlspecialchars($_SESSION['phone'] ?? '08xxxxxxxxxx'); ?></div>
-        </div>
+<!-- Card 1: Alamat Pengiriman -->
+<div class="card-ui address">
+  <div class="title-row">
+    <div style="font-weight:700;color:var(--gold-1)">ALAMAT PENGIRIMAN</div>
+    <button class="change-btn" type="button" id="editAddressBtn">Ganti</button>
+  </div>
+
+  <!-- Mode Tampilan -->
+  <div id="addressDisplay">
+    <div class="address-meta">
+      <div style="margin-bottom:8px;">
+        <strong><?= htmlspecialchars($user['full_name'] ?? 'Pelanggan'); ?></strong> • Rumah
       </div>
+      <div><?= htmlspecialchars($user['address'] ?? 'Alamat belum diisi'); ?></div>
+      <div style="margin-top:8px;color:var(--muted)"><?= htmlspecialchars($user['phone'] ?? '08xxxxxxxxxx'); ?></div>
+      <div style="color:var(--muted)">Kode Pos: <?= htmlspecialchars($user['postal_code'] ?? '-'); ?></div>
+    </div>
+  </div>
+
+  <!-- Mode Edit -->
+<form method="POST" id="addressEditForm" style="display:none;margin-top:10px;">
+  <div class="address-meta">
+    <label>Nama Lengkap</label>
+    <input type="text" name="full_name" class="form-control mb-2" 
+      value="<?= htmlspecialchars($user['full_name'] ?? ''); ?>" required>
+
+    <label>Nomor Telepon</label>
+    <input type="text" name="phone" class="form-control mb-2" 
+      value="<?= htmlspecialchars($user['phone'] ?? ''); ?>" required>
+
+    <label>Alamat Lengkap</label>
+    <textarea name="address" rows="3" class="form-control mb-2" required><?= htmlspecialchars($user['address'] ?? ''); ?></textarea>
+
+    <label>Kode Pos</label>
+    <input type="text" name="postal_code" class="form-control mb-3" 
+      value="<?= htmlspecialchars($user['postal_code'] ?? ''); ?>" required>
+
+    <button type="submit" name="save_address" class="btn btn-primary w-100" 
+      style="background:var(--gold-1);border:none;color:#000;font-weight:600;">
+      <i class="fas fa-save"></i> Simpan Perubahan
+    </button>
+
+    <button type="button" id="cancelEditBtn" class="btn mt-2 w-100" 
+      style="background:#ccc;border:none;color:#000;font-weight:600;">
+      <i class="fas fa-times"></i> Batal
+    </button>
+  </div>
+</form>
+</div>
 
       <!-- Card 2: Daftar Produk (paket per toko mirip Tokopedia) -->
       <div class="card-ui">
         <div class="store-header">
           <!-- icon toko (bisa diganti) -->
-          <img class="logo" src="../img/store-default.png" alt="store">
+          <img class="logo" src="../assets/images/Maskot-bulat.png" alt="store">
           <div>Ciraku Store</div>
         </div>
 
@@ -302,7 +389,9 @@ if (isset($_SESSION['cart']) && isset($_SESSION['checkout_items'])) {
           <?php foreach ($items as $it): ?>
             <div class="product-row">
               <!-- jika lu punya gambar produk, ganti src di bawah -->
-              <img src="../img/produk/default.png" alt="thumb" class="product-thumb">
+<img src="../assets/images/<?= htmlspecialchars($it['gambar']); ?>" 
+     alt="<?= htmlspecialchars($it['nama']); ?>" 
+     class="product-thumb">
               <div class="product-info">
                 <div class="name"><?= htmlspecialchars($it['nama']); ?></div>
                 <div class="meta"><?= $it['jumlah']; ?> x Rp <?= number_format($it['harga'],0,',','.'); ?></div>
@@ -317,7 +406,7 @@ if (isset($_SESSION['cart']) && isset($_SESSION['checkout_items'])) {
 
           <div class="shipping-box">
             <div style="font-weight:600; color:#fff; margin-bottom:6px">Pengiriman</div>
-            <div style="font-size:14px; color:var(--muted)">Ekonomi - Estimasi tiba 2-4 hari • Biaya: Rp 7.500</div>
+            <div style="font-size:14px; color:var(--muted)">Ekonomi - Estimasi tiba 2-4 hari</div>
             <div style="margin-top:8px; font-size:13px; color:var(--muted)">Gunakan asuransi pengiriman (opsional)</div>
           </div>
         </div>
@@ -329,44 +418,37 @@ if (isset($_SESSION['cart']) && isset($_SESSION['checkout_items'])) {
       <div class="card-ui payment-card">
         <div class="title-row">
           <div style="font-weight:700;color:var(--gold-1)">Metode Pembayaran</div>
-          <a href="#" style="color:var(--gold-1); font-weight:600; font-size:13px; text-decoration:none">Lihat Semua</a>
         </div>
 
-        <div class="payment-methods" id="paymentList">
-          <label class="pay-option">
-            <div>
-              <div style="font-weight:600">Alfamart / Alfamidi / Lawson</div>
-              <small class="muted">Bayar di minimarket terdekat</small>
-            </div>
-            <div>
-              <input type="radio" name="payment_method" value="minimarket" checked>
-            </div>
-          </label>
+<div class="payment-methods" id="paymentList">
+  <!-- Midtrans -->
+  <label class="pay-option">
+    <div style="display:flex; align-items:center; gap:10px;">
+      <span style="font-size:22px;">💳</span>
+      <div>
+        <div style="font-weight:600">Midtrans (Online Payment)</div>
+        <small class="muted">Bayar dengan transfer bank, e-wallet, atau kartu via Midtrans</small>
+      </div>
+    </div>
+    <div>
+      <input type="radio" name="payment_method" value="midtrans" checked>
+    </div>
+  </label>
 
-          <label class="pay-option">
-            <div>
-              <div style="font-weight:600">BCA Virtual Account</div>
-              <small class="muted">Transfer melalui VA BCA</small>
-            </div>
-            <div><input type="radio" name="payment_method" value="bca"></div>
-          </label>
-
-          <label class="pay-option">
-            <div>
-              <div style="font-weight:600">Mandiri Virtual Account</div>
-              <small class="muted">Transfer via Mandiri VA</small>
-            </div>
-            <div><input type="radio" name="payment_method" value="mandiri"></div>
-          </label>
-
-          <label class="pay-option">
-            <div>
-              <div style="font-weight:600">E-Wallet (Dana/OVO/Gopay)</div>
-              <small class="muted">Pembayaran cepat lewat e-wallet</small>
-            </div>
-            <div><input type="radio" name="payment_method" value="ewallet"></div>
-          </label>
-        </div>
+  <!-- COD -->
+  <label class="pay-option">
+    <div style="display:flex; align-items:center; gap:10px;">
+      <span style="font-size:22px;">🚚</span>
+      <div>
+        <div style="font-weight:600">Cash on Delivery (COD)</div>
+        <small class="muted">Bayar langsung ke kurir saat barang diterima</small>
+      </div>
+    </div>
+    <div>
+      <input type="radio" name="payment_method" value="cod">
+    </div>
+  </label>
+</div>
 
         <div class="summary-row" style="margin-top:14px">
           <div style="color:var(--muted)">Total Produk</div>
@@ -405,13 +487,14 @@ if (isset($_SESSION['cart']) && isset($_SESSION['checkout_items'])) {
           title: 'Batalkan Pesanan?',
           text: 'Apakah kamu yakin ingin membatalkan pesanan ini?',
           icon: 'warning',
+          iconColor: '#fbbf24',
           showCancelButton: true,
           confirmButtonColor: '#fbbf24',
-          cancelButtonColor: '#777',
+          cancelButtonColor: '#ccc',
           confirmButtonText: 'Ya, batalkan',
           cancelButtonText: 'Tidak',
-          background: '#0f0f0f',
-          color: '#fff'
+          background: '#fff',
+          color: '#333'
         }).then((res)=>{
           if(res.isConfirmed){
             // buat form sementara untuk submit cancel
@@ -429,6 +512,68 @@ if (isset($_SESSION['cart']) && isset($_SESSION['checkout_items'])) {
       }
     });
   </script>
+
+<script>
+  const editBtn = document.getElementById('editAddressBtn');
+  const displayDiv = document.getElementById('addressDisplay');
+  const editForm = document.getElementById('addressEditForm');
+  const cancelBtn = document.getElementById('cancelEditBtn');
+
+  editBtn.addEventListener('click', () => {
+    displayDiv.style.display = 'none';
+    editForm.style.display = 'block';
+  });
+
+  cancelBtn.addEventListener('click', () => {
+    editForm.style.display = 'none';
+    displayDiv.style.display = 'block';
+  });
+</script>
+
+<script>
+document.getElementById('addressEditForm').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const formData = new FormData(e.target);
+  formData.append('save_address', '1'); 
+
+  const res = await fetch(window.location.href, { method: 'POST', body: formData });
+  const text = await res.text();
+  console.log("Response dari server:", text); 
+
+  if (text.trim() === 'success') {
+    Swal.fire({
+      title: 'Berhasil!',
+      text: 'Alamat berhasil diperbarui 🎉',
+      icon: 'success',
+      background: '#fff',
+      color: '#333',
+      confirmButtonColor: '#fbbf24',
+    }).then(() => location.reload());
+  } 
+  else if (text.trim() === 'nochange') {
+    Swal.fire({
+      title: 'Tidak ada perubahan!',
+      text: 'Data alamat tidak berubah 😅',
+      icon: 'info',
+      background: '#fff',
+      color: '#333',
+      confirmButtonColor: '#60a5fa',
+      iconColor: '#60a5fa',
+    });
+  } 
+  else {
+    Swal.fire({
+      title: 'Gagal!',
+      text: 'Gagal memperbarui alamat 😢',
+      icon: 'error',
+      background: '#fff',
+      color: '#333',
+      confirmButtonColor: '#f87171',
+      iconColor: '#f87171',
+    });
+  }
+});
+</script>
 
 </body>
 </html>

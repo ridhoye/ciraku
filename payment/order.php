@@ -342,7 +342,7 @@ document.querySelector('button[name="checkout"]').addEventListener('click', func
         popup: 'swal2-border-radius',
         title: 'swal2-title-custom',
         htmlContainer: 'swal2-text-custom'
-  }
+      }
     });
   }
 });
