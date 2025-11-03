@@ -1,7 +1,5 @@
-<img width="1920" height="1080" alt="image" src="https://github.com/user-attachments/assets/124e0e89-827b-4960-98b5-fa27e2a837ed" />
-# 🧆 CIRAKU — Aplikasi Pemesanan Cireng Online
 
-![Ciraku Home](./assets/screenshots/home.png)
+# 🧆 CIRAKU — Aplikasi Pemesanan Cireng Online
 
 ## 📖 Deskripsi Proyek
 
@@ -75,25 +73,51 @@ Repository GitHub:
 
 ## 📦 Struktur Folder
 
-```
 ciraku/
-├── admin/              → Dashboard admin
-│   ├── produk.php
-│   ├── pesanan.php
-│   ├── user.php
-│   └── ...
-├── user/               → Halaman user
+├── admin/
+│   ├── includes/
+│   │   ├── header.php
+│   │   └── sidebar.php
+│   ├── produks/
+│   │   ├── produk.php
+│   │── data_users.php
+│   │── kontak_pesan.php
+│   │── pesanan.php
+│   └── panel_admin.php
+│
+├── assets/                     → CSS, JS, dan gambar statis
+│
+├── config/
+│   └── db.php                  → File koneksi database
+│
+├── dasbord/
+│   ├── footer.php
 │   ├── home.php
-│   ├── menu.php
 │   ├── kontak.php
+│   ├── menu.php
+│   ├── navbar.php
+│   ├── shop.php
+│   └── tentang.php
+│
+├── payment/
+│   ├── checkout.php
+│   ├── order.php
+│   └── status.php
+│
+├── uploads/                    → Folder upload gambar produk & profil
+│
+├── user/
+│   ├── edit_profile.php
+│   ├── login.php
+│   ├── logout.php
+│   ├── pesanan.php
 │   ├── profile.php
-│   └── ...
-├── config/             → File koneksi database
-│   └── db.php
-├── uploads/            → Gambar produk & profil
-├── assets/             → CSS, JS, dan image pendukung
-└── index.php           → Halaman utama aplikasi
-```
+│   ├── register.php
+│   └── update_profile.php
+│
+├── welcomepage.php
+└── index.php
+
 
 ---
 
@@ -152,37 +176,37 @@ laragon/www/ciraku
 | wanto    | 12345    |
 
 
-## 🖼️ Tampilan Antarmuka
+## 🖼️ tampilan dasar web
 
 ### 🏠 Halaman Utama
 
-![Home Page](./assets/images/homepage.png)
+<img width="1920" height="1080" alt="image" src="https://github.com/user-attachments/assets/124e0e89-827b-4960-98b5-fa27e2a837ed" />
 
 
-### 📦 Daftar Produk
 
-![Produk Page](./assets/screenshots/menu.png)
+Wah keren banget! 😎🔥 Jadi proyek **CIRAKU** ini bukan cuma tugas kuliah, tapi juga udah jadi **produk nyata yang sedang kamu jalankan secara offline** — mantap banget.
 
-### 📋 Dashboard Admin
+Berikut versi revisi bagian **Tujuan Proyek** (sudah saya ubah langsung dalam format README agar bisa kamu ganti di GitHub):
 
-![Dashboard Admin](./assets/screenshots/admin.png)
-
-*(Pastikan folder `/assets/screenshots/` berisi tangkapan layar sesuai nama di atas.)*
-
-
+---
 
 ## 🧩 Tujuan Proyek
 
-Proyek ini dibuat untuk memenuhi tugas akhir praktikum mata kuliah **Pemrograman Web**.
+Proyek ini dibuat untuk memenuhi tugas akhir praktikum mata kuliah **E-commerece** sekaligus sebagai **pengembangan nyata dari usaha produk cireng isi "CIRAKU"** yang saat ini telah dijalankan secara **offline**.
+
 Tujuan utama aplikasi ini adalah untuk:
 
 * Meningkatkan pengalaman pemesanan produk lokal secara digital.
-* Menerapkan konsep **CRUD**, **authentikasi**, dan **relasi database**.
-* Mengasah kemampuan kolaborasi tim dengan **Git & GitHub**.
+* Menerapkan konsep **CRUD**, **autentikasi**, dan **relasi database** dalam aplikasi web.
+* Mengasah kemampuan kolaborasi tim menggunakan **Git & GitHub**.
+* Mengembangkan platform digital untuk **mendukung penjualan produk cireng "CIRAKU"** agar dapat menjangkau lebih banyak pelanggan.
+* Mempersiapkan **transisi dari penjualan offline ke sistem e-commerce online**, guna meningkatkan efisiensi dan kemudahan pemesanan produk.
+
+---
 
 
 ## 📜 Lisensi
 
-Proyek ini hanya untuk **keperluan akademik (non-komersial)**.
+Proyek ini hanya untuk **keperluan akademik (komersial)**.
 Segala bentuk distribusi ulang atau modifikasi tanpa izin pengembang tidak diperkenankan.
 
