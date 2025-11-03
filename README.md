@@ -6,7 +6,7 @@
 **CIRAKU** adalah aplikasi web berbasis **PHP & MySQL** yang berfungsi untuk melakukan pemesanan dan pengelolaan produk *cireng isi* secara online.
 Nama **CIRAKU** sendiri berasal dari singkatan **"Cireng Rasa Kusuka"**, menggambarkan inovasi camilan cireng dengan beragam varian rasa kekinian.
 
-Proyek ini dibuat sebagai tugas akhir mata kuliah **Pemrograman Web** dan dikembangkan oleh **Kelompok 1**.
+Proyek ini dibuat sebagai tugas kelompok mata kuliah **E-commerece** dan dikembangkan oleh **Kelompok 2**.
 
 ---
 
@@ -14,9 +14,9 @@ Proyek ini dibuat sebagai tugas akhir mata kuliah **Pemrograman Web** dan dikemb
 
 | No | Nama Lengkap                   | NPM          | Role                |
 | -- | ------------------------------ | ------------ | ------------------- |
-| 1  | **Wisnu Septa Haryanto Putra** | 242502040041 | Fullstack Developer |
+| 1  | **Wisnu Septa Harianto Putra** | 242502040041 | Fullstack Developer |
 | 2  | **Nawfal Krisna Aghafazli**    | 242502040070 | Frontend Developer  |
-| 3  | **Ridho Wahyu Saptra**         | 242502040115 | Backend Developer   |
+| 3  | **Ridhoi Wahyu Saputra**       | 242502040115 | Backend Developer   |
 
 ---
 
@@ -172,8 +172,8 @@ laragon/www/ciraku
 
 | Username | Password |
 | -------- | -------- |
-| wisnu    | 12345    |
-| wanto    | 12345    |
+| wisnu    | 123      |
+| wanto    | 123      |
 
 
 ## 🖼️ tampilan dasar web
@@ -182,11 +182,6 @@ laragon/www/ciraku
 
 <img width="1920" height="1080" alt="image" src="https://github.com/user-attachments/assets/124e0e89-827b-4960-98b5-fa27e2a837ed" />
 
-
-
-Wah keren banget! 😎🔥 Jadi proyek **CIRAKU** ini bukan cuma tugas kuliah, tapi juga udah jadi **produk nyata yang sedang kamu jalankan secara offline** — mantap banget.
-
-Berikut versi revisi bagian **Tujuan Proyek** (sudah saya ubah langsung dalam format README agar bisa kamu ganti di GitHub):
 
 ---
 
