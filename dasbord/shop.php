@@ -2,6 +2,21 @@
 session_start();
 include "../config/db.php";
 
+// --- Tentukan halaman sebelumnya ---
+$from = $_GET['from'] ?? 'home'; // default-nya home
+
+$back_page = "http://localhost/ciraku/dasbord/home.php"; // default ke home
+if ($from === "order") {
+    $back_page = "http://localhost/ciraku/payment/order.php"; // kalau dari order
+}
+
+// ✅ Simpan asal halaman (dari order atau home)
+if (isset($_GET['from']) && $_GET['from'] === 'order') {
+    $_SESSION['from_page'] = 'order';
+} else {
+    $_SESSION['from_page'] = 'home';
+}
+
 // Hapus data checkout lama hanya jika user belum klik tombol Checkout
 if (!isset($_POST['selected_items']) && !isset($_GET['add'])) {
     if (isset($_SESSION['checkout_items'])) unset($_SESSION['checkout_items']);
@@ -32,7 +47,12 @@ if (isset($_GET['add'])) {
             ];
         }
     }
-    header("Location: shop.php");
+    $redirect = "shop.php";
+if (isset($_GET['from']) && $_GET['from'] === "order") {
+    $redirect .= "?from=order";
+}
+header("Location: " . $redirect);
+
     exit();
 }
 
@@ -64,20 +84,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['selected_items'])) {
         }
     }
 
-    if (!empty($checkout_items)) {
-        $_SESSION['checkout_items'] = $checkout_items;
-        $_SESSION['checkout_origin'] = 'order.php';
-        header("Location: ../payment/checkout.php");
-        exit;
-    } else {
-        echo "<script>alert('Pilih dulu item yang mau di-checkout!');</script>";
-    }
-}
+if (!empty($checkout_items)) {
+    $_SESSION['checkout_items'] = $checkout_items;
 
-// --- Tentukan halaman sebelumnya ---
-$back_page = "http://localhost/ciraku/dasbord/home.php";
-if (isset($_GET['from']) && $_GET['from'] === "order") {
-    $back_page = "http://localhost/ciraku/payment/order.php";
+    // ✅ Simpan asal checkout agar checkout.php tahu baliknya ke mana
+    $_SESSION['checkout_origin'] = (isset($_GET['from']) && $_GET['from'] === "order") ? "order" : "home";
+
+    header("Location: ../payment/checkout.php");
+    exit;
+}
 }
 ?>
 
@@ -163,7 +178,7 @@ if (isset($_GET['from']) && $_GET['from'] === "order") {
     </div>
 
     <?php if (!empty($_SESSION['cart'])): ?>
-      <form method="POST" id="checkoutForm" action="shop.php">
+      <form method="POST" id="checkoutForm" action="shop.php<?= ($from === 'order') ? '?from=order' : '' ?>">
       <?php 
       foreach ($_SESSION['cart'] as $index => $item):
         $subtotal = $item['harga'] * $item['jumlah'];

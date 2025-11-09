@@ -53,15 +53,13 @@ if (!isset($_SESSION['checkout_items']) && isset($_SESSION['last_cancelled_items
 
 // 🔙 Jika user batal
 if (isset($_POST['cancel_checkout'])) {
-    // Simpan dulu item yang dibatalkan (kalau mau ditampilkan)
-    $_SESSION['last_cancelled_items'] = $_SESSION['checkout_items'] ?? [];
-
-    // Hapus data checkout
     unset($_SESSION['checkout_items']);
 
-    // Langsung kembali ke halaman keranjang di home 
-    header("Location: ../payment/order.php");
-
+    if (isset($_SESSION['from_page']) && $_SESSION['from_page'] === 'order') {
+        header("Location: ../dasbord/shop.php?from=order");
+    } else {
+        header("Location: ../dasbord/shop.php");
+    }
 
     exit;
 }
@@ -75,6 +73,11 @@ if (!isset($_SESSION['checkout_items']) || empty($_SESSION['checkout_items'])) {
 $checkout_items = $_SESSION['checkout_items'];
 $total_all = 0;
 $items = [];
+
+// Simpan asal halaman (order / home / shop)
+if (isset($_GET['from'])) {
+    $_SESSION['from_page'] = $_GET['from'];
+}
 
 // Hitung total per produk
 foreach ($checkout_items as $item) {

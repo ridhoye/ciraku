@@ -1,6 +1,7 @@
 <?php
 session_start();
 include "../config/db.php";
+$_SESSION['from_page'] = 'order';
 
 // Bersihkan sisa checkout lama HANYA jika user bukan baru selesai pembayaran
 if (!isset($_GET['from_checkout'])) {
@@ -194,6 +195,7 @@ $cartCount = isset($_SESSION['cart']) ? count($_SESSION['cart']) : 0;
   <?php if ($cartCount > 0): ?>
   <span class="cart-badge" id="cartCount"><?= $cartCount ?></span>
   <?php endif; ?>
+  <?php $_SESSION['from_page'] = 'order'; ?>
 </div>
 
 <div class="container py-5">

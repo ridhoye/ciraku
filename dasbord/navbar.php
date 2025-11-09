@@ -166,7 +166,7 @@ if (isset($_SESSION['logged_in']) && isset($_SESSION['user_id'])) {
 
 
 <!-- Keranjang -->
-<a href="shop.php" class="icon-nav position-relative" title="Keranjang">
+<a href="shop.php?from=home" class="icon-nav position-relative" title="Keranjang">
   <i class="bi bi-cart3"></i>
 
   <?php 
