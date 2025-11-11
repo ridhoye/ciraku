@@ -47,7 +47,6 @@ $totalPages = ceil($totalData / $limit);
 $users = mysqli_query($conn, "SELECT * FROM users $queryCondition ORDER BY id DESC LIMIT $limit OFFSET $offset");
 
 $pageTitle = "Data Users - Ciraku";
-include "includes/header.php";
 ?>
 
 <!DOCTYPE html>
@@ -121,6 +120,7 @@ include "includes/header.php";
 </head>
 <body>
 <?php include "includes/sidebar.php"; ?>
+
   <!-- Konten -->
   <div class="content">
     <h2 class="mb-4">Data Users</h2>
@@ -208,5 +208,4 @@ include "includes/header.php";
   </div>
 
 </body>
-<?php include "includes/sidebar.php"; ?>
 </html>

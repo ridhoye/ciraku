@@ -24,7 +24,6 @@ $query = "SELECT * FROM kontak_pesan WHERE
 $result = mysqli_query($conn, $query);
 
 $pageTitle = "Data Users - Ciraku";
-include "includes/header.php";
 ?>
 <!DOCTYPE html>
 <html lang="id">
@@ -47,6 +46,7 @@ include "includes/header.php";
 </head>
 <body>
 <?php include "includes/sidebar.php"; ?>
+
 <!-- Konten -->
 <div class="content">
   <h2 class="mb-4">Pesan Masuk</h2>
