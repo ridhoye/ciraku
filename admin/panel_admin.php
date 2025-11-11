@@ -34,7 +34,7 @@ if ($user_data && mysqli_num_rows($user_data) > 0) {
 }
 
 $pageTitle = "Data Users - Ciraku";
-include "includes/header.php";
+
 ?>
 
 <!DOCTYPE html>
@@ -99,18 +99,10 @@ include "includes/header.php";
   </style>
 </head>
 <body>
+  <!-- sidebar -->
 <?php include "includes/sidebar.php"; ?>
-  <!-- Sidebar -->
-  <div class="sidebar">
-    <h4 class="text-warning mb-4">CIRAKU Admin</h4>
-    <a href="panel_admin.php" class="active"><i class="bi bi-speedometer2"></i> Dashboard</a>
-    <a href="data_users.php"><i class="bi bi-people"></i> Data User</a>
-    <a href="kontak_pesan.php"><i class="bi bi-envelope"></i> Pesan Masuk</a>
-    <a href="produks/produk.php"><i class="bi bi-box"></i> Produk</a>
-    <a href="pesanan.php"><i class="bi bi-bag"></i> Pesanan</a>
-    <hr class="border-secondary">
-    <a href="../user/logout.php"><i class="bi bi-box-arrow-right"></i> Logout</a>
-  </div>
+
+ 
 
   <!-- Konten -->
   <div class="content">

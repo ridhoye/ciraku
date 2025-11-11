@@ -63,9 +63,49 @@ $produk = mysqli_query($conn, "SELECT * FROM produk ORDER BY id DESC");
 
 // Judul halaman untuk <title>
 $pageTitle = "Manajemen Produk - Ciraku";
-include "../includes/header.php";
 ?>
 <body>
+  
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title><?= $pageTitle ?? 'Admin Panel - Ciraku' ?></title>
+
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+  <style>
+    body {
+      background-color: #0f0f0f;
+      color: #fff;
+      font-family: 'Poppins', sans-serif;
+    }
+    .content {
+      margin-left: 260px;
+      padding: 30px;
+    }
+    .card {
+      background: #1e1e1e;
+      border: none;
+      border-radius: 15px;
+    }
+    .table {
+      color: #fff;
+    }
+    .table thead {
+      background: #fbbf24;
+      color: #000;
+    }
+    .btn-action {
+      border-radius: 8px;
+      padding: 4px 10px;
+    }
+  </style>
+</head>
+
 <?php include "../includes/sidebar.php"; ?>
 
 <div class="content">
@@ -111,6 +151,7 @@ include "../includes/header.php";
           </tr>
         </thead>
         <tbody>
+
           <?php 
             $no = 1; 
             $modal_list = "";

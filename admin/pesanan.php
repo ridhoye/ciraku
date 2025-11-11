@@ -33,7 +33,6 @@ $sql = "SELECT p.*, u.username, u.address, u.postal_code
 $result = mysqli_query($conn, $sql);
 
 $pageTitle = "Data Users - Ciraku";
-include "includes/header.php";
 ?>
 
 <!DOCTYPE html>
@@ -54,6 +53,7 @@ include "includes/header.php";
 </head>
 <body>
 
+<?php include "includes/sidebar.php"; ?>
   <!-- Konten -->
   <div class="content">
     <h2 class="mb-4">Daftar Pesanan</h2>
@@ -117,5 +117,4 @@ include "includes/header.php";
 
 
 </body>
-<?php include "includes/sidebar.php"; ?>
 </html>

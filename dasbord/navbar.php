@@ -4,7 +4,7 @@ if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
 
-include "../config/db.php"; // sesuaikan path-nya
+include "../config/db.php"; // koneksi ke database
 
 $current_page = basename($_SERVER['PHP_SELF']);
 
@@ -146,6 +146,7 @@ if (isset($_SESSION['logged_in']) && isset($_SESSION['user_id'])) {
       </ul>
       
 <div class="d-flex gap-3 align-items-center">
+  
   <!-- user -->
 <!-- Ikon / Foto Profil -->
 <?php if ($user): ?>
