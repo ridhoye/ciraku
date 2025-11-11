@@ -2,97 +2,81 @@
 session_start();
 include "../config/db.php";
 
-// --- Tentukan halaman sebelumnya ---
-$from = $_GET['from'] ?? 'home'; // default-nya home
-
-$back_page = "http://localhost/ciraku/dasbord/home.php"; // default ke home
-if ($from === "order") {
-    $back_page = "http://localhost/ciraku/payment/order.php"; // kalau dari order
+// Pastikan user login
+if (!isset($_SESSION['user_id'])) {
+    header("Location: ../user/login.php");
+    exit;
 }
+
+$user_id = $_SESSION['user_id'];
+
+// --- Tentukan halaman sebelumnya ---
+$from = $_GET['from'] ?? 'home';
+$back_page = ($from === "order") ? "http://localhost/ciraku/payment/order.php" : "http://localhost/ciraku/dasbord/home.php";
 
 // ✅ Simpan asal halaman (dari order atau home)
-if (isset($_GET['from']) && $_GET['from'] === 'order') {
-    $_SESSION['from_page'] = 'order';
-} else {
-    $_SESSION['from_page'] = 'home';
-}
-
-// Hapus data checkout lama hanya jika user belum klik tombol Checkout
-if (!isset($_POST['selected_items']) && !isset($_GET['add'])) {
-    if (isset($_SESSION['checkout_items'])) unset($_SESSION['checkout_items']);
-}
+$_SESSION['from_page'] = ($from === 'order') ? 'order' : 'home';
 
 // --- Tambah produk ke keranjang ---
 if (isset($_GET['add'])) {
     $id_produk = intval($_GET['add']);
-    $produk = mysqli_fetch_assoc(mysqli_query($conn, "SELECT * FROM produk WHERE id = $id_produk"));
-    if ($produk) {
-        if (!isset($_SESSION['cart'])) $_SESSION['cart'] = [];
-        $found = false;
-        foreach ($_SESSION['cart'] as &$item) {
-            if ($item['id'] == $id_produk) {
-                $item['jumlah']++;
-                $found = true;
-                break;
-            }
-        }
-        unset($item);
-        if (!$found) {
-            $_SESSION['cart'][] = [
-                'id' => $produk['id'],
-                'nama' => $produk['nama_produk'],
-                'harga' => $produk['harga'],
-                'gambar' => $produk['gambar'],
-                'jumlah' => 1
-            ];
-        }
+    $cek = mysqli_query($conn, "SELECT * FROM cart WHERE user_id=$user_id AND produk_id=$id_produk");
+    if (mysqli_num_rows($cek) > 0) {
+        mysqli_query($conn, "UPDATE cart SET quantity = quantity + 1 WHERE user_id=$user_id AND produk_id=$id_produk");
+    } else {
+        mysqli_query($conn, "INSERT INTO cart (user_id, produk_id, quantity) VALUES ($user_id, $id_produk, 1)");
     }
-    $redirect = "shop.php";
-if (isset($_GET['from']) && $_GET['from'] === "order") {
-    $redirect .= "?from=order";
-}
-header("Location: " . $redirect);
 
-    exit();
+    $redirect = "shop.php" . ($from === 'order' ? "?from=order" : "");
+    header("Location: $redirect");
+    exit;
 }
 
 // --- Hapus satu item ---
 if (isset($_GET['remove'])) {
-    $index = $_GET['remove'];
-    unset($_SESSION['cart'][$index]);
-    $_SESSION['cart'] = array_values($_SESSION['cart']);
+    $produk_id = intval($_GET['remove']);
+    mysqli_query($conn, "DELETE FROM cart WHERE user_id=$user_id AND produk_id=$produk_id");
+    header("Location: shop.php" . ($from === 'order' ? "?from=order" : ""));
+    exit;
 }
 
+// --- Hapus semua item ---
 if (isset($_GET['clear'])) {
-    $_SESSION['cart'] = [];
-    $redirect = "shop.php";
-    if (isset($_GET['from']) && $_GET['from'] === "order") {
-        $redirect .= "?from=order";
-    }
-    header("Location: " . $redirect);
-    exit();
+    mysqli_query($conn, "DELETE FROM cart WHERE user_id=$user_id");
+    header("Location: shop.php" . ($from === 'order' ? "?from=order" : ""));
+    exit;
 }
+
+// --- Ambil isi keranjang user ---
+$query = "
+SELECT c.produk_id, c.quantity, p.nama_produk, p.harga, p.gambar
+FROM cart c
+JOIN produk p ON c.produk_id = p.id
+WHERE c.user_id = $user_id
+ORDER BY c.tanggal_ditambahkan DESC
+";
+$cart_items = mysqli_query($conn, $query);
 
 // --- Proses Checkout ---
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['selected_items'])) {
     $selected = $_POST['selected_items'];
     $checkout_items = [];
 
-    foreach ($selected as $index) {
-        if (isset($_SESSION['cart'][$index])) {
-            $checkout_items[] = $_SESSION['cart'][$index];
-        }
+    foreach ($selected as $pid) {
+        $p = mysqli_fetch_assoc(mysqli_query($conn, "
+            SELECT p.id, p.nama_produk, p.harga, p.gambar, c.quantity 
+            FROM cart c JOIN produk p ON c.produk_id=p.id
+            WHERE c.user_id=$user_id AND c.produk_id=$pid
+        "));
+        if ($p) $checkout_items[] = $p;
     }
 
-if (!empty($checkout_items)) {
-    $_SESSION['checkout_items'] = $checkout_items;
-
-    // ✅ Simpan asal checkout agar checkout.php tahu baliknya ke mana
-    $_SESSION['checkout_origin'] = (isset($_GET['from']) && $_GET['from'] === "order") ? "order" : "home";
-
-    header("Location: ../payment/checkout.php");
-    exit;
-}
+    if (!empty($checkout_items)) {
+        $_SESSION['checkout_items'] = $checkout_items;
+        $_SESSION['checkout_origin'] = $from;
+        header("Location: ../payment/checkout.php");
+        exit;
+    }
 }
 ?>
 
@@ -145,75 +129,61 @@ if (!empty($checkout_items)) {
       color: #fff; font-weight: bold; cursor: pointer; transition: 0.3s;
     }
     .checkout-btn:hover { transform: scale(1.05); background: linear-gradient(90deg, #ff5500, #ff8800); }
-
     .hapus-semua-btn {
       background: transparent; border: 1px solid #ff8800; color: #ff8800;
       padding: 8px 12px; border-radius: 8px; margin-left: 15px;
       cursor: pointer; transition: 0.3s; display: none;
     }
     .hapus-semua-btn:hover { background-color: #ff8800; color: #fff; }
-
-        /*CSS Alert */
-    .swal2-border-radius {
-      border-radius: 15px !important;
-    }
-    .swal2-title-custom {
-      font-weight: 700;
-      color: #333;
-    }
-    .swal2-text-custom {
-      font-size: 15px;
-      color: #555;
-    }
-
   </style>
 </head>
 <body>
 
-  <div class="container">
-    <div class="header">
-      <span>🛒 Keranjang Belanja</span>
-      <!-- Tombol kembali otomatis -->
-      <button class="back-btn" onclick="window.location.href='<?= $back_page ?>'">⬅️ Kembali</button>
-    </div>
-
-    <?php if (!empty($_SESSION['cart'])): ?>
-      <form method="POST" id="checkoutForm" action="shop.php<?= ($from === 'order') ? '?from=order' : '' ?>">
-      <?php 
-      foreach ($_SESSION['cart'] as $index => $item):
-        $subtotal = $item['harga'] * $item['jumlah'];
-      ?>
-      <div class="cart-item">
-        <div class="cart-item-left">
-          <input type="checkbox" class="item-checkbox" name="selected_items[]" value="<?= $index ?>" data-harga="<?= $subtotal; ?>">
-          <img src="../assets/images/<?= htmlspecialchars($item['gambar']); ?>" alt="<?= htmlspecialchars($item['nama']); ?>">
-          <div>
-            <span class="cart-item-name"><?= htmlspecialchars($item['nama']); ?></span><br>
-            <small>x<?= $item['jumlah']; ?></small>
-          </div>
-        </div>
-        <div class="cart-item-right">
-          <span class="cart-item-price">Rp <?= number_format($subtotal, 0, ',', '.'); ?></span>
-          <a href="?remove=<?= $index ?>" class="hapus-btn">Hapus</a>
-        </div>
-      </div>
-      <?php endforeach; ?>
-
-      <div class="footer">
-        <div>
-          <label><input type="checkbox" id="selectAll"> Pilih Semua</label>
-          <button type="button" id="hapusSemuaBtn" class="hapus-semua-btn">🗑️ Hapus Semua</button>
-        </div>
-        <div>
-          <span class="total">Total: Rp <span id="totalValue">0</span></span>
-          <button type="submit" class="checkout-btn">Checkout</button>
-        </div>
-      </div>
-      </form>
-    <?php else: ?>
-      <p style="text-align:center; padding:30px; color:#aaa;">Keranjang masih kosong 😅</p>
-    <?php endif; ?>
+<div class="container">
+  <div class="header">
+    <span>🛒 Keranjang Belanja</span>
+    <button class="back-btn" onclick="window.location.href='<?= $back_page ?>'">⬅️ Kembali</button>
   </div>
+
+  <?php if (mysqli_num_rows($cart_items) > 0): ?>
+  <form method="POST" id="checkoutForm" action="shop.php<?= ($from === 'order') ? '?from=order' : '' ?>">
+  <?php 
+  $total = 0;
+  while ($item = mysqli_fetch_assoc($cart_items)):
+    $subtotal = $item['harga'] * $item['quantity'];
+    $total += $subtotal;
+  ?>
+    <div class="cart-item">
+      <div class="cart-item-left">
+        <input type="checkbox" class="item-checkbox" name="selected_items[]" value="<?= $item['produk_id'] ?>" data-harga="<?= $subtotal; ?>">
+        <img src="../assets/images/<?= htmlspecialchars($item['gambar']); ?>" alt="<?= htmlspecialchars($item['nama_produk']); ?>">
+        <div>
+          <span class="cart-item-name"><?= htmlspecialchars($item['nama_produk']); ?></span><br>
+          <small>x<?= $item['quantity']; ?></small>
+        </div>
+      </div>
+      <div class="cart-item-right">
+        <span class="cart-item-price">Rp <?= number_format($subtotal, 0, ',', '.'); ?></span>
+        <a href="?remove=<?= $item['produk_id'] ?><?= ($from === 'order') ? '&from=order' : '' ?>" class="hapus-btn">Hapus</a>
+      </div>
+    </div>
+  <?php endwhile; ?>
+
+  <div class="footer">
+    <div>
+      <label><input type="checkbox" id="selectAll"> Pilih Semua</label>
+      <button type="button" id="hapusSemuaBtn" class="hapus-semua-btn">🗑️ Hapus Semua</button>
+    </div>
+    <div>
+      <span class="total">Total: Rp <span id="totalValue"><?= number_format($total, 0, ',', '.'); ?></span></span>
+      <button type="submit" class="checkout-btn">Checkout</button>
+    </div>
+  </div>
+  </form>
+  <?php else: ?>
+    <p style="text-align:center; padding:30px; color:#aaa;">Keranjang masih kosong 😅</p>
+  <?php endif; ?>
+</div>
 
 <script>
   const selectAll = document.getElementById('selectAll');
@@ -244,34 +214,26 @@ if (!empty($checkout_items)) {
   }));
 
   hapusSemuaBtn?.addEventListener('click', () => {
-Swal.fire({
-  title: 'Hapus semua produk?',
-  text: 'Semua item di keranjang akan dihapus!',
-  icon: 'warning',
-  background: '#fff',          // Putih
-  color: '#333',               // Teks abu tua
-  iconColor: '#fbbf24',        // Ikon oren kekuningan
-  backdrop: 'rgba(0, 0, 0, 0.6)',
-  showCancelButton: true,
-  confirmButtonColor: '#fbbf24',
-  cancelButtonColor: '#ccc',
-  confirmButtonText: 'Ya, hapus semua!',
-  cancelButtonText: 'Batal',
-  customClass: {
-    popup: 'swal2-border-radius',
-    title: 'swal2-title-custom',
-    htmlContainer: 'swal2-text-custom'
-  }
-}).then((result) => {
-  if (result.isConfirmed) {
-    const urlParams = new URLSearchParams(window.location.search);
-    const fromParam = urlParams.get('from') === 'order' ? '?clear=true&from=order' : '?clear=true';
-    window.location.href = fromParam;
-  }
-});
+    Swal.fire({
+      title: 'Hapus semua produk?',
+      text: 'Semua item di keranjang akan dihapus!',
+      icon: 'warning',
+      background: '#fff',
+      color: '#333',
+      iconColor: '#fbbf24',
+      backdrop: 'rgba(0, 0, 0, 0.6)',
+      showCancelButton: true,
+      confirmButtonColor: '#fbbf24',
+      cancelButtonColor: '#ccc',
+      confirmButtonText: 'Ya, hapus semua!',
+      cancelButtonText: 'Batal',
+    }).then((result) => {
+      if (result.isConfirmed) {
+        window.location.href = '?clear=true<?= ($from === "order") ? "&from=order" : "" ?>';
+      }
+    });
   });
 
-  // ✅ Validasi tombol Checkout (gaya putih-oren)
   checkoutForm?.addEventListener('submit', function(e) {
     const selected = document.querySelectorAll('.item-checkbox:checked');
     if (selected.length === 0) {
@@ -280,22 +242,16 @@ Swal.fire({
         title: 'Ups!',
         text: 'Kamu belum memilih item untuk di-checkout 😅',
         icon: 'warning',
-        background: '#fff', // Putih
-        color: '#333', // Teks abu tua
-        confirmButtonColor: '#fbbf24', // Oren kekuningan
+        background: '#fff',
+        color: '#333',
+        confirmButtonColor: '#fbbf24',
         confirmButtonText: 'OK',
-        iconColor: '#fbbf24', // Warna ikon oranye
-        backdrop: 'rgba(0, 0, 0, 0.6)', // Background transparan gelap
-        customClass: {
-          popup: 'swal2-border-radius',
-          title: 'swal2-title-custom',
-          htmlContainer: 'swal2-text-custom'
-        }
+        iconColor: '#fbbf24',
+        backdrop: 'rgba(0, 0, 0, 0.6)',
       });
     }
   });
-
-  updateTotal();
 </script>
+
 </body>
 </html>

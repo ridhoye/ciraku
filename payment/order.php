@@ -3,17 +3,6 @@ session_start();
 include "../config/db.php";
 $_SESSION['from_page'] = 'order';
 
-// Bersihkan sisa checkout lama HANYA jika user bukan baru selesai pembayaran
-if (!isset($_GET['from_checkout'])) {
-    if (isset($_SESSION['checkout_items'])) {
-        unset($_SESSION['checkout_items']);
-    }
-    if (isset($_SESSION['temp_checkout'])) {
-        unset($_SESSION['temp_checkout']);
-    }
-}
-
-
 // 🔒 Cek login
 if (!isset($_SESSION['user_id'])) {
     echo "
@@ -32,64 +21,78 @@ if (!isset($_SESSION['user_id'])) {
     exit();
 }
 
-// Ambil produk
+$user_id = $_SESSION['user_id'];
+
+// --- Ambil produk dari database
 $produk = mysqli_query($conn, "SELECT * FROM produk ORDER BY id ASC");
 
-// 🛒 Tambah ke keranjang
+// --- Hitung jumlah item keranjang user di DB
+$cartCount = mysqli_fetch_assoc(mysqli_query($conn, "SELECT COUNT(*) AS jml FROM cart WHERE user_id=$user_id"))['jml'];
+
+// 🛒 Tambah ke keranjang (simpan ke DB)
 if (isset($_POST['add_to_cart'])) {
     foreach ($_POST['items'] as $item) {
         if (!empty($item['jumlah']) && intval($item['jumlah']) > 0) {
-            $_SESSION['cart'][] = $item;
+            $produk_id = intval($item['id']);
+            $jumlah = intval($item['jumlah']);
+
+            // Cek apakah sudah ada di cart
+            $cek = mysqli_query($conn, "SELECT * FROM cart WHERE user_id=$user_id AND produk_id=$produk_id");
+            if (mysqli_num_rows($cek) > 0) {
+                mysqli_query($conn, "UPDATE cart SET quantity = quantity + $jumlah WHERE user_id=$user_id AND produk_id=$produk_id");
+            } else {
+                mysqli_query($conn, "INSERT INTO cart (user_id, produk_id, quantity) VALUES ($user_id, $produk_id, $jumlah)");
+            }
         }
     }
-    header("Location: order.php");
-    exit;
+
+    echo "
+    <script src='https://cdn.jsdelivr.net/npm/sweetalert2@11'></script>
+    <script>
+      document.addEventListener('DOMContentLoaded', function() {
+        Swal.fire({
+          title: 'Berhasil!',
+          text: 'Barang ditambahkan ke keranjang!',
+          icon: 'success',
+          background: '#fff',
+          color: '#333',
+          confirmButtonColor: '#fbbf24',
+          iconColor: '#fbbf24',
+          backdrop: 'rgba(0, 0, 0, 0.6)',
+        }).then(() => { window.location.href='order.php'; });
+      });
+    </script>";
+    exit();
 }
 
-// 💳 Proses checkout langsung TANPA mengubah keranjang
+// 💳 Proses checkout langsung TANPA menyentuh cart
 if (isset($_POST['checkout'])) {
     $checkout_items = [];
 
     if (isset($_POST['items'])) {
         foreach ($_POST['items'] as $item) {
             if (!empty($item['jumlah']) && intval($item['jumlah']) > 0) {
-                $checkout_items[] = $item;
+                $produk_id = intval($item['id']);
+                $data = mysqli_fetch_assoc(mysqli_query($conn, "SELECT * FROM produk WHERE id=$produk_id"));
+                if ($data) {
+                    $data['jumlah'] = intval($item['jumlah']);
+                    $checkout_items[] = $data;
+                }
             }
         }
     }
 
     if (empty($checkout_items)) {
-        echo "
-        <script src='https://cdn.jsdelivr.net/npm/sweetalert2@11'></script>
-        <script>
-        document.addEventListener('DOMContentLoaded', function() {
-          Swal.fire({
-            title: 'Ups!',
-            text: 'Kamu belum memilih jumlah cireng 😅',
-            icon: 'warning',
-            background: '#111',
-            color: '#fff',
-            confirmButtonText: 'OK',
-            confirmButtonColor: '#fbbf24',
-            iconColor: '#fbbf24',
-            backdrop: 'rgba(0,0,0,0.7)',
-          }).then(() => {
-            window.history.back();
-          });
-        });
-        </script>";
-        exit();
+        echo "<script>alert('Kamu belum memilih jumlah cireng 😅'); window.history.back();</script>";
+        exit;
     }
-$_SESSION['direct_checkout'] = true;
-    // Simpan data sementara untuk checkout
-    $_SESSION['checkout_items'] = $checkout_items;
 
-    // 🚀 Pindah ke checkout page
+    $_SESSION['direct_checkout'] = true;
+    $_SESSION['direct_products'] = $checkout_items; // ⬅️ SIMPAN SEMUA PRODUK
     header("Location: ../payment/checkout.php");
     exit();
 }
 
-$cartCount = isset($_SESSION['cart']) ? count($_SESSION['cart']) : 0;
 ?>
 <!DOCTYPE html>
 <html lang="id">
@@ -101,7 +104,6 @@ $cartCount = isset($_SESSION['cart']) ? count($_SESSION['cart']) : 0;
   <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
-
   <style>
     body {
       font-family: 'Poppins', sans-serif;
@@ -142,89 +144,42 @@ $cartCount = isset($_SESSION['cart']) ? count($_SESSION['cart']) : 0;
     .btn-qty:hover { background-color: #f59e0b; transform: scale(1.1); }
     .btn-warning { background: linear-gradient(90deg, #fbbf24, #f59e0b); border: none; font-weight: bold; color: #fff; box-shadow: 0 3px 8px rgba(251,191,36,0.4); }
     .btn-warning:hover { background: linear-gradient(90deg, #f59e0b, #d97706); transform: scale(1.03); }
-    .btn-success { background: linear-gradient(90deg, #22c55e, #16a34a); font-weight: bold; color: #fff; }
-    
-    /* ✨ Efek hover tombol Kembali biar muncul halus */
-    .btn-secondary {
-      background-color: #374151;
-      color: #fff;
-      font-weight: 600;
-      transition: all 0.25s ease;
-    }
-
-    .btn-secondary:hover {
-      background-color: #4b5563;
-      transform: scale(1.05);
-      box-shadow: 0 0 10px rgba(255, 255, 255, 0.15); /* lembut banget */
-      color: #000; /* teks jadi hitam pas hover */
-    }
-
-        .btn-success {
-      background: linear-gradient(90deg, #22c55e, #16a34a);
-      font-weight: bold;
-      color: #fff;
-      border: none;
-      transition: all 0.3s ease;
-    }
-
-    .btn-success:hover {
-      background: linear-gradient(90deg, #86efac, #4ade80); /* hijau lebih terang */
-      color: #000; /* teks jadi hitam */
-      transform: scale(1.05);
-    }
-    
-    /*CSS Alert */
-    .swal2-border-radius {
-      border-radius: 15px !important;
-    }
-    .swal2-title-custom {
-      font-weight: 700;
-      color: #333;
-    }
-    .swal2-text-custom {
-      font-size: 15px;
-      color: #555;
-    }
+    .btn-success { background: linear-gradient(90deg, #22c55e, #16a34a); font-weight: bold; color: #fff; border:none; transition:all 0.3s ease;}
+    .btn-success:hover { background: linear-gradient(90deg,#86efac,#4ade80); color:#000; transform:scale(1.05);}
+    .btn-secondary { background-color:#374151;color:#fff;font-weight:600;transition:all 0.25s ease;}
+    .btn-secondary:hover { background-color:#4b5563;transform:scale(1.05);box-shadow:0 0 10px rgba(255,255,255,0.15);color:#000;}
   </style>
 </head>
 <body>
 
-<!-- 🛒 Hanya ikon keranjang -->
+<!-- 🛒 Ikon keranjang -->
 <div class="cart-icon" onclick="window.location.href='http://localhost/ciraku/dasbord/shop.php?from=order'">
   <i class="bi bi-cart3"></i>
   <?php if ($cartCount > 0): ?>
   <span class="cart-badge" id="cartCount"><?= $cartCount ?></span>
   <?php endif; ?>
-  <?php $_SESSION['from_page'] = 'order'; ?>
 </div>
 
 <div class="container py-5">
   <h1 class="text-center fw-bold mb-4">🍴 Pilih <span>Cireng</span> Favoritmu</h1>
   <form method="POST">
     <div class="row g-4">
+      <?php $index=0; while($p=mysqli_fetch_assoc($produk)): ?>
+      <div class="col-md-3 col-sm-6">
+        <div class="card text-center p-3">
+          <img src="../assets/images/<?= $p['gambar']; ?>" class="card-img-top mb-2 product-img" alt="<?= $p['nama_produk']; ?>">
+          <h5 class="card-title"><?= $p['nama_produk']; ?></h5>
+          <p class="price">Rp <?= number_format($p['harga'],0,',','.'); ?></p>
 
-      <?php 
-      $index = 0;
-      while ($p = mysqli_fetch_assoc($produk)) { ?>
-        <div class="col-md-3 col-sm-6">
-          <div class="card text-center p-3">
-            <img src="../assets/images/<?= $p['gambar']; ?>" class="card-img-top mb-2 product-img" alt="<?= $p['nama_produk']; ?>">
-            <h5 class="card-title"><?= $p['nama_produk']; ?></h5>
-            <p class="price">Rp <?= number_format($p['harga'], 0, ',', '.'); ?></p>
-
-            <input type="hidden" name="items[<?= $index ?>][gambar]" value="<?= $p['gambar']; ?>">
-            <input type="hidden" name="items[<?= $index ?>][nama]" value="<?= $p['nama_produk']; ?>">
-            <input type="hidden" name="items[<?= $index ?>][harga]" value="<?= $p['harga']; ?>">
-
-            <div class="qty-wrapper">
-              <button type="button" class="btn-qty" onclick="decreaseQty(this)">−</button>
-              <input type="text" name="items[<?= $index ?>][jumlah]" class="qty-input" value="0" readonly>
-              <button type="button" class="btn-qty" onclick="increaseQty(this)">+</button>
-            </div>
+          <input type="hidden" name="items[<?= $index ?>][id]" value="<?= $p['id']; ?>">
+          <div class="qty-wrapper">
+            <button type="button" class="btn-qty" onclick="decreaseQty(this)">−</button>
+            <input type="text" name="items[<?= $index ?>][jumlah]" class="qty-input" value="0" readonly>
+            <button type="button" class="btn-qty" onclick="increaseQty(this)">+</button>
           </div>
         </div>
-      <?php $index++; } ?>
-
+      </div>
+      <?php $index++; endwhile; ?>
     </div>
 
     <div class="text-center mt-5">
@@ -236,117 +191,43 @@ $cartCount = isset($_SESSION['cart']) ? count($_SESSION['cart']) : 0;
 </div>
 
 <script>
-function increaseQty(btn) {
-  let input = btn.parentElement.querySelector('.qty-input');
-  input.value = parseInt(input.value) + 1;
-}
-function decreaseQty(btn) {
-  let input = btn.parentElement.querySelector('.qty-input');
-  if (parseInt(input.value) > 0) input.value = parseInt(input.value) - 1;
-}
-function hasItems() {
-  return Array.from(document.querySelectorAll('.qty-input')).some(i => parseInt(i.value) > 0);
-}
+function increaseQty(btn){let i=btn.parentElement.querySelector('.qty-input');i.value=parseInt(i.value)+1;}
+function decreaseQty(btn){let i=btn.parentElement.querySelector('.qty-input');if(parseInt(i.value)>0)i.value=parseInt(i.value)-1;}
+function hasItems(){return Array.from(document.querySelectorAll('.qty-input')).some(i=>parseInt(i.value)>0);}
 
-// ✨ Animasi tambah ke keranjang
-function animateToCart(imgEl) {
-  const cart = document.querySelector('.bi-cart3');
-  const clone = imgEl.cloneNode(true);
-  const rect = imgEl.getBoundingClientRect();
+function animateToCart(imgEl){
+  const cart=document.querySelector('.bi-cart3');
+  const clone=imgEl.cloneNode(true);
+  const rect=imgEl.getBoundingClientRect();
   clone.classList.add('fly-img');
-  clone.style.left = rect.left + 'px';
-  clone.style.top = rect.top + 'px';
-  clone.style.width = rect.width + 'px';
-  clone.style.height = rect.height + 'px';
+  clone.style.left=rect.left+'px';
+  clone.style.top=rect.top+'px';
+  clone.style.width=rect.width+'px';
+  clone.style.height=rect.height+'px';
   document.body.appendChild(clone);
-
-  const cartRect = cart.getBoundingClientRect();
-  requestAnimationFrame(() => {
-    clone.style.left = cartRect.left + 'px';
-    clone.style.top = cartRect.top + 'px';
-    clone.style.width = '30px';
-    clone.style.height = '30px';
-    clone.style.opacity = '0.2';
+  const cartRect=cart.getBoundingClientRect();
+  requestAnimationFrame(()=>{
+    clone.style.left=cartRect.left+'px';
+    clone.style.top=cartRect.top+'px';
+    clone.style.width='30px';clone.style.height='30px';clone.style.opacity='0.2';
   });
-
-  setTimeout(() => clone.remove(), 1000);
+  setTimeout(()=>clone.remove(),1000);
 }
 
-document.getElementById('addToCartBtn').addEventListener('click', () => {
-  if (!hasItems()) {
-    Swal.fire({
-      title: 'Ups!',
-      text: 'Kamu belum memilih jumlah cireng 😅',
-      icon: 'warning',
-      background: '#fff', // Putih
-      color: '#333', // Teks abu tua
-      confirmButtonColor: '#fbbf24', // Oren kekuningan
-      confirmButtonText: 'OK',
-      iconColor: '#fbbf24', // Warna ikon oranye
-      backdrop: 'rgba(0, 0, 0, 0.6)', // Abu-abu transparan di belakang
-      customClass: {
-        popup: 'swal2-border-radius',
-        title: 'swal2-title-custom',
-        htmlContainer: 'swal2-text-custom'
-  }
-    });
-      return;
-  }
-
-  document.querySelectorAll('.qty-input').forEach((input) => {
-    if (parseInt(input.value) > 0) {
-      const img = input.closest('.card').querySelector('.product-img');
+document.getElementById('addToCartBtn').addEventListener('click',()=>{
+  if(!hasItems()){Swal.fire({title:'Ups!',text:'Kamu belum memilih jumlah cireng 😅',icon:'warning',background:'#fff',color:'#333',confirmButtonColor:'#fbbf24',confirmButtonText:'OK',iconColor:'#fbbf24',backdrop:'rgba(0,0,0,0.6)'});return;}
+  document.querySelectorAll('.qty-input').forEach((input)=>{
+    if(parseInt(input.value)>0){
+      const img=input.closest('.card').querySelector('.product-img');
       animateToCart(img);
     }
   });
-
-      Swal.fire({
-      title: 'Berhasil!',
-      text: 'Barang ditambahkan ke keranjang!',
-      icon: 'success',
-      background: '#fff', // Putih
-      color: '#333', // Teks abu tua
-      confirmButtonColor: '#fbbf24', // Oren kekuningan
-      confirmButtonText: 'OK',
-      iconColor: '#fbbf24', // Warna ikon oranye
-      backdrop: 'rgba(0, 0, 0, 0.6)', // Abu-abu transparan di belakang
-      customClass: {
-        popup: 'swal2-border-radius',
-        title: 'swal2-title-custom',
-        htmlContainer: 'swal2-text-custom'
-  }
-    });
-
-  setTimeout(() => {
-    const input = document.createElement("input");
-    input.type = "hidden"; input.name = "add_to_cart"; input.value = "1";
+  setTimeout(()=>{
+    const input=document.createElement("input");
+    input.type="hidden";input.name="add_to_cart";input.value="1";
     document.querySelector("form").appendChild(input);
     document.querySelector("form").submit();
-  }, 1300);
-});
-
-// 💳 Alert untuk tombol Pesan Sekarang
-document.querySelector('button[name="checkout"]').addEventListener('click', function(e) {
-  if (!hasItems()) {
-    e.preventDefault();
-
-    Swal.fire({
-      title: 'Ups!',
-      text: 'Kamu belum memilih jumlah cireng 😅',
-      icon: 'warning',
-      background: '#fff', // Putih
-      color: '#333', // Teks abu tua
-      confirmButtonColor: '#fbbf24', // Oren kekuningan
-      confirmButtonText: 'OK',
-      iconColor: '#fbbf24', // Warna ikon oranye
-      backdrop: 'rgba(0, 0, 0, 0.6)', // Abu-abu transparan di belakang
-      customClass: {
-        popup: 'swal2-border-radius',
-        title: 'swal2-title-custom',
-        htmlContainer: 'swal2-text-custom'
-      }
-    });
-  }
+  },1000);
 });
 </script>
 </body>

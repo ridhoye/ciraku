@@ -164,22 +164,27 @@ if (isset($_SESSION['logged_in']) && isset($_SESSION['user_id'])) {
   </a>
 <?php endif; ?>
 
-
 <!-- Keranjang -->
 <a href="shop.php?from=home" class="icon-nav position-relative" title="Keranjang">
   <i class="bi bi-cart3"></i>
 
   <?php 
-  // Hitung jumlah item di keranjang (kalau session keranjang ada)
-  $cart_count = isset($_SESSION['cart']) ? count($_SESSION['cart']) : 0;
+  // Jika user sudah login, ambil jumlah item keranjang dari DB
+  $cart_count = 0;
+  if (isset($_SESSION['user_id'])) {
+      $uid = $_SESSION['user_id'];
+      $res = mysqli_query($conn, "SELECT COUNT(*) AS jml FROM cart WHERE user_id = $uid");
+      if ($res && $row = mysqli_fetch_assoc($res)) {
+          $cart_count = (int)$row['jml'];
+      }
+  }
 
   // Tampilkan badge cuma kalau jumlah > 0
   if ($cart_count > 0): ?>
-    <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-warning text-dark">
-      <?= $cart_count ?>
-    </span>
+    <span class="badge"><?= $cart_count ?></span>
   <?php endif; ?>
 </a>
+
 </div>
 
     </div>

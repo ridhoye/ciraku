@@ -4,8 +4,8 @@ include "../config/db.php";
 
 // 🔒 Cek login
 if (!isset($_SESSION['user_id'])) {
-    header("Location: ../user/login.php");
-    exit;
+  header("Location: ../user/login.php");
+  exit;
 }
 
 $user_id = $_SESSION['user_id'];
@@ -13,143 +13,131 @@ $user_id = $_SESSION['user_id'];
 // Ambil data user
 $user = mysqli_fetch_assoc(mysqli_query($conn, "SELECT * FROM users WHERE id = '$user_id'"));
 
-// Update alamat jika form disubmit
+// ==================== UPDATE ALAMAT (AJAX) ====================
 if (isset($_POST['save_address'])) {
-    $full_name   = mysqli_real_escape_string($conn, $_POST['full_name']);
-    $phone       = mysqli_real_escape_string($conn, $_POST['phone']);
-    $address     = mysqli_real_escape_string($conn, $_POST['address']);
-    $postal_code = mysqli_real_escape_string($conn, $_POST['postal_code']);
+  $full_name   = mysqli_real_escape_string($conn, $_POST['full_name']);
+  $phone       = mysqli_real_escape_string($conn, $_POST['phone']);
+  $address     = mysqli_real_escape_string($conn, $_POST['address']);
+  $postal_code = mysqli_real_escape_string($conn, $_POST['postal_code']);
 
-    $check = mysqli_fetch_assoc(mysqli_query($conn, "SELECT * FROM users WHERE id='$user_id'"));
-
-    if (
-        $check['full_name'] == $full_name &&
-        $check['phone'] == $phone &&
-        $check['address'] == $address &&
-        $check['postal_code'] == $postal_code
-    ) {
-        echo "nochange";
-        exit;
-    }
-
-    $update = mysqli_query($conn, "
-        UPDATE users 
-        SET full_name='$full_name', phone='$phone', address='$address', postal_code='$postal_code' 
-        WHERE id='$user_id'
-    ");
-
-    if ($update) {
-        echo "success";
-    } else {
-        echo "failed: " . mysqli_error($conn); // 🔥 tambahin ini
-    }
+  $check = mysqli_fetch_assoc(mysqli_query($conn, "SELECT * FROM users WHERE id='$user_id'"));
+  if (
+    $check['full_name'] == $full_name &&
+    $check['phone'] == $phone &&
+    $check['address'] == $address &&
+    $check['postal_code'] == $postal_code
+  ) {
+    echo "nochange";
     exit;
+  }
+
+  $update = mysqli_query($conn, "
+      UPDATE users 
+      SET full_name='$full_name', phone='$phone', address='$address', postal_code='$postal_code' 
+      WHERE id='$user_id'
+  ");
+
+  echo $update ? "success" : "failed";
+  exit;
 }
 
-// Kalau user belum pilih item tapi masih ada sisa data lama, hapus dulu
-if (!isset($_SESSION['checkout_items']) && isset($_SESSION['last_cancelled_items'])) {
-    unset($_SESSION['last_cancelled_items']);
-}
-
-// 🔙 Jika user batal
+// ==================== BATAL CHECKOUT ====================
 if (isset($_POST['cancel_checkout'])) {
-    unset($_SESSION['checkout_items']);
+  // Kalau checkout langsung dari order
+  if (isset($_SESSION['direct_checkout']) && $_SESSION['direct_checkout'] === true) {
+    unset($_SESSION['direct_checkout']);
+    header("Location: ../payment/order.php");
+    exit;
+  }
 
-    // Kalau checkout langsung dari Order
-    if (isset($_SESSION['direct_checkout']) && $_SESSION['direct_checkout'] === true) {
-        unset($_SESSION['direct_checkout']); // bersihin session-nya
-        header("Location: ../payment/order.php");
-        exit;
+  // Kalau lewat shop
+  header("Location: ../dasbord/shop.php");
+  exit;
+}
+
+// ==================== CEK SUMBER CHECKOUT ====================
+
+// kalau datang dari order.php (pesan sekarang)
+if (isset($_SESSION['direct_checkout']) && isset($_SESSION['direct_products'])) {
+    $items = [];
+    $total_all = 0;
+
+    foreach ($_SESSION['direct_products'] as $p) {
+        $jumlah = (int) $p['jumlah'];
+        $subtotal = $p['harga'] * $jumlah;
+
+        $items[] = [
+            'produk_id' => $p['id'],
+            'nama' => $p['nama_produk'],
+            'harga' => $p['harga'],
+            'jumlah' => $jumlah,
+            'total' => $subtotal,
+            'gambar' => $p['gambar']
+        ];
+
+        $total_all += $subtotal;
     }
+}
 
-    // Kalau lewat Shop
-    if (isset($_SESSION['from_page']) && $_SESSION['from_page'] === 'order') {
-        header("Location: ../dasbord/shop.php?from=order");
-    } else {
-        header("Location: ../dasbord/shop.php");
+
+// 2️⃣ Jika dari keranjang (shop.php)
+elseif (isset($_SESSION['checkout_items'])) {
+    $items = [];
+    $total_all = 0;
+
+    foreach ($_SESSION['checkout_items'] as $p) {
+        $jumlah = (int) $p['quantity'];
+        $subtotal = $p['harga'] * $jumlah;
+
+        $items[] = [
+            'produk_id' => $p['id'],
+            'nama' => $p['nama_produk'],
+            'harga' => $p['harga'],
+            'jumlah' => $jumlah,
+            'total' => $subtotal,
+            'gambar' => $p['gambar']
+        ];
+
+        $total_all += $subtotal;
     }
+}
 
+// 3️⃣ Jika tidak ada data checkout (akses langsung)
+else {
+    echo "<script>alert('Tidak ada item yang dipilih untuk checkout!'); window.location.href='../dasbord/shop.php';</script>";
     exit;
 }
 
-// 🔎 Ambil item checkout dari session
-if (!isset($_SESSION['checkout_items']) || empty($_SESSION['checkout_items'])) {
-    echo "<script>alert('Tidak ada item yang dipilih!'); window.location.href='../dasbord/shop.php';</script>";
-    exit;
-}
-
-$checkout_items = $_SESSION['checkout_items'];
-$total_all = 0;
-$items = [];
-
-// Simpan asal halaman (order / home / shop)
-if (isset($_GET['from'])) {
-    $_SESSION['from_page'] = $_GET['from'];
-}
-
-// Hitung total per produk
-foreach ($checkout_items as $item) {
-    $nama = mysqli_real_escape_string($conn, $item['nama']);
-    $harga = (int)$item['harga'];
-    $jumlah = (int)$item['jumlah'];
-    $total = $harga * $jumlah;
-
-    // ✅ Cek koneksi dan ambil gambar produk
-    $query = "SELECT gambar FROM produk WHERE nama_produk = '$nama' LIMIT 1";
-    $result = mysqli_query($conn, $query);
-
-    if ($result && mysqli_num_rows($result) > 0) {
-        $row = mysqli_fetch_assoc($result);
-        $gambar = $row['gambar'];
-    } else {
-        $gambar = 'default.png';
-    }
-
-    $items[] = [
-        'nama'   => $nama,
-        'harga'  => $harga,
-        'jumlah' => $jumlah,
-        'total'  => $total,
-        'gambar' => $gambar
-    ];
-
-
-    $total_all += $total;
-}
-
-// 💾 Simpan ke tabel pesanan
+// ==================== SIMPAN PESANAN ====================
 if (isset($_POST['konfirmasi'])) {
+  foreach ($items as $item) {
+    $nama = mysqli_real_escape_string($conn, $item['nama']);
+    $harga = $item['harga'];
+    $jumlah = $item['jumlah'];
+    $total = $item['total'];
+    mysqli_query($conn, "INSERT INTO pesanan (user_id, nama_produk, jumlah, harga, total_harga, status)
+                         VALUES ('$user_id', '$nama', '$jumlah', '$harga', '$total', 'Pending')");
+  }
+
+  // 🔍 Hanya hapus item dari keranjang kalau checkout dari cart
+  if (!isset($_SESSION['direct_checkout']) || $_SESSION['direct_checkout'] === false) {
     foreach ($items as $item) {
-        $nama = mysqli_real_escape_string($conn, $item['nama']);
-        $harga = $item['harga'];
-        $jumlah = $item['jumlah'];
-        $total = $item['total'];
-
-        mysqli_query($conn, "INSERT INTO pesanan (user_id, nama_produk, jumlah, harga, total_harga, status)
-                             VALUES ('$user_id', '$nama', '$jumlah', '$harga', '$total', 'Pending')");
+      $produk_id = (int)$item['produk_id'];
+      mysqli_query($conn, "DELETE FROM cart WHERE user_id=$user_id AND produk_id=$produk_id");
     }
+  }
 
-if (isset($_SESSION['cart']) && isset($_SESSION['checkout_items'])) {
-    foreach ($_SESSION['checkout_items'] as $checkoutItem) {
-        foreach ($_SESSION['cart'] as $index => $cartItem) {
-            if ($cartItem['nama'] == $checkoutItem['nama']) { // bisa pakai id juga
-                unset($_SESSION['cart'][$index]);
-            }
-        }
-    }
-    $_SESSION['cart'] = array_values($_SESSION['cart']); // tetap jaga index
+  // 🔄 Bersihkan session direct checkout
+  unset($_SESSION['direct_checkout']);
+  unset($_SESSION['direct_product']);
+
+  echo "<script>
+          alert('Pesanan berhasil dikirim! Silakan lanjut ke pembayaran.');
+          window.location.href='../payment/payment.php';
+        </script>";
+  exit;
 }
 
-
-    // 🧹 Bersihkan checkout session
-    unset($_SESSION['checkout_items']);
-
-    echo "<script>
-            alert('Pesanan berhasil dikirim! Silakan lanjut ke pembayaran.');
-            window.location.href='../payment/payment.php';
-          </script>";
-    exit;
-}
 ?>
 <!DOCTYPE html>
 <html lang="id">
