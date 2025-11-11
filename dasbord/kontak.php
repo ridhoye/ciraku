@@ -1,41 +1,56 @@
 <?php
+// Mulai session, wajib biar bisa pakai $_SESSION untuk nyimpen data login user
 session_start();
+
+// Hubungkan ke file konfigurasi database (supaya $conn bisa dipakai)
 include "../config/db.php";
 
+// Variabel untuk nyimpen pesan alert SweetAlert (kalau nanti mau ditampilkan di halaman)
 $swal = null;
 
-// Jika user sudah login, ambil datanya
-$user = null;
+// --- CEK APAKAH USER SUDAH LOGIN --- //
+$user = null; // Variabel buat nyimpen data user
 if (isset($_SESSION['logged_in']) && isset($_SESSION['user_id'])) {
+  // Ambil ID user yang disimpan di session
   $user_id = $_SESSION['user_id'];
+  // Ambil data user dari database berdasarkan ID-nya
   $user = mysqli_fetch_assoc(mysqli_query($conn, "SELECT * FROM users WHERE id='$user_id'"));
 }
 
-// Proses kirim pesan
+// --- PROSES SAAT FORM DIKIRIM (METHOD POST) --- //
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+  // Kalau user belum login
   if (!isset($_SESSION['logged_in']) || !$user) {
+    // Bikin alert warning supaya user disuruh login dulu
     $swal = [
       'icon' => 'warning',
       'title' => 'Ups!',
       'text'  => 'Silakan login atau daftar terlebih dahulu untuk mengirim pesan.'
     ];
   } else {
-    $nama  = mysqli_real_escape_string($conn, $user['full_name']);
-    $email = mysqli_real_escape_string($conn, $user['email']);
-    $phone = mysqli_real_escape_string($conn, $user['phone']);
+    // --- Kalau user udah login, ambil datanya dan form input --- //
+
+    // Lindungi dari serangan SQL Injection pakai mysqli_real_escape_string
+    $nama   = mysqli_real_escape_string($conn, $user['full_name']);
+    $email  = mysqli_real_escape_string($conn, $user['email']);
+    $phone  = mysqli_real_escape_string($conn, $user['phone']);
     $subjek = mysqli_real_escape_string($conn, $_POST['subjek']);
     $pesan  = mysqli_real_escape_string($conn, $_POST['pesan']);
 
+    // Query untuk simpan pesan ke tabel kontak_pesan
     $query = "INSERT INTO kontak_pesan (user_id, nama, email, phone, subjek, pesan)
               VALUES ('$user_id', '$nama', '$email', '$phone', '$subjek', '$pesan')";
 
+    // Jalankan query, lalu cek berhasil atau enggak
     if (mysqli_query($conn, $query)) {
+      // Kalau berhasil, tampilkan pesan sukses
       $swal = [
         'icon' => 'success',
         'title' => 'Berhasil!',
         'text'  => 'Pesan kamu sudah dikirim. Terima kasih telah menghubungi kami!'
       ];
     } else {
+      // Kalau gagal, tampilkan pesan error
       $swal = [
         'icon' => 'error',
         'title' => 'Gagal!',
@@ -45,6 +60,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   }
 }
 ?>
+
 <!DOCTYPE html>
 <html lang="id">
 <head>
