@@ -55,6 +55,14 @@ if (!isset($_SESSION['checkout_items']) && isset($_SESSION['last_cancelled_items
 if (isset($_POST['cancel_checkout'])) {
     unset($_SESSION['checkout_items']);
 
+    // Kalau checkout langsung dari Order
+    if (isset($_SESSION['direct_checkout']) && $_SESSION['direct_checkout'] === true) {
+        unset($_SESSION['direct_checkout']); // bersihin session-nya
+        header("Location: ../payment/order.php");
+        exit;
+    }
+
+    // Kalau lewat Shop
     if (isset($_SESSION['from_page']) && $_SESSION['from_page'] === 'order') {
         header("Location: ../dasbord/shop.php?from=order");
     } else {

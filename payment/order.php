@@ -80,7 +80,7 @@ if (isset($_POST['checkout'])) {
         </script>";
         exit();
     }
-
+$_SESSION['direct_checkout'] = true;
     // Simpan data sementara untuk checkout
     $_SESSION['checkout_items'] = $checkout_items;
 
