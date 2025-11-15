@@ -46,24 +46,8 @@ if (isset($_POST['add_to_cart'])) {
         }
     }
 
-    echo "
-    <script src='https://cdn.jsdelivr.net/npm/sweetalert2@11'></script>
-    <script>
-      document.addEventListener('DOMContentLoaded', function() {
-        Swal.fire({
-          title: 'Berhasil!',
-          text: 'Barang ditambahkan ke keranjang!',
-          icon: 'success',
-          background: '#fff',
-          color: '#333',
-          confirmButtonColor: '#fbbf24',
-          iconColor: '#fbbf24',
-          backdrop: 'rgba(0, 0, 0, 0.6)',
-        }).then(() => { window.location.href='order.php'; });
-      });
-    </script>";
-    exit();
-}
+    header("Location: order.php");
+    exit;}
 
 // 💳 Proses checkout langsung TANPA menyentuh cart
 if (isset($_POST['checkout'])) {
@@ -83,8 +67,26 @@ if (isset($_POST['checkout'])) {
     }
 
     if (empty($checkout_items)) {
-        echo "<script>alert('Kamu belum memilih jumlah cireng 😅'); window.history.back();</script>";
-        exit;
+        echo "
+        <script src='https://cdn.jsdelivr.net/npm/sweetalert2@11'></script>
+        <script>
+        document.addEventListener('DOMContentLoaded', function() {
+          Swal.fire({
+            title: 'Ups!',
+            text: 'Kamu belum memilih jumlah cireng 😅',
+            icon: 'warning',
+            background: '#111',
+            color: '#fff',
+            confirmButtonText: 'OK',
+            confirmButtonColor: '#fbbf24',
+            iconColor: '#fbbf24',
+            backdrop: 'rgba(0,0,0,0.7)',
+          }).then(() => {
+            window.history.back();
+          });
+        });
+        </script>";
+        exit();
     }
 
     $_SESSION['direct_checkout'] = true;
@@ -148,6 +150,49 @@ if (isset($_POST['checkout'])) {
     .btn-success:hover { background: linear-gradient(90deg,#86efac,#4ade80); color:#000; transform:scale(1.05);}
     .btn-secondary { background-color:#374151;color:#fff;font-weight:600;transition:all 0.25s ease;}
     .btn-secondary:hover { background-color:#4b5563;transform:scale(1.05);box-shadow:0 0 10px rgba(255,255,255,0.15);color:#000;}
+
+        /* ✨ Efek hover tombol Kembali biar muncul halus */
+    .btn-secondary {
+      background-color: #374151;
+      color: #fff;
+      font-weight: 600;
+      transition: all 0.25s ease;
+    }
+
+    .btn-secondary:hover {
+      background-color: #4b5563;
+      transform: scale(1.05);
+      box-shadow: 0 0 10px rgba(255, 255, 255, 0.15); /* lembut banget */
+      color: #000; /* teks jadi hitam pas hover */
+    }
+
+        .btn-success {
+      background: linear-gradient(90deg, #22c55e, #16a34a);
+      font-weight: bold;
+      color: #fff;
+      border: none;
+      transition: all 0.3s ease;
+    }
+
+    .btn-success:hover {
+      background: linear-gradient(90deg, #86efac, #4ade80); /* hijau lebih terang */
+      color: #000; /* teks jadi hitam */
+      transform: scale(1.05);
+    }
+    
+    /*CSS Alert */
+    .swal2-border-radius {
+      border-radius: 15px !important;
+    }
+    .swal2-title-custom {
+      font-weight: 700;
+      color: #333;
+    }
+    .swal2-text-custom {
+      font-size: 15px;
+      color: #555;
+    }
+
   </style>
 </head>
 <body>
@@ -195,6 +240,7 @@ function increaseQty(btn){let i=btn.parentElement.querySelector('.qty-input');i.
 function decreaseQty(btn){let i=btn.parentElement.querySelector('.qty-input');if(parseInt(i.value)>0)i.value=parseInt(i.value)-1;}
 function hasItems(){return Array.from(document.querySelectorAll('.qty-input')).some(i=>parseInt(i.value)>0);}
 
+// ✨ Animasi tambah ke keranjang
 function animateToCart(imgEl){
   const cart=document.querySelector('.bi-cart3');
   const clone=imgEl.cloneNode(true);
@@ -214,20 +260,81 @@ function animateToCart(imgEl){
   setTimeout(()=>clone.remove(),1000);
 }
 
-document.getElementById('addToCartBtn').addEventListener('click',()=>{
-  if(!hasItems()){Swal.fire({title:'Ups!',text:'Kamu belum memilih jumlah cireng 😅',icon:'warning',background:'#fff',color:'#333',confirmButtonColor:'#fbbf24',confirmButtonText:'OK',iconColor:'#fbbf24',backdrop:'rgba(0,0,0,0.6)'});return;}
-  document.querySelectorAll('.qty-input').forEach((input)=>{
-    if(parseInt(input.value)>0){
-      const img=input.closest('.card').querySelector('.product-img');
+document.getElementById('addToCartBtn').addEventListener('click', () => {
+  if (!hasItems()) {
+    Swal.fire({
+      title: 'Ups!',
+      text: 'Kamu belum memilih jumlah cireng 😅',
+      icon: 'warning',
+      background: '#fff', // Putih
+      color: '#333', // Teks abu tua
+      confirmButtonColor: '#fbbf24', // Oren kekuningan
+      confirmButtonText: 'OK',
+      iconColor: '#fbbf24', // Warna ikon oranye
+      backdrop: 'rgba(0, 0, 0, 0.6)', // Abu-abu transparan di belakang
+      customClass: {
+        popup: 'swal2-border-radius',
+        title: 'swal2-title-custom',
+        htmlContainer: 'swal2-text-custom'
+  }
+    });
+      return;
+  }
+
+  document.querySelectorAll('.qty-input').forEach((input) => {
+    if (parseInt(input.value) > 0) {
+      const img = input.closest('.card').querySelector('.product-img');
       animateToCart(img);
     }
   });
-  setTimeout(()=>{
-    const input=document.createElement("input");
-    input.type="hidden";input.name="add_to_cart";input.value="1";
+
+      Swal.fire({
+      title: 'Berhasil!',
+      text: 'Barang ditambahkan ke keranjang!',
+      icon: 'success',
+      background: '#fff', // Putih
+      color: '#333', // Teks abu tua
+      confirmButtonColor: '#fbbf24', // Oren kekuningan
+      confirmButtonText: 'OK',
+      iconColor: '#fbbf24', // Warna ikon oranye
+      backdrop: 'rgba(0, 0, 0, 0.6)', // Abu-abu transparan di belakang
+      customClass: {
+        popup: 'swal2-border-radius',
+        title: 'swal2-title-custom',
+        htmlContainer: 'swal2-text-custom'
+  }
+    });
+
+  setTimeout(() => {
+    const input = document.createElement("input");
+    input.type = "hidden"; input.name = "add_to_cart"; input.value = "1";
     document.querySelector("form").appendChild(input);
     document.querySelector("form").submit();
-  },1000);
+  }, 1300);
+});
+
+// 💳 Alert untuk tombol Pesan Sekarang
+document.querySelector('button[name="checkout"]').addEventListener('click', function(e) {
+  if (!hasItems()) {
+    e.preventDefault();
+
+    Swal.fire({
+      title: 'Ups!',
+      text: 'Kamu belum memilih jumlah cireng 😅',
+      icon: 'warning',
+      background: '#fff', // Putih
+      color: '#333', // Teks abu tua
+      confirmButtonColor: '#fbbf24', // Oren kekuningan
+      confirmButtonText: 'OK',
+      iconColor: '#fbbf24', // Warna ikon oranye
+      backdrop: 'rgba(0, 0, 0, 0.6)', // Abu-abu transparan di belakang
+      customClass: {
+        popup: 'swal2-border-radius',
+        title: 'swal2-title-custom',
+        htmlContainer: 'swal2-text-custom'
+      }
+    });
+  }
 });
 </script>
 </body>
