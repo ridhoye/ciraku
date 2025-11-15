@@ -50,9 +50,12 @@ if (isset($_POST['cancel_checkout'])) {
     exit;
   }
 
-  // Kalau lewat shop
-  header("Location: ../dasbord/shop.php");
-  exit;
+if ($_SESSION['checkout_origin'] === 'order') {
+    header("Location: ../dasbord/shop.php?from=order");
+} else {
+    header("Location: ../dasbord/shop.php");
+}
+exit;
 }
 
 // ==================== CEK SUMBER CHECKOUT ====================
