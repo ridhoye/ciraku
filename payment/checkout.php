@@ -2,6 +2,24 @@
 session_start();
 include "../config/db.php";
 
+// ==================== LOAD COMPOSER + DOTENV ====================
+require_once __DIR__ . '/../vendor/autoload.php';   // penting
+
+use Midtrans\Config;
+use Midtrans\Snap;
+
+$dotenv = Dotenv\Dotenv::createImmutable(__DIR__ . '/..');
+$dotenv->load();  
+
+// MIDTRANS CONFIG
+Config::$serverKey     = $_ENV['MIDTRANS_SERVER_KEY'];
+Config::$isProduction  = ($_ENV['MIDTRANS_IS_PRODUCTION'] === 'true');
+Config::$isSanitized   = true;
+Config::$is3ds         = true;
+// ================================================================
+
+
+
 // 🔒 Cek login
 if (!isset($_SESSION['user_id'])) {
   header("Location: ../user/login.php");
@@ -9,9 +27,8 @@ if (!isset($_SESSION['user_id'])) {
 }
 
 $user_id = $_SESSION['user_id'];
-
-// Ambil data user
 $user = mysqli_fetch_assoc(mysqli_query($conn, "SELECT * FROM users WHERE id = '$user_id'"));
+
 
 // ==================== UPDATE ALAMAT (AJAX) ====================
 if (isset($_POST['save_address'])) {
@@ -21,6 +38,7 @@ if (isset($_POST['save_address'])) {
   $postal_code = mysqli_real_escape_string($conn, $_POST['postal_code']);
 
   $check = mysqli_fetch_assoc(mysqli_query($conn, "SELECT * FROM users WHERE id='$user_id'"));
+
   if (
     $check['full_name'] == $full_name &&
     $check['phone'] == $phone &&
@@ -41,107 +59,158 @@ if (isset($_POST['save_address'])) {
   exit;
 }
 
+
 // ==================== BATAL CHECKOUT ====================
 if (isset($_POST['cancel_checkout'])) {
-  // Kalau checkout langsung dari order
+
   if (isset($_SESSION['direct_checkout']) && $_SESSION['direct_checkout'] === true) {
     unset($_SESSION['direct_checkout']);
     header("Location: ../payment/order.php");
     exit;
   }
 
-if ($_SESSION['checkout_origin'] === 'order') {
+  if ($_SESSION['checkout_origin'] === 'order') {
     header("Location: ../dasbord/shop.php?from=order");
-} else {
+  } else {
     header("Location: ../dasbord/shop.php");
+  }
+  exit;
 }
-exit;
-}
+
 
 // ==================== CEK SUMBER CHECKOUT ====================
 
-// kalau datang dari order.php (pesan sekarang)
+// Pesan sekarang (direct)
 if (isset($_SESSION['direct_checkout']) && isset($_SESSION['direct_products'])) {
+
     $items = [];
     $total_all = 0;
 
     foreach ($_SESSION['direct_products'] as $p) {
-        $jumlah = (int) $p['jumlah'];
+        $jumlah = (int)$p['jumlah'];
         $subtotal = $p['harga'] * $jumlah;
 
         $items[] = [
             'produk_id' => $p['id'],
-            'nama' => $p['nama_produk'],
-            'harga' => $p['harga'],
-            'jumlah' => $jumlah,
-            'total' => $subtotal,
-            'gambar' => $p['gambar']
+            'nama'      => $p['nama_produk'],
+            'harga'     => $p['harga'],
+            'jumlah'    => $jumlah,
+            'total'     => $subtotal,
+            'gambar'    => $p['gambar']
         ];
 
         $total_all += $subtotal;
     }
+
 }
-
-
-// 2️⃣ Jika dari keranjang (shop.php)
+// Dari keranjang
 elseif (isset($_SESSION['checkout_items'])) {
+
     $items = [];
     $total_all = 0;
 
     foreach ($_SESSION['checkout_items'] as $p) {
-        $jumlah = (int) $p['quantity'];
+        $jumlah = (int)$p['quantity'];
         $subtotal = $p['harga'] * $jumlah;
 
         $items[] = [
             'produk_id' => $p['id'],
-            'nama' => $p['nama_produk'],
-            'harga' => $p['harga'],
-            'jumlah' => $jumlah,
-            'total' => $subtotal,
-            'gambar' => $p['gambar']
+            'nama'      => $p['nama_produk'],
+            'harga'     => $p['harga'],
+            'jumlah'    => $jumlah,
+            'total'     => $subtotal,
+            'gambar'    => $p['gambar']
         ];
 
         $total_all += $subtotal;
     }
-}
 
-// 3️⃣ Jika tidak ada data checkout (akses langsung)
+}
+// Tidak ada item
 else {
-    echo "<script>alert('Tidak ada item yang dipilih untuk checkout!'); window.location.href='../dasbord/shop.php';</script>";
+    echo "<script>alert('Tidak ada item untuk checkout!'); window.location.href='../dasbord/shop.php';</script>";
     exit;
 }
 
-// ==================== SIMPAN PESANAN ====================
+
+
 if (isset($_POST['konfirmasi'])) {
-  foreach ($items as $item) {
-    $nama = mysqli_real_escape_string($conn, $item['nama']);
-    $harga = $item['harga'];
-    $jumlah = $item['jumlah'];
-    $total = $item['total'];
-    mysqli_query($conn, "INSERT INTO pesanan (user_id, nama_produk, jumlah, harga, total_harga, status)
-                         VALUES ('$user_id', '$nama', '$jumlah', '$harga', '$total', 'Pending')");
-  }
 
-  // 🔍 Hanya hapus item dari keranjang kalau checkout dari cart
-  if (!isset($_SESSION['direct_checkout']) || $_SESSION['direct_checkout'] === false) {
-    foreach ($items as $item) {
-      $produk_id = (int)$item['produk_id'];
-      mysqli_query($conn, "DELETE FROM cart WHERE user_id=$user_id AND produk_id=$produk_id");
+    $payment_method = $_POST['payment_method'] ?? 'midtrans';
+
+    // ========================== COD ==========================
+    if ($payment_method === "cod") {
+
+        foreach ($items as $item) {
+            $nama = mysqli_real_escape_string($conn, $item['nama']);
+            $harga = $item['harga'];
+            $jumlah = $item['jumlah'];
+            $total = $item['total'];
+
+            mysqli_query($conn, "
+                INSERT INTO pesanan (user_id, nama_produk, jumlah, harga, total_harga, status)
+                VALUES ('$user_id', '$nama', '$jumlah', '$harga', '$total', 'COD - Pending')
+            ");
+        }
+
+        // hapus cart jika bukan direct
+        if (!isset($_SESSION['direct_checkout']) || $_SESSION['direct_checkout'] === false) {
+            foreach ($items as $item) {
+                $produk_id = (int)$item['produk_id'];
+                mysqli_query($conn, "DELETE FROM cart WHERE user_id=$user_id AND produk_id=$produk_id");
+            }
+        }
+
+        unset($_SESSION['direct_checkout']);
+        unset($_SESSION['direct_products']);
+
+        echo "<script>
+                alert('Pesanan COD dibuat! Tunggu konfirmasi.');
+                window.location.href='../payment/status.php';
+              </script>";
+        exit;
     }
-  }
 
-  // 🔄 Bersihkan session direct checkout
-  unset($_SESSION['direct_checkout']);
-  unset($_SESSION['direct_product']);
 
-  echo "<script>
-          alert('Pesanan berhasil dikirim! Silakan lanjut ke pembayaran.');
-          window.location.href='../payment/payment.php';
-        </script>";
-  exit;
+    // ========================== MIDTRANS ==========================
+    $items_for_midtrans = [];
+    foreach ($items as $it) {
+        $items_for_midtrans[] = [
+            'id'       => $it['produk_id'],
+            'price'    => (int)$it['harga'],
+            'quantity' => (int)$it['jumlah'],
+            'name'     => $it['nama']
+        ];
+    }
+
+    $order_id = "CIRAKU-" . time() . rand(100,999);
+
+    mysqli_query($conn, "
+        INSERT INTO orders (order_id, user_id, total, status, created_at)
+        VALUES ('$order_id', '$user_id', '$total_all', 'pending', NOW())
+    ");
+
+    $params = [
+        'transaction_details' => [
+            'order_id'      => $order_id,
+            'gross_amount'  => (int)$total_all,
+        ],
+        'item_details' => $items_for_midtrans,
+        'customer_details' => [
+            'first_name' => $user['full_name'],
+            'email'      => $user['email'],
+            'phone'      => $user['phone']
+        ]
+    ];
+
+   $snapToken = Snap::getSnapToken($params);
+
+    echo "<script>var snapToken = '$snapToken';</script>";
 }
 
 ?>
+
+
 <!DOCTYPE html>
 <html lang="id">
 <head>
@@ -422,6 +491,12 @@ if (isset($_POST['konfirmasi'])) {
           <div style="font-weight:700;color:var(--gold-1)">Metode Pembayaran</div>
         </div>
 
+
+      
+<!-- Form tetap pakai nama tombol sama supaya logic PHP ga berubah -->
+   <form method="POST" style="margin-top:16px">
+
+          <!-- METODE PEMBAYARAN -->
 <div class="payment-methods" id="paymentList">
   <!-- Midtrans -->
   <label class="pay-option">
@@ -461,9 +536,8 @@ if (isset($_POST['konfirmasi'])) {
           <div style="color:var(--muted)">Total Semua</div>
           <strong>Rp <?= number_format($total_all,0,',','.'); ?></strong>
         </div>
+        
 
-        <!-- Form tetap pakai nama tombol sama supaya logic PHP ga berubah -->
-        <form method="POST" style="margin-top:16px">
           <div class="actions">
             <button type="submit" name="cancel_checkout" class="btn-secondary">Batal</button>
             <button type="submit" name="konfirmasi" class="btn-primary">Lanjut ke Pembayaran</button>
@@ -476,6 +550,30 @@ if (isset($_POST['konfirmasi'])) {
 
   <!-- SweetAlert2 confirmation for cancel (tetap sama logic JS) -->
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+<script type="text/javascript"
+        src="https://app.sandbox.midtrans.com/snap/snap.js"
+        data-client-key="<?= $_ENV['MIDTRANS_CLIENT_KEY']; ?>">
+</script>
+
+<script>
+  // Jika snapToken dikirim dari PHP
+  if (typeof snapToken !== "undefined" && snapToken !== "") {
+      snap.pay(snapToken, {
+          onSuccess: function(result){
+              window.location.href = "../payment/status.php";
+          },
+          onPending: function(result){
+              window.location.href = "../payment/status.php";
+          },
+          onError: function(result){
+              alert("Pembayaran gagal, coba lagi bro 🙏");
+          },
+      });
+  }
+</script>
+
+
   <script>
     // Hijack tombol cancel untuk konfirmasi user sebelum submit
     document.addEventListener('click', function(e){
