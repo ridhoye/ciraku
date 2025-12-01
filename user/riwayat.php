@@ -8,6 +8,47 @@ if (!isset($_SESSION['user_id'])) {
     exit;
 }
 
+$user_id = $_SESSION['user_id'];
+
+// Ambil filter status
+$filter = isset($_GET['filter']) ? $_GET['filter'] : 'semua';
+
+// Ambil filter bulan & tahun
+$bulan = isset($_GET['bulan']) ? $_GET['bulan'] : '';
+$tahun = isset($_GET['tahun']) ? $_GET['tahun'] : '';
+
+// Pagination
+$limit = 10; // jumlah data per halaman
+$page = isset($_GET['page']) ? $_GET['page'] : 1;
+$start = ($page - 1) * $limit;
+
+// Build query
+$where = "WHERE user_id=$user_id";
+
+// Filter status
+if ($filter == 'selesai') {
+    $where .= " AND status='Selesai'";
+} elseif ($filter == 'batal') {
+    $where .= " AND status='Dibatalkan'";
+}
+
+// Filter bulan & tahun
+if ($bulan != "" && $tahun != "") {
+    $where .= " AND MONTH(tanggal)='$bulan' AND YEAR(tanggal)='$tahun'";
+}
+
+// Hitung total data
+$countQuery = mysqli_query($conn, "SELECT COUNT(*) AS total FROM pesanan $where");
+$totalData = mysqli_fetch_assoc($countQuery)['total'];
+$totalPages = ceil($totalData / $limit);
+
+// Query utama
+$query = mysqli_query($conn, "
+    SELECT * FROM pesanan 
+    $where 
+    ORDER BY tanggal DESC 
+    LIMIT $start, $limit
+");
 ?>
 
 <!DOCTYPE html>
@@ -39,7 +80,6 @@ if (!isset($_SESSION['user_id'])) {
         text-shadow: 0 0 10px rgba(255,174,0,0.6);
     }
 
-    /* FILTER */
     .filter-box {
         display: flex;
         justify-content: center;
@@ -64,7 +104,6 @@ if (!isset($_SESSION['user_id'])) {
         box-shadow: 0 0 10px rgba(255,174,0,0.7);
     }
 
-    /* CARD RIWAYAT */
     .riwayat-card {
         background: #141414;
         border: 1px solid rgba(255,174,0,0.2);
@@ -85,7 +124,6 @@ if (!isset($_SESSION['user_id'])) {
         color: #ccc;
     }
 
-    /* STATUS */
     .status {
         padding: 5px 12px;
         border-radius: 25px;
@@ -105,7 +143,12 @@ if (!isset($_SESSION['user_id'])) {
         border: 1px solid #ff4d4d;
     }
 
-    /* PRODUK LIST */
+    .status-pending {
+        background: rgba(255,174,0,0.15);
+        color: #ffae00;
+        border: 1px solid #ffae00;
+    }
+
     .produk-info {
         display: flex;
         gap: 15px;
@@ -153,7 +196,6 @@ if (!isset($_SESSION['user_id'])) {
         text-shadow: 0 0 7px rgba(255,174,0,0.7);
     }
 
-    /* FOOTER BUTTON */
     .riwayat-footer {
         text-align: right;
         margin-top: 15px;
@@ -243,9 +285,7 @@ if (!isset($_SESSION['user_id'])) {
 .btn-kembali:hover {
   background: #ffa200cb;
     color: #fff;
-    border-color: #ffa200cb;
 }
-
 </style>
 </head>
 
@@ -253,19 +293,56 @@ if (!isset($_SESSION['user_id'])) {
 
 <div class="riwayat-container">
 
-    <!-- button kembali -->
     <a href="profile.php" class="btn-kembali">Kembali</a>
 
     <h2 class="judul-riwayat">Riwayat Pembelian</h2>
 
-    <!-- FILTER -->
     <div class="filter-box">
-        <button class="filter active">Semua</button>
-        <button class="filter">Selesai</button>
-        <button class="filter">Dibatalkan</button>
+
+        <a href="riwayat.php?filter=semua">
+            <button class="filter <?= ($filter == 'semua') ? 'active' : '' ?>">Semua</button>
+        </a>
+
+        <a href="riwayat.php?filter=selesai">
+            <button class="filter <?= ($filter == 'selesai') ? 'active' : '' ?>">Selesai</button>
+        </a>
+
+        <a href="riwayat.php?filter=batal">
+            <button class="filter <?= ($filter == 'batal') ? 'active' : '' ?>">Dibatalkan</button>
+        </a>
+
+        <!-- FILTER BULAN -->
+        <form action="riwayat.php" method="GET" style="display:flex; gap:10px;">
+            <input type="hidden" name="filter" value="<?= $filter ?>">
+
+            <select name="bulan" class="filter" style="background:#ffae00;color:black;">
+                <option value="">Bulan</option>
+                <?php 
+                for ($m = 1; $m <= 12; $m++) {
+                    $selected = ($bulan == $m) ? "selected" : "";
+                    echo "<option value='$m' $selected>".date("F", mktime(0,0,0,$m,1))."</option>";
+                }
+                ?>
+            </select>
+
+            <select name="tahun" class="filter" style="background:#ffae00;color:black;">
+                <option value="">Tahun</option>
+                <?php 
+                $startYear = 2022;
+                $currentYear = date("Y");
+                for ($y = $currentYear; $y >= $startYear; $y--) {
+                    $selected = ($tahun == $y) ? "selected" : "";
+                    echo "<option value='$y' $selected>$y</option>";
+                }
+                ?>
+            </select>
+
+            <button type="submit" class="filter" style="background:#ffae00;color:black;">Filter</button>
+        </form>
+
     </div>
 
-    <script>
+<script>
 function openPopup(nama, jumlah, tanggal, harga) {
     document.getElementById("popup-nama").innerHTML = "Produk: " + nama;
     document.getElementById("popup-jumlah").innerHTML = "Jumlah: " + jumlah;
@@ -280,65 +357,82 @@ function closePopup() {
 }
 </script>
 
-    <!-- CARD 1 (Contoh) -->
-    <div class="riwayat-card">
-        <div class="riwayat-header">
-            <span class="kode-order">ORDER #CRK12345</span>
-            <span class="status status-selesai">Selesai</span>
+<?php while ($row = mysqli_fetch_assoc($query)) { ?>
+
+<div class="riwayat-card">
+    <div class="riwayat-header">
+        <span class="kode-order">ORDER #<?= $row['id'] ?></span>
+
+        <span class="status 
+            <?php 
+                if ($row['status'] == 'Selesai') echo 'status-selesai';
+                else if ($row['status'] == 'Dibatalkan') echo 'status-batal';
+                else echo 'status-pending';
+            ?>">
+            <?= $row['status'] ?>
+        </span>
+    </div>
+
+    <div class="produk-info">
+
+        <?php
+        $pname = $row['nama_produk'];
+        $g = mysqli_fetch_assoc(mysqli_query($conn, "SELECT gambar FROM produk WHERE nama_produk='$pname' LIMIT 1"));
+        $gambar = $g ? $g['gambar'] : "default.png";
+        ?>
+
+        <img src="../assets/images/<?= $gambar ?>" class="produk-img">
+
+        <div class="produk-detail">
+            <h3 class="nama-produk"><?= $row['nama_produk'] ?></h3>
+            <p class="jumlah">Jumlah: <?= $row['jumlah'] ?> pcs</p>
+            <p class="tanggal">Tanggal: <?= date('d M Y', strtotime($row['tanggal'])) ?></p>
         </div>
 
-        <div class="produk-info">
-            <img src="../assets/produk/contoh.png" class="produk-img">
-
-            <div class="produk-detail">
-                <h3 class="nama-produk">Cireng Crispy Original</h3>
-                <p class="jumlah">Jumlah: 2 pcs</p>
-                <p class="tanggal">Tanggal: 11 Oktober 2025</p>
-            </div>
-
-            <div class="harga-info">
-                <p class="total-label">Total</p>
-                <p class="total-harga">Rp 28.000</p>
-            </div>
-        </div>
-
-        <div class="riwayat-footer">
-<button class="btn-detail" 
-onclick="openPopup('Cireng Crispy Original', '2 pcs', '11 Oktober 2025', 'Rp 28.000')">
-    Lihat Detail
-</button>
+        <div class="harga-info">
+            <p class="total-label">Total</p>
+            <p class="total-harga">
+                Rp <?= number_format($row['total_harga'], 0, ',', '.') ?>
+            </p>
         </div>
     </div>
 
-    <!-- CARD 2 (Contoh) -->
-    <div class="riwayat-card">
-        <div class="riwayat-header">
-            <span class="kode-order">ORDER #CRK98765</span>
-            <span class="status status-batal">Dibatalkan</span>
-        </div>
-
-        <div class="produk-info">
-            <img src="../assets/produk/contoh2.png" class="produk-img">
-
-            <div class="produk-detail">
-                <h3 class="nama-produk">Cireng Pedas Level 3</h3>
-                <p class="jumlah">Jumlah: 1 pcs</p>
-                <p class="tanggal">Tanggal: 08 Oktober 2025</p>
-            </div>
-
-            <div class="harga-info">
-                <p class="total-label">Total</p>
-                <p class="total-harga">Rp 15.000</p>
-            </div>
-        </div>
-
-        <div class="riwayat-footer">
-<button class="btn-detail" 
-onclick="openPopup('Cireng Crispy Original', '2 pcs', '11 Oktober 2025', 'Rp 28.000')">
-    Lihat Detail
-</button>
-        </div>
+    <div class="riwayat-footer">
+        <button class="btn-detail"
+            onclick="openPopup(
+                '<?= $row['nama_produk'] ?>',
+                '<?= $row['jumlah'] ?> pcs',
+                '<?= date('d M Y', strtotime($row['tanggal'])) ?>',
+                'Rp <?= number_format($row['total_harga'], 0, ',', '.') ?>'
+            )">
+            Lihat Detail
+        </button>
     </div>
+</div>
+
+<?php } ?>
+
+<!-- PAGINATION -->
+<div style="text-align:center; margin-top:20px;">
+
+    <?php if ($page > 1): ?>
+        <a href="?page=<?= $page-1 ?>&filter=<?= $filter ?>&bulan=<?= $bulan ?>&tahun=<?= $tahun ?>" 
+            class="filter" style="background:#ffae00;color:black;">Previous</a>
+    <?php endif; ?>
+
+    <?php for ($i = 1; $i <= $totalPages; $i++): ?>
+        <a href="?page=<?= $i ?>&filter=<?= $filter ?>&bulan=<?= $bulan ?>&tahun=<?= $tahun ?>" 
+            class="filter <?= ($page == $i ? 'active' : '') ?>">
+            <?= $i ?>
+        </a>
+    <?php endfor; ?>
+
+    <?php if ($page < $totalPages): ?>
+        <a href="?page=<?= $page+1 ?>&filter=<?= $filter ?>&bulan=<?= $bulan ?>&tahun=<?= $tahun ?>" 
+            class="filter" style="background:#ffae00;color:black;">Next</a>
+    <?php endif; ?>
+
+</div>
 
     <div id="popup" class="popup-overlay">
         <div class="popup-box">
@@ -352,6 +446,7 @@ onclick="openPopup('Cireng Crispy Original', '2 pcs', '11 Oktober 2025', 'Rp 28.
             <button class="btn-close" onclick="closePopup()">Tutup</button>
         </div>
     </div>
+
 </div>
 
 </body>
