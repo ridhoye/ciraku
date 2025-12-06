@@ -283,7 +283,7 @@ $query = mysqli_query($conn, "
 }
 
 .btn-kembali:hover {
-  background: #ffa200cb;
+    background: #d97706;
     color: #fff;
 }
 </style>

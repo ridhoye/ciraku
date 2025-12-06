@@ -41,10 +41,8 @@
       <!-- Sosmed / Newsletter -->
       <div class="col-md-4 col-lg-4 col-xl-4 mx-auto mt-3">
         <h5 class="text-uppercase mb-4 fw-bold">Ikuti Kami</h5>
-        <a href="#" class="btn btn-outline-light btn-floating m-1"><i class="bi bi-instagram"></i></a>
-        <a href="#" class="btn btn-outline-light btn-floating m-1"><i class="bi bi-tiktok"></i></a>
-        <a href="#" class="btn btn-outline-light btn-floating m-1"><i class="bi bi-facebook"></i></a>
-        <a href="#" class="btn btn-outline-light btn-floating m-1"><i class="bi bi-youtube"></i></a>
+        <a href="https://www.instagram.com/ghacode.id" class="btn btn-outline-light btn-floating m-1"><i class="bi bi-instagram"></i></a>
+        <a href="https://www.tiktok.com/@ghacode.id" class="btn btn-outline-light btn-floating m-1"><i class="bi bi-tiktok"></i></a>
 
       </div>
     </div>

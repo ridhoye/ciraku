@@ -144,10 +144,13 @@ include "../config/db.php";
       color: #f59e0b;
       text-decoration: underline;
     }
-
+    /*MOFE MOBILE */
     @media (max-width: 768px) {
-      .row { flex-direction: column; }
-      .logo-box img { width: 180px; margin-bottom: 15px; }
+      .row {  
+      margin-left: 0 !important;
+      margin-right: 0 !important; 
+    }
+      .logo-box img { width: 200px; margin-bottom: 10px }
       .login-box { padding: 35px 25px; max-width: 90%; }
     }
   </style>

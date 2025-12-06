@@ -193,12 +193,88 @@ if (isset($_POST['checkout'])) {
       color: #555;
     }
 
+    /* 🔥 Mode Mobile (max-width 576px): 2 kolom */
+@media (max-width: 576px) {
+
+    .product-col {
+        flex: 0 0 50%;
+        max-width: 50%;
+        padding: 6px;
+    }
+
+    .card {
+        width: 100%;
+        margin: 0;
+        padding: 12px;
+        border-radius: 10px;
+    }
+
+    .card img {
+        width: 100%;
+        height: auto;
+        border-radius: 8px;
+    }
+
+    .card-title {
+        font-size: 0.95rem;
+        font-weight: 600;
+    }
+
+    .price {
+        font-size: 0.85rem;
+        margin-top: -2px;
+    }
+}
+
+@media (max-width: 576px) {
+
+    h1 {
+        font-size: 1.4rem !important;
+        line-height: 1.2;
+        padding-right: 15px; /* ruang buat cart icon */
+    }
+
+    .cart-icon {
+        position: fixed !important;  /* tetap diam di layar */
+        top: 40px;
+        right: 20px;
+        font-size: 22px;
+    }
+
+    .cart-badge {
+        top: -6px;
+        right: -6px;
+    }
+}
+
+/* 📱 MOBILE ONLY */
+@media (max-width: 576px) {
+
+    /* Container tombol rapi */
+    .btn-area {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        margin-top: 30px;
+        width: 100%;
+        padding: 0 10px;
+    }
+
+    /* Semua tombol */
+    .btn-area .btn {
+        width: 100%;
+        padding: 12px;
+        font-size: 0.95rem;
+        border-radius: 10px;
+    }
+}
+
   </style>
 </head>
 <body>
 
 <!-- 🛒 Ikon keranjang -->
-<div class="cart-icon" onclick="window.location.href='http://localhost/ciraku/dasbord/shop.php?from=order'">
+<div class="cart-icon" onclick="window.location.href='/ciraku/dasbord/shop.php?from=order'">
   <i class="bi bi-cart3"></i>
   <?php if ($cartCount > 0): ?>
   <span class="cart-badge" id="cartCount"><?= $cartCount ?></span>
@@ -210,7 +286,7 @@ if (isset($_POST['checkout'])) {
   <form method="POST">
     <div class="row g-4">
       <?php $index=0; while($p=mysqli_fetch_assoc($produk)): ?>
-      <div class="col-md-3 col-sm-6">
+      <div class="col-md-3 col-sm-6 product-col">
         <div class="card text-center p-3">
           <img src="../assets/images/<?= $p['gambar']; ?>" class="card-img-top mb-2 product-img" alt="<?= $p['nama_produk']; ?>">
           <h5 class="card-title"><?= $p['nama_produk']; ?></h5>
@@ -227,7 +303,7 @@ if (isset($_POST['checkout'])) {
       <?php $index++; endwhile; ?>
     </div>
 
-    <div class="text-center mt-5">
+    <div class="text-center mt-5 btn-area">
       <button type="button" class="btn btn-warning btn-lg me-3" id="addToCartBtn">🛒 Tambah ke Keranjang</button>
       <button type="submit" name="checkout" class="btn btn-success btn-lg me-3">💳 Pesan Sekarang</button>
       <a href="../dasbord/home.php" class="btn btn-secondary btn-lg">⬅️ Kembali</a>

@@ -135,6 +135,177 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['selected_items'])) {
       cursor: pointer; transition: 0.3s; display: none;
     }
     .hapus-semua-btn:hover { background-color: #ff8800; color: #fff; }
+
+    /* =============================
+   MOBILE ONLY FIX (MAX 480PX)
+   ============================= */
+@media (max-width: 480px) {
+
+    body {
+        margin: 0;
+        background: #0d0d0d;
+        font-family: 'Poppins', sans-serif;
+    }
+
+    /* Container full width */
+    .container {
+        width: 100%;
+        margin: 0;
+        border-radius: 0;
+        padding: 0 0 120px 0;
+        box-shadow: none;
+    }
+
+    /* HEADER */
+    .header {
+        padding: 16px;
+        font-size: 18px;
+        border-radius: 0;
+    }
+
+    .back-btn {
+        padding: 6px 10px;
+        font-size: 13px;
+        border-radius: 6px;
+    }
+
+    /* CART ITEM CARD */
+    .cart-item {
+        padding: 14px 12px;
+        border-bottom: 1px solid #222;
+        gap: 10px;
+    }
+
+    .cart-item-left img {
+        width: 55px;
+        height: 55px;
+        border-radius: 10px;
+    }
+
+    .cart-item-name {
+        font-size: 14px;
+    }
+
+    .cart-item-right {
+        text-align: right;
+    }
+
+    .cart-item-price {
+        font-size: 14px;
+    }
+
+    .hapus-btn {
+        font-size: 12px;
+        padding: 4px 8px;
+        border-radius: 6px;
+    }
+
+    /* FOOTER FIXED MOBILE */
+    .footer {
+        position: fixed;
+        bottom: 0;
+        width: 100%;
+        left: 0;
+        padding: 14px 16px;
+        background: #111;
+        border-top: 1px solid #222;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        box-sizing: border-box;
+    }
+
+    .total {
+        font-size: 16px;
+    }
+
+    /* Checkout button presisi */
+    .checkout-btn {
+        padding: 12px 18px !important;
+        font-size: 15px;
+        border-radius: 10px;
+        margin-left: 12px;
+        display: inline-block;
+    }
+
+    /* Tombol hapus semua */
+    .hapus-semua-btn {
+        margin-left: 0;
+        margin-top: 8px;
+        padding: 7px 10px;
+        border-radius: 8px;
+        font-size: 13px;
+    }
+
+    /* Checkbox */
+    #selectAll {
+        transform: scale(1.3);
+        margin-right: 4px;
+    }
+
+    @media (max-width: 480px) {
+
+    .footer {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        width: 100%;
+        background: #111;
+        border-top: 1px solid #222;
+        padding: 12px 16px;
+        box-sizing: border-box;
+
+        display: flex;
+        flex-direction: column;     /* ⬅⬅⬅ BARIS KEBAWAH */
+        gap: 12px;
+    }
+
+    /* BARIS ATAS */
+    .footer > div:first-child {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        width: 100%;
+    }
+
+    /* BARIS BAWAH */
+    .footer > div:last-child {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        width: 100%;
+    }
+
+    .total {
+        font-size: 16px;
+        font-weight: bold;
+        white-space: nowrap;
+        color: #ff8800;
+    }
+
+    .checkout-btn {
+        padding: 12px 20px !important;
+        font-size: 15px;
+        border-radius: 10px;
+        white-space: nowrap;
+    }
+
+    .hapus-semua-btn {
+        font-size: 13px;
+        padding: 7px 10px;
+        border-radius: 8px;
+        white-space: nowrap;
+        display: none;
+    }
+
+    #selectAll {
+        transform: scale(1.2);
+        margin-right: 4px;
+    }
+}
+
+}
+
   </style>
 </head>
 <body>
@@ -148,10 +319,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['selected_items'])) {
   <?php if (mysqli_num_rows($cart_items) > 0): ?>
   <form method="POST" id="checkoutForm" action="shop.php<?= ($from === 'order') ? '?from=order' : '' ?>">
   <?php 
-  $total = 0;
   while ($item = mysqli_fetch_assoc($cart_items)):
     $subtotal = $item['harga'] * $item['quantity'];
-    $total += $subtotal;
   ?>
     <div class="cart-item">
       <div class="cart-item-left">
@@ -175,7 +344,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['selected_items'])) {
       <button type="button" id="hapusSemuaBtn" class="hapus-semua-btn">🗑️ Hapus Semua</button>
     </div>
     <div>
-      <span class="total">Total: Rp <span id="totalValue"><?= number_format($total, 0, ',', '.'); ?></span></span>
+      <span class="total">Total: Rp <span id="totalValue">0</span></span>
       <button type="submit" class="checkout-btn">Checkout</button>
     </div>
   </div>
