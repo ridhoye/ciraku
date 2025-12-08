@@ -135,6 +135,59 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['selected_items'])) {
       cursor: pointer; transition: 0.3s; display: none;
     }
     .hapus-semua-btn:hover { background-color: #ff8800; color: #fff; }
+
+    /* === PERBAIKAN TAMPILAN HP === */
+@media (max-width: 600px) {
+
+  .cart-item {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+  }
+
+  .cart-item-right {
+    display: flex;
+    width: 100%;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 5px;
+  }
+
+  .cart-item-price {
+    font-size: 15px;
+    margin-right: 10px;
+  }
+
+  .hapus-btn {
+    padding: 6px 12px;
+    font-size: 13px;
+  }
+
+  /* Footer dibuat lebih lega */
+  .footer {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 15px;
+  }
+
+  .footer > div:last-child {
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 10px;
+  }
+
+  .checkout-btn {
+    padding: 12px 20px;
+    font-size: 16px;
+  }
+
+  .total {
+    font-size: 17px;
+  }
+}
+
   </style>
 </head>
 <body>
