@@ -12,7 +12,7 @@ $user_id = $_SESSION['user_id'];
 
 // --- Tentukan halaman sebelumnya ---
 $from = $_GET['from'] ?? 'home';
-$back_page = ($from === "order") ? "http://localhost/ciraku/payment/order.php" : "http://localhost/ciraku/dasbord/home.php";
+$back_page = ($from === "order") ? "../payment/order.php" : "../dasbord/home.php";
 
 // ✅ Simpan asal halaman (dari order atau home)
 $_SESSION['from_page'] = ($from === 'order') ? 'order' : 'home';
