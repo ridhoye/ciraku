@@ -154,19 +154,28 @@ $query = mysqli_query($conn, "SELECT * FROM pesanan WHERE user_id = $user_id ORD
     }
 
     .btn-kembali {
-      margin-top: 40px;
-      background: #fbbf24;
-      color: #000;
-      text-decoration: none;
-      padding: 12px 25px;
-      border-radius: 10px;
-      font-weight: 600;
-      transition: 0.3s;
+    display: inline-block;
+    margin-bottom: 20px;
+    padding: 10px 18px;
+    background: #ffae00;
+    border-radius: 25px;
+    color: #000;
+    font-weight: 600;
+    text-decoration: none;
+    box-shadow: 0 0 10px rgba(255,174,0,0.6);
+    transition: .3s;
     }
 
     .btn-kembali:hover {
-      background: #d97706;
-      color: #fff;
+    background: #d97706;
+    color: #fff;
+    }
+
+    .wrap-kembali {
+    width: 100%;
+    max-width: 900px;
+    display: flex;
+    justify-content: flex-start; /* Tombol ke kiri */
     }
 
     .btn-selesai {
@@ -184,9 +193,75 @@ $query = mysqli_query($conn, "SELECT * FROM pesanan WHERE user_id = $user_id ORD
     .btn-selesai:hover {
       background: #16a34a;
     }
+
+/* MOBILE MINIMALIS */
+@media (max-width: 480px) {
+
+  .order-card {
+    flex-direction: row;
+    align-items: flex-start;
+    gap: 10px;
+    padding: 10px 12px;
+    border-radius: 12px;
+  }
+
+  .product-image {
+    width: 55px;
+    height: 55px;
+    border-radius: 8px;
+  }
+
+  .order-info {
+    flex: 1;
+  }
+
+  .product-name {
+    font-size: 0.9rem;
+    margin-bottom: 3px;
+  }
+
+  .order-detail {
+    font-size: 0.72rem;
+    line-height: 1.25;
+  }
+
+  .order-meta {
+    text-align: right;
+    font-size: 0.7rem;
+    min-width: 85px; /* biar rata dan rapih */
+  }
+
+  .order-date {
+    margin-bottom: 4px;
+    opacity: .6;
+  }
+
+  .status {
+    padding: 3px 6px;
+    font-size: 0.65rem;
+    border-radius: 6px;
+  }
+
+  .btn-selesai {
+    padding: 6px 8px;
+    font-size: 0.7rem;
+    border-radius: 6px;
+    margin-top: 4px;
+  }
+
+  .order-container {
+    padding: 0;
+  }
+
+}
+
   </style>
 </head>
 <body>
+
+<div class="wrap-kembali">
+  <a href="profile.php" class="btn-kembali">Kembali</a>
+</div>
 
   <h2>Pesanan Saya</h2>
 
@@ -233,8 +308,5 @@ $query = mysqli_query($conn, "SELECT * FROM pesanan WHERE user_id = $user_id ORD
       <div class="no-orders">Belum ada pesanan 😎</div>
     <?php endif; ?>
   </div>
-
-  <a href="http://localhost/ciraku/user/profile.php" class="btn-kembali">⬅️ Kembali ke Profil</a>
-
 </body>
 </html>

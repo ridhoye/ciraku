@@ -143,7 +143,8 @@ include "../config/db.php";
     }
 
     @media (max-width: 992px) {
-      .row { flex-direction: column; text-align: center; }
+      .row {  margin-left: 0 !important;
+      margin-right: 0 !important;   }
       .register-box { margin-top: 30px; max-width: 90%; }
       .logo-box img { width: 200px; margin-bottom: 10px; }
     }

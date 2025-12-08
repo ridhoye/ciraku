@@ -114,10 +114,23 @@ if (isset($_SESSION['logged_in']) && isset($_SESSION['user_id'])) {
   display: none; 
 }
 
-@media (max-width: 991px) { /* berlaku hanya HP/tablet */
+@media (max-width: 991px) {
   .mobile-profile {
     display: block;
-    margin-left: 200px;
+    margin-left: auto; 
+  }
+
+  .navbar-toggler {
+    margin-left: 10px; 
+  }
+
+  .navbar-brand {
+    margin-right: 10px;
+  }
+
+  .container-fluid {
+    display: flex;
+    align-items: center;
   }
 }
 

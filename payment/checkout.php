@@ -164,11 +164,8 @@ if (isset($_POST['konfirmasi'])) {
         unset($_SESSION['direct_checkout']);
         unset($_SESSION['direct_products']);
 
-        echo "<script>
-                alert('Pesanan COD dibuat! Tunggu konfirmasi.');
-                window.location.href='../payment/status.php';
-              </script>";
-        exit;
+header("Location: ../user/pesanan.php");
+exit;
     }
 
 
@@ -264,12 +261,6 @@ if (isset($_POST['konfirmasi'])) {
       margin-top: 72px !important; /* atur tinggi naik-turun sesuai tampilan */
     }
 
-    /* (Opsional) kalau mau super presisi sejajar atas banget */
-    @media (min-width: 981px) {
-      .page-title {
-        margin-bottom: 24px; /* stabilin jarak bawah judul biar kiri & kanan rata */
-      }
-    }
     /* Left column stacks two cards */
     .left-col{ display:flex; flex-direction:column; gap:20px; }
 
@@ -383,13 +374,160 @@ if (isset($_POST['konfirmasi'])) {
       background:transparent; color:var(--muted); cursor:pointer;
     }
 
-    /* small screen: single column */
-    @media (max-width: 980px){
-      .container-checkout{ grid-template-columns: 1fr; padding:0 12px; }
-      .right-section{ order: 3; }
-    }
 
-    
+    /* ================= MOBILE ULTRA PREMIUM MODE ================= */
+@media (max-width: 768px){
+
+  body{
+    padding: 0;
+    background: #0a0a0a;
+  }
+
+  .container-checkout{
+    grid-template-columns: 1fr !important;
+    padding: 0;
+    gap: 0;
+  }
+
+  .page-title{
+    padding: 16px;
+    font-size: 22px;
+    margin: 0;
+    background: #0f0f0f;
+    border-bottom: 1px solid rgba(255,255,255,0.05);
+  }
+
+  /* Card UI full width fullscreen style */
+  .card-ui{
+    border-radius: 0;
+    padding: 16px 18px;
+    background: #111;
+    margin-bottom: 10px;
+    border: none;
+    box-shadow: none;
+  }
+
+  /* Address section */
+  .address .title-row{
+    padding-bottom: 8px;
+    border-bottom: 1px solid rgba(255,255,255,0.06);
+  }
+
+  .address-meta{
+    font-size: 14px;
+    line-height: 1.45;
+  }
+
+  .change-btn{
+    padding: 4px 10px!important;
+    font-size: 12px!important;
+  }
+
+  /* Product row */
+  .product-row{
+    padding: 12px;
+    border-radius: 12px;
+    background: #161616;
+    margin-bottom: 12px;
+  }
+
+  .product-thumb{
+    width: 65px;
+    height: 65px;
+    border-radius: 10px;
+  }
+
+  .product-info .name{
+    font-size: 14px;
+    margin-bottom: 4px;
+  }
+
+  .product-info .meta{
+    font-size: 12px;
+  }
+
+  .product-right{
+    min-width: auto;
+  }
+
+  .product-right .subtotal{
+    font-size: 15px;
+  }
+
+  /* Shipping box */
+  .shipping-box{
+    padding: 10px;
+    border-radius: 12px;
+    background: #161616;
+  }
+
+  /* Payment card */
+  .payment-card{
+    position: sticky;
+    bottom: 0;
+    background: #0c0c0c;
+    border-top: 1px solid rgba(255,255,255,0.05);
+    padding: 16px;
+  }
+
+  .pay-option{
+    padding: 12px;
+    border-radius: 12px;
+    background: #161616;
+  }
+
+  /* Summary row */
+  .summary-row{
+    font-size: 14px;
+    padding: 6px 0;
+  }
+
+  /* Action buttons */
+  .actions{
+    margin-top: 16px;
+    display: flex;
+    gap: 10px;
+  }
+
+  .btn-primary{
+    padding: 12px;
+    font-size: 15px;
+    border-radius: 12px;
+  }
+
+  .btn-secondary{
+    font-size: 15px;
+    padding: 12px;
+    border-radius: 12px;
+  }
+
+  @media (max-width: 768px) {
+
+  /* Hilangin gap antara store dan metode pembayaran */
+  .left-col,
+  .right-section,
+  .container-checkout {
+    margin-top: 0 !important;
+    margin-bottom: 0 !important;
+    padding-top: 0 !important;
+    padding-bottom: 0 !important;
+  }
+
+  /* khusus bagian store biar nempel ke bawah */
+  .store-item:last-child {
+    margin-bottom: 0 !important;
+    padding-bottom: 0 !important;
+  }
+
+  /* hapus gap atas di metode pembayaran */
+  .payment-method,
+  .payment-section {
+    margin-top: 0 !important;
+  }
+}
+
+}
+
   </style>
 </head>
 <body>
@@ -540,7 +678,7 @@ if (isset($_POST['konfirmasi'])) {
 
           <div class="actions">
             <button type="submit" name="cancel_checkout" class="btn-secondary">Batal</button>
-            <button type="submit" name="konfirmasi" class="btn-primary">Lanjut ke Pembayaran</button>
+<button type="button" id="btnPay" class="btn-primary">Lanjut ke Pembayaran</button>
           </div>
         </form>
 
@@ -672,6 +810,82 @@ document.getElementById('addressEditForm').addEventListener('submit', async (e) 
       iconColor: '#f87171',
     });
   }
+});
+</script>
+
+<script>
+document.getElementById("btnPay").addEventListener("click", function () {
+
+    let method = document.querySelector('input[name="payment_method"]:checked');
+
+    if (!method) {
+        Swal.fire("Pilih metode pembayaran dulu ya!", "", "warning");
+        return;
+    }
+
+    // ========================
+    // 1. JIKA METODE = MIDTRANS
+    // ========================
+    if (method.value === "midtrans") {
+
+        let form = document.querySelector("form[method='POST']");
+
+        // kirim konfirmasi
+        let inputKonfirmasi = document.createElement("input");
+        inputKonfirmasi.type = "hidden";
+        inputKonfirmasi.name = "konfirmasi";
+        inputKonfirmasi.value = "1";
+        form.appendChild(inputKonfirmasi);
+
+        // kirim payment_method
+        let inputPayment = document.createElement("input");
+        inputPayment.type = "hidden";
+        inputPayment.name = "payment_method";
+        inputPayment.value = "midtrans";
+        form.appendChild(inputPayment);
+
+        // langsung submit (tidak ada alert)
+        form.submit();
+        return;
+    }
+
+
+    // ========================
+    // 2. JIKA METODE = COD → tampilkan SweetAlert
+    // ========================
+    Swal.fire({
+        title: "Pesanan Anda Sudah Dibuat",
+        text: "Apakah Anda ingin ke halaman pesanan?",
+        icon: "success",
+        showCancelButton: true,
+        confirmButtonText: "Ya, lihat pesanan",
+        cancelButtonText: "Tidak, kembali ke home"
+    }).then((result) => {
+
+        if (result.isConfirmed) {
+
+            let form = document.querySelector("form[method='POST']");
+
+            let inputKonfirmasi = document.createElement("input");
+            inputKonfirmasi.type = "hidden";
+            inputKonfirmasi.name = "konfirmasi";
+            inputKonfirmasi.value = "1";
+            form.appendChild(inputKonfirmasi);
+
+            let inputPayment = document.createElement("input");
+            inputPayment.type = "hidden";
+            inputPayment.name = "payment_method";
+            inputPayment.value = "cod";
+            form.appendChild(inputPayment);
+
+            form.submit();
+
+        } else {
+            window.location.href = "../dasbord/home.php";
+        }
+
+    });
+
 });
 </script>
 
