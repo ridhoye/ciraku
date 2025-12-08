@@ -590,7 +590,7 @@ exit;
       <div class="card-ui">
         <div class="store-header">
           <!-- icon toko (bisa diganti) -->
-          <img class="logo" src="../assets/images/Maskot-bulat.png" alt="store">
+          <img class="logo" src="../assets/images/Maskot-Bulat.png" alt="store">
           <div>Ciraku Store</div>
         </div>
 

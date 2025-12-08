@@ -229,7 +229,7 @@ if (!$user) {
 <body>
   <!-- Navbar -->
   <nav class="navbar">
-    <img src="../assets/images/Maskot-bulat.png" alt="Logo CIRENG">
+    <img src="../assets/images/Maskot-Bulat.png" alt="Logo CIRENG">
     <div>
       <a href="../dasbord/home.php" class="btn btn-home"><i class="bi bi-house"></i> Beranda</a>
       <a href="logout.php" class="btn btn-logout"><i class="bi bi-box-arrow-right"></i> Logout</a>
