@@ -172,8 +172,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         <p><i class="bi bi-clock"></i> Buka: 08.00 - 21.00 WIB</p>
         <div class="mt-3 d-flex gap-2">
           <a href="https://wa.me/085784740736" class="sosmed wa" data-aos="fade-up" data-aos-delay="700"><i class="bi bi-whatsapp"></i></a>
-          <a href="https://instagram.com/ciraku" class="sosmed ig" data-aos="fade-up" data-aos-delay="800"><i class="bi bi-instagram"></i></a>
-          <a href="https://tiktok.com/@ciraku" class="sosmed tiktok" data-aos="fade-up" data-aos-delay="900"><i class="bi bi-tiktok"></i></a>
+          <a href="https://instagram.com/ghacode.id" class="sosmed ig" data-aos="fade-up" data-aos-delay="800"><i class="bi bi-instagram"></i></a>
+          <a href="https://tiktok.com/@ghacode.id" class="sosmed tiktok" data-aos="fade-up" data-aos-delay="900"><i class="bi bi-tiktok"></i></a>        
         </div>
       </div>
     </div>
