@@ -274,7 +274,7 @@ if (isset($_POST['checkout'])) {
 <body>
 
 <!-- 🛒 Ikon keranjang -->
-<div class="cart-icon" onclick="window.location.href='/ciraku/dasbord/shop.php?from=order'">
+<div class="cart-icon" onclick="window.location.href='../dasbord/shop.php?from=order'">
   <i class="bi bi-cart3"></i>
   <?php if ($cartCount > 0): ?>
   <span class="cart-badge" id="cartCount"><?= $cartCount ?></span>
