@@ -1,41 +1,56 @@
 <?php
+// Mulai session, wajib biar bisa pakai $_SESSION untuk nyimpen data login user
 session_start();
+
+// Hubungkan ke file konfigurasi database (supaya $conn bisa dipakai)
 include "../config/db.php";
 
+// Variabel untuk nyimpen pesan alert SweetAlert (kalau nanti mau ditampilkan di halaman)
 $swal = null;
 
-// Jika user sudah login, ambil datanya
-$user = null;
+// --- CEK APAKAH USER SUDAH LOGIN --- //
+$user = null; // Variabel buat nyimpen data user
 if (isset($_SESSION['logged_in']) && isset($_SESSION['user_id'])) {
+  // Ambil ID user yang disimpan di session
   $user_id = $_SESSION['user_id'];
+  // Ambil data user dari database berdasarkan ID-nya
   $user = mysqli_fetch_assoc(mysqli_query($conn, "SELECT * FROM users WHERE id='$user_id'"));
 }
 
-// Proses kirim pesan
+// --- PROSES SAAT FORM DIKIRIM (METHOD POST) --- //
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+  // Kalau user belum login
   if (!isset($_SESSION['logged_in']) || !$user) {
+    // Bikin alert warning supaya user disuruh login dulu
     $swal = [
       'icon' => 'warning',
       'title' => 'Ups!',
       'text'  => 'Silakan login atau daftar terlebih dahulu untuk mengirim pesan.'
     ];
   } else {
-    $nama  = mysqli_real_escape_string($conn, $user['full_name']);
-    $email = mysqli_real_escape_string($conn, $user['email']);
-    $phone = mysqli_real_escape_string($conn, $user['phone']);
+    // --- Kalau user udah login, ambil datanya dan form input --- //
+
+    // Lindungi dari serangan SQL Injection pakai mysqli_real_escape_string
+    $nama   = mysqli_real_escape_string($conn, $user['full_name']);
+    $email  = mysqli_real_escape_string($conn, $user['email']);
+    $phone  = mysqli_real_escape_string($conn, $user['phone']);
     $subjek = mysqli_real_escape_string($conn, $_POST['subjek']);
     $pesan  = mysqli_real_escape_string($conn, $_POST['pesan']);
 
+    // Query untuk simpan pesan ke tabel kontak_pesan
     $query = "INSERT INTO kontak_pesan (user_id, nama, email, phone, subjek, pesan)
               VALUES ('$user_id', '$nama', '$email', '$phone', '$subjek', '$pesan')";
 
+    // Jalankan query, lalu cek berhasil atau enggak
     if (mysqli_query($conn, $query)) {
+      // Kalau berhasil, tampilkan pesan sukses
       $swal = [
         'icon' => 'success',
         'title' => 'Berhasil!',
         'text'  => 'Pesan kamu sudah dikirim. Terima kasih telah menghubungi kami!'
       ];
     } else {
+      // Kalau gagal, tampilkan pesan error
       $swal = [
         'icon' => 'error',
         'title' => 'Gagal!',
@@ -45,6 +60,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   }
 }
 ?>
+
 <!DOCTYPE html>
 <html lang="id">
 <head>
@@ -54,6 +70,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
   <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+  <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <style>
   body {
@@ -73,7 +90,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     background:#1a1a1a;
     padding:25px;
     border-radius:15px;
+    transition:transform 0.4s ease, box-shadow 0.4s ease;
   }
+  .form-box:hover {
+    transform:translateY(-5px);
+    box-shadow:0 0 20px rgba(251, 191, 36, 0.2);
+  }
+
   .form-control, .form-select, textarea {
     background:#222 !important;
     border:1px solid #555;
@@ -102,7 +125,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     padding:20px;
     border-radius:15px;
     margin-top:20px;
+    transition:transform 0.4s ease, box-shadow 0.4s ease;
   }
+  .info-box:hover {
+    transform:translateY(-5px);
+    box-shadow:0 0 20px rgba(251, 191, 36, 0.2);
+  }
+
   .info-box i { color:#fbbf24; margin-right:8px; }
   .info-box p { margin-bottom: 4px; font-size: 15px; line-height: 1.4; }
 
@@ -126,32 +155,32 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <?php include 'navbar.php'; ?>
 
 <section class="kontak container">
-  <h2 class="section-title"><span>Kontak</span> Kami</h2>
-  <p>Hubungi kami untuk pemesanan atau informasi lebih lanjut.</p>
+  <h2 class="section-title" data-aos="fade-up"><span>Kontak</span> Kami</h2>
+  <p data-aos="fade-up" data-aos-delay="150">Hubungi kami untuk pemesanan atau informasi lebih lanjut.</p>
   <div class="row g-4">
 
     <!-- Maps dan Info -->
-    <div class="col-md-6">
+    <div class="col-md-6" data-aos="fade-right" data-aos-delay="300">
       <iframe src="https://www.google.com/maps/embed?pb=!1m17!1m12!1m3!1d3966.2771839272245!2d106.69842507475062!3d-6.227138893760954!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m2!1m1!2zNsKwMTMnMzcuNyJTIDEwNsKwNDInMDMuNiJF!5e0!3m2!1sen!2sid!4v1759155163104!5m2!1sen!2sid"
         allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade" class="map"></iframe>
 
-      <div class="info-box mt-4">
+      <div class="info-box mt-4" data-aos="zoom-in" data-aos-delay="500">
         <h5 class="text-warning">Informasi Kontak</h5>
         <p><i class="bi bi-geo-alt"></i> Komplek Griya Kencana 1, Pedurenan, Karang Tengah, Tangerang</p>
         <p><i class="bi bi-telephone"></i> 085784740736</p>
         <p><i class="bi bi-envelope"></i> support@ciraku.com</p>
         <p><i class="bi bi-clock"></i> Buka: 08.00 - 21.00 WIB</p>
         <div class="mt-3 d-flex gap-2">
-          <a href="https://wa.me/085784740736" class="sosmed wa"><i class="bi bi-whatsapp"></i></a>
-          <a href="https://instagram.com/ciraku" class="sosmed ig"><i class="bi bi-instagram"></i></a>
-          <a href="https://tiktok.com/@ciraku" class="sosmed tiktok"><i class="bi bi-tiktok"></i></a>
+          <a href="https://wa.me/085784740736" class="sosmed wa" data-aos="fade-up" data-aos-delay="700"><i class="bi bi-whatsapp"></i></a>
+          <a href="https://instagram.com/ghacode.id" class="sosmed ig" data-aos="fade-up" data-aos-delay="800"><i class="bi bi-instagram"></i></a>
+          <a href="https://tiktok.com/@ghacode.id" class="sosmed tiktok" data-aos="fade-up" data-aos-delay="900"><i class="bi bi-tiktok"></i></a>        
         </div>
       </div>
     </div>
 
     <!-- Form -->
-    <div class="col-md-6">
-      <div class="form-box">
+    <div class="col-md-6" data-aos="fade-left" data-aos-delay="300">
+      <div class="form-box" data-aos="flip-up" data-aos-delay="500">
         <form class="needs-validation" method="POST" novalidate>
           <input type="hidden" name="full_name" value="<?= htmlspecialchars($user['full_name'] ?? '') ?>">
           <input type="hidden" name="email" value="<?= htmlspecialchars($user['email'] ?? '') ?>">
@@ -172,7 +201,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             <textarea name="pesan" class="form-control" rows="4" placeholder="Pesan" required></textarea>
           </div>
 
-          <button type="submit" class="btn btn-warning w-100">Kirim</button>
+          <button type="submit" class="btn btn-warning w-100" data-aos="zoom-in" data-aos-delay="700">Kirim</button>
         </form>
       </div>
     </div>
@@ -183,7 +212,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <?php include 'footer.php'; ?>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
 <script>
+AOS.init({
+  duration: 1000,
+  once: true
+});
+
 (() => {
   'use strict';
   const forms = document.querySelectorAll('.needs-validation');
