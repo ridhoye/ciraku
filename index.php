@@ -241,7 +241,7 @@
   <section class="hero">
     <div class="hero-content">
       <img src="assets/images/Maskot-Bulat.png" alt="Logo CIRAKU">
-      <h1 class="fw-bold">Selamat Datang di CIRA<span class="highlight-ku">KU,wiskuy</span></h1> 
+      <h1 class="fw-bold">Selamat Datang di CIRA<span class="highlight-ku">KU,</span></h1> 
       <p class="lead">Belanja cireng favoritmu, dari rasa klasik sampai inovasi terbaru, semua ada di sini.</p>
       <a href="dasbord/home.php" class="btn btn-fun">Aku Mau Cireng! 😋</a>
     </div>
