@@ -33,91 +33,152 @@ if (!$user) {
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
   <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet">
   <style>
-    body {
-        background-color: #000;
-        color: #fff;
-        font-family: 'Comic Neue', sans-serif;
-        min-height: 100vh;
-        display: flex;
-        flex-direction: column;
-    }
+html, body {
+    height: 100%;
+    margin: 0;
+    padding: 0;
+}
+
+
+  body {
+    background-color: #000;
+    color: #fff;
+    font-family: 'Comic Neue', sans-serif;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start; /* Tidak mendorong card terlalu ke atas */
+    margin: 0;
+    padding: 0;
+}
+
+/* CONTAINER UTAMA */
+.container {
+    flex: 1;
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+    padding: 10px;
+}
+
+
+/* KOTAK CARD */
+.edit-card {
+    background: rgba(30, 30, 30, 0.95);
+    border-radius: 18px;
+    padding: 25px;
+    width: 100%;
+    max-width: 450px; /* Fix ukuran laptop biar gak gede */
+    margin: 20px auto;
+    box-shadow: 0 0 20px rgba(255, 174, 0, 0.3);
+    border: 1px solid rgba(255, 174, 0, 0.2);
+}
+
+/* FOTO */
+.profile-img {
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    border: 3px solid #ffae00;
+    object-fit: cover;
+    margin-bottom: 15px;
+    box-shadow: 0 0 15px rgba(255, 174, 0, 0.4);
+}
+
+/* FORM */
+.form-label {
+    color: #ffae00;
+    font-weight: bold;
+}
+
+.form-control {
+    background: #1a1a1a;
+    border: 1px solid #333;
+    color: white;
+}
+
+.form-control:focus {
+    background: #1a1a1a;
+    color: white;
+    border-color: #ffae00;
+    box-shadow: 0 0 10px rgba(255, 174, 0, 0.5);
+}
+
+/* BUTTON */
+.btn-save {
+    background-color: #ffae00;
+    color: black;
+    font-weight: bold;
+    border: none;
+    width: 100%;
+    padding: 10px;
+    border-radius: 12px;
+    transition: .3s ease;
+}
+
+.btn-cancel {
+    background: transparent;
+    border: 2px solid #ffae00;
+    color: #ffae00;
+    width: 100%;
+    padding: 10px;
+    border-radius: 12px;
+    font-weight: bold;
+    transition: .3s ease;
+}
+
+footer {
+    margin-top: auto;
+    text-align: center;
+    padding: 10px 0;
+    color: #aaa;
+    border-top: 1px solid #222;
+    font-size: 14px;
+}
+
+
+/* ==========================  
+   MOBILE FIX  
+   ========================== */
+@media (max-width: 600px) {
+
     .container {
-        flex: 1;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        padding: 40px 20px;
+        padding: 5px 10px;
+        justify-content: flex-start;
+         align-items: flex-start;
     }
+
     .edit-card {
-        background: rgba(30, 30, 30, 0.9);
-        border-radius: 20px;
-        padding: 30px;
-        max-width: 500px;
-        width: 100%;
-        box-shadow: 0 0 20px rgba(255, 174, 0, 0.3);
-        border: 1px solid rgba(255, 174, 0, 0.2);
+        max-width: 100%;
+        width: 92%;
+        margin-top: 15px;
+        margin-bottom: 20px;
+        padding: 20px;
+  
     }
+
     .profile-img {
-        width: 120px;
-        height: 120px;
-        border-radius: 50%;
-        border: 3px solid #ffae00;
-        object-fit: cover;
-        margin-bottom: 15px;
-        box-shadow: 0 0 15px rgba(255, 174, 0, 0.4);
+        width: 140px;
+        height: 140px;
     }
-    .form-label {
-        color: #ffae00;
-        font-weight: bold;
-    }
+
     .form-control {
-        background: #1a1a1a;
-        border: 1px solid #333;
-        color: white;
-    }
-    .form-control:focus {
-        background: #1a1a1a;
-        color: white;
-        border-color: #ffae00;
-        box-shadow: 0 0 10px rgba(255, 174, 0, 0.5);
-    }
-    .btn-save {
-        background-color: #ffae00;
-        color: black;
-        font-weight: bold;
-        border: none;
-        width: 100%;
-        padding: 10px;
-        border-radius: 12px;
-        transition: all 0.3s ease;
-    }
-    .btn-save:hover {
-        background-color: #ffc933;
-        box-shadow: 0 0 15px rgba(255, 174, 0, 0.7);
-    }
-    .btn-cancel {
-        background: transparent;
-        border: 2px solid #ffae00;
-        color: #ffae00;
-        width: 100%;
-        padding: 10px;
-        border-radius: 12px;
-        font-weight: bold;
-        transition: all 0.3s ease;
-    }
-    .btn-cancel:hover {
-        background: #ffae00;
-        color: black;
-        box-shadow: 0 0 10px rgba(255, 174, 0, 0.7);
-    }
-    footer {
-        text-align: center;
-        color: #aaa;
-        padding: 10px;
-        border-top: 1px solid #222;
         font-size: 14px;
     }
-  </style>
+
+    #photo + label {
+        width: 100%;
+        text-align: center;
+    }
+
+    .d-flex.gap-3 {
+        flex-direction: column;
+        gap: 10px !important;
+    }
+}
+
+</style>
+
 </head>
 <body>
 
@@ -147,6 +208,11 @@ if (!$user) {
 
   <!-- Input aslinya disembunyikan -->
   <input type="file" id="photo" name="photo" class="form-control" style="display:none;">
+</div>
+<div class="mb-3">
+    <label for="username" class="form-label">Username</label>
+    <input type="text" id="username" name="username" class="form-control"
+           value="<?= htmlspecialchars($user['username'] ?? '') ?>" required>
 </div>
 
         <div class="mb-3">

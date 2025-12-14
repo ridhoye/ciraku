@@ -9,6 +9,7 @@ include "../config/db.php";
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Login - CIRAKU</title>
+
   <!-- Bootstrap -->
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
   <!-- Bootstrap Icons -->
@@ -16,80 +17,143 @@ include "../config/db.php";
   <!-- SweetAlert2 -->
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
-<style>
-/* ==== STYLE SAMA KAYA PUNYAMU ==== */
-body, html {
-  height: 100%;
-  margin: 0;
-  font-family: 'Poppins', sans-serif;
-  overflow-x: hidden;
-}
+  <style>
+    body, html {
+      height: 100%;
+      margin: 0;
+      font-family: 'Poppins', sans-serif;
+      overflow-x: hidden;
+    }
 
-.bg {
-  background: url(../assets/images/bg1.webp) no-repeat center center/cover;
-  min-height: 100vh;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  position: relative;
-}
-.bg::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-  background: rgba(0, 0, 0, 0.55);
-  z-index: 1;
-}
-.container {
-  position: relative;
-  z-index: 2;
-}
-@keyframes fadeInUp {
-  0% { opacity: 0; transform: translateY(40px); }
-  100% { opacity: 1; transform: translateY(0); }
-}
-@keyframes fadeIn {
-  0% { opacity: 0; } 100% { opacity: 1; }
-}
-.logo-box { text-align: center; color: white; animation: fadeIn 1.3s ease-out; }
-.logo-box img { width: 260px; max-width: 80%; margin-bottom: 20px; }
-.login-box {
-  background: rgba(91, 84, 84, 0.15);
-  backdrop-filter: blur(10px);
-  border-radius: 15px;
-  padding: 40px 30px;
-  width: 100%;
-  max-width: 380px;
-  color: white;
-  animation: fadeInUp 1.2s ease-out;
-}
-h4 { animation: fadeIn 1s ease-in; }
-.form-control { border-radius: 10px; padding: 12px 15px; font-size: 1rem; }
-.btn-warning {
-  border-radius: 10px; padding: 12px; font-size: 1rem; font-weight: 600;
-}
-.btn-warning:hover { background-color: #f59e0b; color: #000; transition: 0.3s; }
-.social-login { display: flex; justify-content: center; gap: 20px; margin: 15px 0; }
-.social-login a { font-size: 22px; color: white; text-decoration: none; transition: 0.3s; }
-.social-login a:hover { color: #fbbf24; transform: scale(1.2); }
-.btn-outline-light {
-  border-radius: 10px; font-weight: 500; backdrop-filter: blur(5px); transition: 0.3s;
-}
-.btn-outline-light:hover {
-  background-color: #fbbf24; color: #000; border-color: #fbbf24;
-}
-@media (max-width: 992px) {
-  .row { flex-direction: column; }
-  .logo-box img { width: 200px; margin-bottom: 10px; }
-  .login-box { padding: 35px 25px; max-width: 90%; }
-}
-@media (max-width: 576px) {
-  .bg { padding: 20px; }
-  .login-box { padding: 30px 20px; max-width: 100%; }
-  h4 { font-size: 1.2rem; }
-  .btn-outline-light { font-size: 0.85rem; padding: 6px 10px; }
-}
-</style>
+    .bg {
+      background: url(../assets/images/bg1.webp) no-repeat center center/cover;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+    }
+    .bg::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.55);
+      z-index: 1;
+    }
+
+    .container {
+      position: relative;
+      z-index: 2;
+    }
+
+    @keyframes fadeInUp {
+      0% { opacity: 0; transform: translateY(40px); }
+      100% { opacity: 1; transform: translateY(0); }
+    }
+
+    .logo-box {
+      text-align: center;
+      color: white;
+      animation: fadeInUp 1.3s ease-out;
+    }
+    .logo-box img {
+      width: 260px;
+      max-width: 80%;
+      margin-bottom: 20px;
+      filter: drop-shadow(0 0 10px rgba(255,255,255,0.2));
+    }
+
+    .login-box {
+      background: rgba(255, 255, 255, 0.1);
+      backdrop-filter: blur(15px);
+      border: 1px solid rgba(255, 255, 255, 0.25);
+      border-radius: 20px;
+      padding: 45px 35px;
+      width: 100%;
+      max-width: 380px;
+      color: white;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+      animation: fadeInUp 1.2s ease-out;
+    }
+
+    h4 {
+      text-align: center;
+      font-weight: 600;
+      margin-bottom: 25px;
+      letter-spacing: 0.5px;
+    }
+
+    .form-control {
+      border-radius: 12px;
+      padding: 12px 15px;
+      font-size: 1rem;
+      border: none;
+      outline: none;
+      background: rgba(255,255,255,0.15);
+      color: white;
+    }
+    .form-control::placeholder {
+      color: rgba(255,255,255,0.7);
+    }
+
+    .form-control:focus {
+      background: rgba(255,255,255,0.2);
+      border: 1px solid #fbbf24;
+      box-shadow: 0 0 10px rgba(251,191,36,0.4);
+    }
+
+    .btn-warning {
+      border-radius: 12px;
+      padding: 12px;
+      font-size: 1rem;
+      font-weight: 600;
+      background-color: #fbbf24;
+      border: none;
+      transition: all 0.3s;
+    }
+
+    .btn-warning:hover {
+      background-color: #f59e0b;
+      transform: scale(1.02);
+    }
+
+    .text-divider {
+      text-align: center;
+      position: relative;
+      margin: 25px 0;
+      color: rgba(255,255,255,0.6);
+    }
+    .text-divider::before,
+    .text-divider::after {
+      content: "";
+      position: absolute;
+      top: 50%;
+      width: 35%;
+      height: 1px;
+      background: rgba(255,255,255,0.3);
+    }
+    .text-divider::before { left: 0; }
+    .text-divider::after { right: 0; }
+
+    .register-link a {
+      color: #fbbf24;
+      text-decoration: none;
+      font-weight: 600;
+    }
+    .register-link a:hover {
+      color: #f59e0b;
+      text-decoration: underline;
+    }
+    /*MOFE MOBILE */
+    @media (max-width: 768px) {
+      .row {  
+      margin-left: 0 !important;
+      margin-right: 0 !important; 
+    }
+      .logo-box img { width: 200px; margin-bottom: 10px }
+      .login-box { padding: 35px 25px; max-width: 90%; }
+    }
+  </style>
 </head>
 <body>
   <div class="bg">
@@ -107,10 +171,10 @@ h4 { animation: fadeIn 1s ease-in; }
 
         <div class="col-lg-6 d-flex justify-content-center">
           <div class="login-box shadow-lg">
-            <h4 class="text-center mb-4">Login</h4>
+            <h4>Login</h4>
             <form method="POST" action="">
               <div class="mb-3">
-                <input type="text" name="identifier" class="form-control form-control-lg" placeholder="Email • No.HP • Username" required>
+                <input type="text" name="identifier" class="form-control form-control-lg" placeholder="Email / No. HP / Username" required>
               </div>
               <div class="mb-3">
                 <input type="password" name="password" class="form-control form-control-lg" placeholder="Password" required>
@@ -118,15 +182,8 @@ h4 { animation: fadeIn 1s ease-in; }
               <button type="submit" class="btn btn-warning w-100 py-2">Log in</button>
             </form>
 
-            <div class="text-center mt-3">——— atau ———</div>
-            <div class="social-login text-center mt-2">
-              <a href="#"><i class="bi bi-twitter" style="font-size: 1.5rem; color:#1DA1F2;"></i></a>
-              <a href="#"><i class="bi bi-tiktok" style="font-size: 1.5rem; color:#000;"></i></a>
-              <a href="#"><i class="bi bi-google" style="font-size: 1.5rem; color:#DB4437;"></i></a>
-            </div>
-
-            <div class="text-center mt-2">
-              Baru di CIRAKU? <a href="register.php" class="text-warning fw-bold">Daftar</a>
+            <div class="register-link text-center mt-3">
+              Belum punya akun? <a href="register.php">Daftar Sekarang</a>
             </div>
           </div>
         </div>
@@ -153,7 +210,6 @@ h4 { animation: fadeIn 1s ease-in; }
               $_SESSION['role']      = $user['role'];
               $_SESSION['logged_in'] = true;
 
-              // kalau berhasil login
               if ($user['role'] === 'admin') {
                   echo "
                   <script>

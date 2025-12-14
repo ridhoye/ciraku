@@ -4,7 +4,7 @@ if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
 
-include "../config/db.php"; // sesuaikan path-nya
+include "../config/db.php"; // koneksi ke database
 
 $current_page = basename($_SERVER['PHP_SELF']);
 
@@ -108,6 +108,44 @@ if (isset($_SESSION['logged_in']) && isset($_SESSION['user_id'])) {
   box-shadow: 0 0 3px rgba(0,0,0,0.3);
 }
 
+
+/* Profil khusus HP (muncul di samping hamburger) */
+.mobile-profile {
+  display: none; 
+}
+
+@media (max-width: 991px) {
+  .mobile-profile {
+    display: block;
+    margin-left: auto; 
+  }
+
+  .navbar-toggler {
+    margin-left: 10px; 
+  }
+
+  .navbar-brand {
+    margin-right: 10px;
+  }
+
+  .container-fluid {
+    display: flex;
+    align-items: center;
+  }
+}
+
+/* Sembunyikan profil desktop saat HP agar tidak dobel */
+@media (max-width: 991px) {
+  .desktop-profile {
+    display: none !important;
+  }
+}
+/* Biar hamburger tetap di kanan, profil di kiri */
+.navbar {
+  display: flex;
+  align-items: center;
+}
+
 </style>
 
 
@@ -125,9 +163,30 @@ if (isset($_SESSION['logged_in']) && isset($_SESSION['user_id'])) {
   <nav class="navbar navbar-expand-lg navbar-dark bg-black px-4">
   <div class="container-fluid">
     <a class="navbar-brand logo" href="home.php">cira<span>ku</span></a>
+
+<!-- PROFIL UNTUK MODE HP -->
+<div class="mobile-profile">
+<?php if ($user): ?>
+  <a href="../user/profile.php" class="icon-nav" title="<?= htmlspecialchars($user['full_name']) ?>">
+    <?php if (!empty($user['profile_pic'])): ?>
+      <img src="../uploads/<?= htmlspecialchars($user['profile_pic']) ?>" 
+           alt="Foto Profil"
+           style="width:32px; height:32px; border-radius:50%; object-fit:cover; border:2px solid #fbbf24;">
+    <?php else: ?>
+      <i class="bi bi-person-check" style="color:#fbbf24;"></i>
+    <?php endif; ?>
+  </a>
+<?php else: ?>
+  <a href="../user/login.php" class="icon-nav" title="Login">
+    <i class="bi bi-person-circle"></i>
+  </a>
+<?php endif; ?>
+</div>
+
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
       <span class="navbar-toggler-icon"></span>
     </button>
+
 
     <div class="collapse navbar-collapse" id="navbarNav">
       <ul class="navbar-nav mx-auto">
@@ -146,8 +205,9 @@ if (isset($_SESSION['logged_in']) && isset($_SESSION['user_id'])) {
       </ul>
       
 <div class="d-flex gap-3 align-items-center">
+  
   <!-- user -->
-<!-- Ikon / Foto Profil -->
+<div class="d-flex gap-3 align-items-center desktop-profile">
 <?php if ($user): ?>
   <a href="../user/profile.php" class="icon-nav" title="<?= htmlspecialchars($user['full_name']) ?>">
     <?php if (!empty($user['profile_pic'])): ?>
@@ -163,23 +223,29 @@ if (isset($_SESSION['logged_in']) && isset($_SESSION['user_id'])) {
     <i class="bi bi-person-circle"></i>
   </a>
 <?php endif; ?>
-
+</div>
 
 <!-- Keranjang -->
-<a href="shop.php" class="icon-nav position-relative" title="Keranjang">
+<a href="shop.php?from=home" class="icon-nav position-relative" title="Keranjang">
   <i class="bi bi-cart3"></i>
 
   <?php 
-  // Hitung jumlah item di keranjang (kalau session keranjang ada)
-  $cart_count = isset($_SESSION['cart']) ? count($_SESSION['cart']) : 0;
+  // Jika user sudah login, ambil jumlah item keranjang dari DB
+  $cart_count = 0;
+  if (isset($_SESSION['user_id'])) {
+      $uid = $_SESSION['user_id'];
+      $res = mysqli_query($conn, "SELECT COUNT(*) AS jml FROM cart WHERE user_id = $uid");
+      if ($res && $row = mysqli_fetch_assoc($res)) {
+          $cart_count = (int)$row['jml'];
+      }
+  }
 
   // Tampilkan badge cuma kalau jumlah > 0
   if ($cart_count > 0): ?>
-    <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-warning text-dark">
-      <?= $cart_count ?>
-    </span>
+    <span class="badge"><?= $cart_count ?></span>
   <?php endif; ?>
 </a>
+
 </div>
 
     </div>
