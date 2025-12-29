@@ -12,13 +12,34 @@ $user_id = $_SESSION['user_id'];
 
 // Jika user klik tombol "Pesanan Selesai"
 if (isset($_POST['update_status'])) {
-  $id_pesanan = intval($_POST['id_pesanan']);
-  // Update status jadi "Selesai"
-  $update = mysqli_query($conn, "UPDATE pesanan SET status = 'Selesai' WHERE id = $id_pesanan AND user_id = $user_id");
+  $order_id = mysqli_real_escape_string($conn, $_POST['order_id']);
+
+  mysqli_query($conn, "
+    UPDATE orders 
+    SET status = 'Selesai'
+    WHERE order_id = '$order_id'
+    AND user_id = $user_id
+  ");
 }
 
+
 // Ambil data pesanan user
-$query = mysqli_query($conn, "SELECT * FROM pesanan WHERE user_id = $user_id ORDER BY tanggal DESC");
+$query = mysqli_query($conn, "
+  SELECT 
+    o.order_id,
+    o.created_at,
+    o.status,
+    o.payment_method,
+    oi.nama_produk,
+    oi.jumlah,
+    oi.harga,
+    oi.total
+  FROM orders o
+  JOIN order_items oi ON o.order_id = oi.order_id
+  WHERE o.user_id = $user_id
+  ORDER BY o.created_at DESC
+");
+
 ?>
 
 <!DOCTYPE html>
@@ -117,6 +138,12 @@ $query = mysqli_query($conn, "SELECT * FROM pesanan WHERE user_id = $user_id ORD
       font-size: 0.9rem;
       display: inline-block;
     }
+    .status.Paid {
+  background: rgba(34, 197, 94, 0.15);
+  color: #22c55e;
+  border: 1px solid rgba(34, 197, 94, 0.3);
+}
+
 
     .status.Pending {
       background: rgba(251, 191, 36, 0.15);
@@ -285,15 +312,25 @@ $query = mysqli_query($conn, "SELECT * FROM pesanan WHERE user_id = $user_id ORD
           <div class="order-detail">
             <span class="qty">x<?= $row['jumlah'] ?></span><br>
             <span class="harga">Rp<?= number_format($row['harga'], 0, ',', '.') ?></span><br>
-            <b>Total:</b> Rp<?= number_format($row['total_harga'], 0, ',', '.') ?>
-          </div>
+            <b>Total:</b> Rp<?= number_format($row['total'], 0, ',', '.') ?>
+            <small style="opacity:.7">
+            Metode: <?= strtoupper($row['payment_method'] ?? 'COD') ?>
+          </small>
         </div>
-
+        </div>
+        
           <div class="order-meta">
-            <div class="order-date"><?= date('d M Y', strtotime($row['tanggal'])) ?></div>
-            <div class="status <?= htmlspecialchars($row['status']) ?>">
-              <?= htmlspecialchars($row['status']) ?>
+            <div class="order-date"><?= date('d M Y', strtotime($row['created_at'])) ?></div>
+              <?php
+              $displayStatus = ucfirst($row['status']);
+
+              ?>
+
+
+            <div class="status <?= htmlspecialchars($displayStatus) ?>">
+              <?= htmlspecialchars($displayStatus) ?>
             </div>
+
 
             <?php if ($row['status'] === 'Dikirim'): ?>
               <form method="POST" style="margin-top:10px;">

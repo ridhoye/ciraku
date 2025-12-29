@@ -2,209 +2,193 @@
 session_start();
 include "../config/db.php";
 
-// ==================== LOAD COMPOSER + DOTENV ====================
-require_once __DIR__ . '/../vendor/autoload.php';   // penting
+require_once __DIR__ . '/../vendor/autoload.php';
 
 use Midtrans\Config;
 use Midtrans\Snap;
 
+// ================= MIDTRANS CONFIG =================
 $dotenv = Dotenv\Dotenv::createImmutable(__DIR__ . '/..');
-$dotenv->load();  
+$dotenv->load();
 
-// MIDTRANS CONFIG
-Config::$serverKey     = $_ENV['MIDTRANS_SERVER_KEY'];
-Config::$isProduction  = ($_ENV['MIDTRANS_IS_PRODUCTION'] === 'true');
-Config::$isSanitized   = true;
-Config::$is3ds         = true;
-// ================================================================
-
+Config::$serverKey    = $_ENV['MIDTRANS_SERVER_KEY'];
+Config::$isProduction = ($_ENV['MIDTRANS_IS_PRODUCTION'] === 'true');
+Config::$isSanitized  = true;
+Config::$is3ds        = true;
+// ==================================================
 
 
-// 🔒 Cek login
+// ================= CEK LOGIN =================
 if (!isset($_SESSION['user_id'])) {
-  header("Location: ../user/login.php");
-  exit;
+    header("Location: ../user/login.php");
+    exit;
 }
 
 $user_id = $_SESSION['user_id'];
-$user = mysqli_fetch_assoc(mysqli_query($conn, "SELECT * FROM users WHERE id = '$user_id'"));
+$user = mysqli_fetch_assoc(
+    mysqli_query($conn, "SELECT * FROM users WHERE id='$user_id'")
+);
 
 
-// ==================== UPDATE ALAMAT (AJAX) ====================
-if (isset($_POST['save_address'])) {
-  $full_name   = mysqli_real_escape_string($conn, $_POST['full_name']);
-  $phone       = mysqli_real_escape_string($conn, $_POST['phone']);
-  $address     = mysqli_real_escape_string($conn, $_POST['address']);
-  $postal_code = mysqli_real_escape_string($conn, $_POST['postal_code']);
+// ==================================================
+// 🔥 FUNGSI UTAMA: SEMUA ORDER MASUK SINI (COD & MIDTRANS)
+// ==================================================
+function buatOrder($conn, $order_id, $user_id, $items, $total, $payment_method, $status)
+{
+    mysqli_query($conn, "
+        INSERT INTO orders 
+        (order_id, user_id, total, payment_method, status, created_at)
+        VALUES
+        ('$order_id', '$user_id', '$total', '$payment_method', '$status', NOW())
+    ");
 
-  $check = mysqli_fetch_assoc(mysqli_query($conn, "SELECT * FROM users WHERE id='$user_id'"));
-
-  if (
-    $check['full_name'] == $full_name &&
-    $check['phone'] == $phone &&
-    $check['address'] == $address &&
-    $check['postal_code'] == $postal_code
-  ) {
-    echo "nochange";
-    exit;
-  }
-
-  $update = mysqli_query($conn, "
-      UPDATE users 
-      SET full_name='$full_name', phone='$phone', address='$address', postal_code='$postal_code' 
-      WHERE id='$user_id'
-  ");
-
-  echo $update ? "success" : "failed";
-  exit;
+    foreach ($items as $item) {
+        mysqli_query($conn, "
+            INSERT INTO order_items
+            (order_id, produk_id, nama_produk, jumlah, harga, total)
+            VALUES (
+                '$order_id',
+                '{$item['produk_id']}',
+                '{$item['nama']}',
+                '{$item['jumlah']}',
+                '{$item['harga']}',
+                '{$item['total']}'
+            )
+        ");
+    }
 }
 
 
-// ==================== BATAL CHECKOUT ====================
-if (isset($_POST['cancel_checkout'])) {
+// ================= CEK SUMBER ITEM =================
+$items = [];
+$total_all = 0;
 
-  if (isset($_SESSION['direct_checkout']) && $_SESSION['direct_checkout'] === true) {
-    unset($_SESSION['direct_checkout']);
-    header("Location: ../payment/order.php");
-    exit;
-  }
-
-  if ($_SESSION['checkout_origin'] === 'order') {
-    header("Location: ../dasbord/shop.php?from=order");
-  } else {
-    header("Location: ../dasbord/shop.php");
-  }
-  exit;
-}
-
-
-// ==================== CEK SUMBER CHECKOUT ====================
-
-// Pesan sekarang (direct)
+// Direct checkout
 if (isset($_SESSION['direct_checkout']) && isset($_SESSION['direct_products'])) {
-
-    $items = [];
-    $total_all = 0;
-
     foreach ($_SESSION['direct_products'] as $p) {
-        $jumlah = (int)$p['jumlah'];
-        $subtotal = $p['harga'] * $jumlah;
-
+        $subtotal = $p['harga'] * $p['jumlah'];
         $items[] = [
             'produk_id' => $p['id'],
             'nama'      => $p['nama_produk'],
             'harga'     => $p['harga'],
-            'jumlah'    => $jumlah,
+            'jumlah'    => $p['jumlah'],
             'total'     => $subtotal,
             'gambar'    => $p['gambar']
         ];
-
         $total_all += $subtotal;
     }
-
 }
-// Dari keranjang
+
+// Dari cart
 elseif (isset($_SESSION['checkout_items'])) {
-
-    $items = [];
-    $total_all = 0;
-
     foreach ($_SESSION['checkout_items'] as $p) {
-        $jumlah = (int)$p['quantity'];
-        $subtotal = $p['harga'] * $jumlah;
-
+        $subtotal = $p['harga'] * $p['quantity'];
         $items[] = [
             'produk_id' => $p['id'],
             'nama'      => $p['nama_produk'],
             'harga'     => $p['harga'],
-            'jumlah'    => $jumlah,
+            'jumlah'    => $p['quantity'],
             'total'     => $subtotal,
             'gambar'    => $p['gambar']
         ];
-
         $total_all += $subtotal;
     }
-
 }
-// Tidak ada item
+
 else {
-    echo "<script>alert('Tidak ada item untuk checkout!'); window.location.href='../dasbord/shop.php';</script>";
+    echo "<script>alert('Tidak ada item!');location='../dasbord/shop.php'</script>";
     exit;
 }
 
 
-
+// ================= KONFIRMASI PEMBAYARAN =================
 if (isset($_POST['konfirmasi'])) {
 
-    $payment_method = $_POST['payment_method'] ?? 'midtrans';
+    $payment_method = $_POST['payment_method'];
+    $order_id = "CIRAKU-" . time() . rand(100,999);
 
-    // ========================== COD ==========================
+    // ================= COD =================
     if ($payment_method === "cod") {
 
-        foreach ($items as $item) {
-            $nama = mysqli_real_escape_string($conn, $item['nama']);
-            $harga = $item['harga'];
-            $jumlah = $item['jumlah'];
-            $total = $item['total'];
+        buatOrder(
+            $conn,
+            $order_id,
+            $user_id,
+            $items,
+            $total_all,
+            'cod',
+            'cod_pending'
+        );
 
-            mysqli_query($conn, "
-                INSERT INTO pesanan (user_id, nama_produk, jumlah, harga, total_harga, status)
-                VALUES ('$user_id', '$nama', '$jumlah', '$harga', '$total', 'COD - Pending')
-            ");
-        }
-
-        // hapus cart jika bukan direct
-        if (!isset($_SESSION['direct_checkout']) || $_SESSION['direct_checkout'] === false) {
+        // hapus cart
+        if (!isset($_SESSION['direct_checkout'])) {
             foreach ($items as $item) {
-                $produk_id = (int)$item['produk_id'];
-                mysqli_query($conn, "DELETE FROM cart WHERE user_id=$user_id AND produk_id=$produk_id");
+                mysqli_query($conn, "
+                    DELETE FROM cart 
+                    WHERE user_id='$user_id' 
+                    AND produk_id='{$item['produk_id']}'
+                ");
             }
         }
 
-        unset($_SESSION['direct_checkout']);
-        unset($_SESSION['direct_products']);
+        unset($_SESSION['direct_checkout'], $_SESSION['direct_products']);
 
-header("Location: ../user/pesanan.php");
-exit;
+        header("Location: ../user/pesanan.php");
+        exit;
     }
 
 
-    // ========================== MIDTRANS ==========================
-    $items_for_midtrans = [];
-    foreach ($items as $it) {
-        $items_for_midtrans[] = [
-            'id'       => $it['produk_id'],
-            'price'    => (int)$it['harga'],
-            'quantity' => (int)$it['jumlah'],
-            'name'     => $it['nama']
+    // ================= MIDTRANS =================
+    if ($payment_method === "midtrans") {
+
+        // INSERT ORDER DULU (STATUS PENDING)
+        buatOrder(
+            $conn,
+            $order_id,
+            $user_id,
+            $items,
+            $total_all,
+            'midtrans',
+            'pending'
+        );
+        // hapus cart
+        if (!isset($_SESSION['direct_checkout'])) {
+            foreach ($items as $item) {
+                mysqli_query($conn, "
+                    DELETE FROM cart 
+                    WHERE user_id='$user_id' 
+                    AND produk_id='{$item['produk_id']}'
+                ");
+            }
+        }
+        // item details untuk midtrans
+        $items_for_midtrans = [];
+        foreach ($items as $it) {
+            $items_for_midtrans[] = [
+                'id'       => $it['produk_id'],
+                'price'    => (int)$it['harga'],
+                'quantity' => (int)$it['jumlah'],
+                'name'     => $it['nama']
+            ];
+        }
+
+        $params = [
+            'transaction_details' => [
+                'order_id'     => $order_id,
+                'gross_amount' => (int)$total_all
+            ],
+            'item_details' => $items_for_midtrans,
+            'customer_details' => [
+                'first_name' => $user['full_name'],
+                'email'      => $user['email'],
+                'phone'      => $user['phone']
+            ]
         ];
+
+        $snapToken = Snap::getSnapToken($params);
+        echo "<script>var snapToken = '$snapToken';</script>";
     }
-
-    $order_id = "CIRAKU-" . time() . rand(100,999);
-
-    mysqli_query($conn, "
-        INSERT INTO orders (order_id, user_id, total, status, created_at)
-        VALUES ('$order_id', '$user_id', '$total_all', 'pending', NOW())
-    ");
-
-    $params = [
-        'transaction_details' => [
-            'order_id'      => $order_id,
-            'gross_amount'  => (int)$total_all,
-        ],
-        'item_details' => $items_for_midtrans,
-        'customer_details' => [
-            'first_name' => $user['full_name'],
-            'email'      => $user['email'],
-            'phone'      => $user['phone']
-        ]
-    ];
-
-   $snapToken = Snap::getSnapToken($params);
-
-    echo "<script>var snapToken = '$snapToken';</script>";
 }
-
 ?>
 
 
@@ -697,17 +681,18 @@ exit;
 <script>
   // Jika snapToken dikirim dari PHP
   if (typeof snapToken !== "undefined" && snapToken !== "") {
-      snap.pay(snapToken, {
-          onSuccess: function(result){
-              window.location.href = "../payment/status.php";
-          },
-          onPending: function(result){
-              window.location.href = "../payment/status.php";
-          },
-          onError: function(result){
-              alert("Pembayaran gagal, coba lagi bro 🙏");
-          },
-      });
+    snap.pay(snapToken, {
+        onSuccess: function(result){
+            window.location.href = "../user/pesanan.php";
+        },
+        onPending: function(result){
+            window.location.href = "../user/pesanan.php";
+        },
+        onError: function(result){
+            Swal.fire("Pembayaran gagal", "Silakan coba lagi", "error");
+        },
+    });
+
   }
 </script>
 
