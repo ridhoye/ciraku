@@ -29,6 +29,47 @@ $user = mysqli_fetch_assoc(
     mysqli_query($conn, "SELECT * FROM users WHERE id='$user_id'")
 );
 
+// ================= UPDATE ALAMAT DARI CHECKOUT =================
+if (isset($_POST['save_address'])) {
+
+    $full_name   = trim($_POST['full_name']);
+    $phone       = trim($_POST['phone']);
+    $address     = trim($_POST['address']);
+    $postal_code = trim($_POST['postal_code']);
+
+    // ambil data lama
+    $old = mysqli_fetch_assoc(
+        mysqli_query($conn, "SELECT full_name, phone, address, postal_code FROM users WHERE id='$user_id'")
+    );
+
+    // cek apakah ada perubahan
+    if (
+        $full_name   === $old['full_name'] &&
+        $phone       === $old['phone'] &&
+        $address     === $old['address'] &&
+        $postal_code === $old['postal_code']
+    ) {
+        echo "nochange";
+        exit;
+    }
+
+    $update = mysqli_query($conn, "
+        UPDATE users SET
+            full_name   = '$full_name',
+            phone       = '$phone',
+            address     = '$address',
+            postal_code = '$postal_code'
+        WHERE id = '$user_id'
+    ");
+
+    if ($update) {
+        echo "success";
+    } else {
+        echo "error";
+    }
+    exit;
+}
+
 
 // ==================================================
 // 🔥 FUNGSI UTAMA: SEMUA ORDER MASUK SINI (COD & MIDTRANS)
@@ -538,7 +579,7 @@ if (isset($_POST['konfirmasi'])) {
       <div style="color:var(--muted)">Kode Pos: <?= htmlspecialchars($user['postal_code'] ?? '-'); ?></div>
     </div>
   </div>
-
+  
   <!-- Mode Edit -->
 <form method="POST" id="addressEditForm" style="display:none;margin-top:10px;">
   <div class="address-meta">
@@ -697,44 +738,34 @@ if (isset($_POST['konfirmasi'])) {
 </script>
 
 
-  <script>
-    // Hijack tombol cancel untuk konfirmasi user sebelum submit
-    document.addEventListener('click', function(e){
-      const target = e.target;
-      if(target && target.matches('button[name="cancel_checkout"], button[name="cancel_checkout"] *')){
-        // temukan tombol cancel paling dekat
-        const btn = target.closest('button[name="cancel_checkout"]') || target;
-        if(!btn) return;
-        e.preventDefault();
-        Swal.fire({
-          title: 'Batalkan Pesanan?',
-          text: 'Apakah kamu yakin ingin membatalkan pesanan ini?',
-          icon: 'warning',
-          iconColor: '#fbbf24',
-          showCancelButton: true,
-          confirmButtonColor: '#fbbf24',
-          cancelButtonColor: '#ccc',
-          confirmButtonText: 'Ya, batalkan',
-          cancelButtonText: 'Tidak',
-          background: '#fff',
-          color: '#333'
-        }).then((res)=>{
-          if(res.isConfirmed){
-            // buat form sementara untuk submit cancel
-            const f = document.createElement('form');
-            f.method = 'POST';
-            f.style.display = 'none';
-            const inp = document.createElement('input');
-            inp.name = 'cancel_checkout';
-            inp.value = '1';
-            f.appendChild(inp);
-            document.body.appendChild(f);
-            f.submit();
-          }
-        });
+ <script>
+document.addEventListener('click', function(e){
+  const target = e.target;
+
+  if(target && target.matches('button[name="cancel_checkout"], button[name="cancel_checkout"] *')){
+    e.preventDefault();
+
+    Swal.fire({
+      title: 'Batalkan Pesanan?',
+      text: 'Apakah kamu yakin ingin membatalkan pesanan ini?',
+      icon: 'warning',
+      iconColor: '#fbbf24',
+      showCancelButton: true,
+      confirmButtonColor: '#fbbf24',
+      cancelButtonColor: '#ccc',
+      confirmButtonText: 'Ya, batalkan',
+      cancelButtonText: 'Tidak',
+      background: '#fff',
+      color: '#333'
+    }).then((res)=>{
+      if(res.isConfirmed){
+        window.location.href = "order.php";
       }
     });
-  </script>
+  }
+});
+</script>
+
 
 <script>
   const editBtn = document.getElementById('editAddressBtn');
